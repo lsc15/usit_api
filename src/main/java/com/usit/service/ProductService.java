@@ -1,0 +1,36 @@
+package com.usit.service;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import com.usit.domain.Product;
+import com.usit.domain.ProductOption;
+import com.usit.domain.ProductOptionDetail;
+
+public interface ProductService {
+
+	Product getProduct(int productId);
+
+	Page<Product> readAll(PageRequest pageRequest,String useYn);
+	
+	Page<Product> readAllByCategoryCd(PageRequest pageRequest,String categoryCd);
+	
+	Page<Product> readAllByRegId(PageRequest pageRequest,String RegId);
+	
+	void deleteProduct(int productId);
+	
+	void deleteProductOption(int productId);
+	
+	Product createProduct(Product product);
+	
+	ProductOption createProductOption(ProductOption productOption);
+	
+	ProductOptionDetail createProductOptionDetail(ProductOptionDetail productOptionDetail);
+
+	Product updateProduct(Product product,int productId,String memberId);
+	
+	ProductOption updateProductOption(ProductOption productOption,int productId,String memberId);
+
+
+}

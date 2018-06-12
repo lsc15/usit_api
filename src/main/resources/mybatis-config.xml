@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+      <setting name="cacheEnabled" value="true"/>
+      <setting name="lazyLoadingEnabled" value="false"/>
+      <setting name="multipleResultSetsEnabled" value="true"/>
+      <setting name="useColumnLabel" value="true"/>
+      <setting name="useGeneratedKeys" value="false"/>
+      <setting name="autoMappingBehavior" value="PARTIAL"/>
+      <setting name="defaultExecutorType" value="SIMPLE"/>
+      <setting name="defaultStatementTimeout" value="50"/>
+      <setting name="safeRowBoundsEnabled" value="false"/>
+      <setting name="mapUnderscoreToCamelCase" value="false"/>
+      <setting name="localCacheScope" value="SESSION"/>
+      <setting name="jdbcTypeForNull" value="OTHER"/>
+      <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+      <setting name="callSettersOnNulls" value="true"/><!-- ReusultSet 컬럼 값이 NULL일때 컬럼키는 만들고 값은 NULL로 셋팅해준다. -->
+    </settings>
+
+	<typeAliases>
+		<typeAlias type="com.usit.domain.Memeber" alias="Member" />
+		<typeAlias alias="paramMap" type="java.util.HashMap" />
+	    <typeAlias alias="resultMap" type="java.util.HashMap" />
+		<typeAlias type="com.usit.domain.User" alias="User" />
+	</typeAliases>
+
+	<mappers>
+		<mapper resource="java/com/usit/persistence/dao/sqlmap/MemberMapper.xml" />
+	</mappers>
+
+</configuration>
