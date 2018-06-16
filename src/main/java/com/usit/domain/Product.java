@@ -32,9 +32,6 @@ public class Product implements Serializable {
 	@Column(name="product_id")
 	private Integer productId;
 
-	@Column(name="badge_type_cd")
-	private String badgeTypeCd;
-
 	@Column(name="search_use_yn")
 	private String searchUseYn;
 	
@@ -54,7 +51,7 @@ public class Product implements Serializable {
 	private String detailImgUseYn;
 	
 	@Column(name="additional_imgs")
-	private String additional_imgs;
+	private String additionalImgs;
 	
 	@Column(name="discount_yn")
 	private String discountYn;
@@ -105,31 +102,15 @@ public class Product implements Serializable {
 	@Column(name="use_yn")
 	private String useYn;
 	
-	@Column(name="point_rate")
-	private double pointRate;
-	
 	@OneToMany(fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "product_id", insertable = false, updatable = false)
 	private List<ProductOption> productOptions;
+	
 
-	
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "reg_member_id", insertable = false, updatable = false)
-	private Member regMember;
-	
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "product_type_cd", insertable = false, updatable = false)
-	private UsitCode productType;
-	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "category_cd", insertable = false, updatable = false)
 	private Category category;
-	
-	@ManyToOne(fetch = FetchType.EAGER, optional = true)
-	@JoinColumn(name = "badge_type_cd", insertable = false, updatable = false)
-	private UsitCode badgeType;
-	
 	
 	@PrePersist
 	protected void onCreate() {

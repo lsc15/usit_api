@@ -18,8 +18,6 @@ import com.usit.app.spring.exception.FrameworkException;
 import com.usit.domain.Member;
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
-import com.usit.domain.ProductOptionDetail;
-import com.usit.repository.ProductOptionDetailRepository;
 import com.usit.repository.ProductOptionRepository;
 import com.usit.repository.ProductRepository;
 import com.usit.service.ProductService;
@@ -44,8 +42,6 @@ public class ProductServiceImpl implements ProductService{
 	ProductOptionRepository productOptionRepository;
 	
 	
-	@Autowired
-	ProductOptionDetailRepository productOptionDetailRepository;
 
 	private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -113,11 +109,10 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setInventory(product.getInventory());
 			updateProduct.setOptionUseYn(product.getOptionUseYn());
 			updateProduct.setTitleImg(product.getTitleImg());
-			updateProduct.setAdditional_imgs(product.getAdditional_imgs());
+			updateProduct.setAdditionalImgs(product.getAdditionalImgs());
 			updateProduct.setDetailImg(product.getDetailImg());
 			updateProduct.setDetailContent(product.getDetailContent());
 			updateProduct.setDetailImgUseYn(product.getDetailImgUseYn());
-			updateProduct.setBadgeTypeCd(product.getBadgeTypeCd());
 			updateProduct.setSearchUseYn(product.getSearchUseYn());
 			updateProduct.setTags(product.getTags());
 			updateProduct.setSellMemberId(product.getSellMemberId());
@@ -159,12 +154,6 @@ public class ProductServiceImpl implements ProductService{
 	
 	
 	
-	//상품상세등록
-		public ProductOptionDetail createProductOptionDetail(ProductOptionDetail productOptionDetail) {
-			return productOptionDetailRepository.save(productOptionDetail);
-		}
-	
-	
 
 	//상품상세수정
 	public ProductOption updateProductOption(ProductOption productOption, int productOptionId, String memberId) {
@@ -174,7 +163,15 @@ public class ProductServiceImpl implements ProductService{
 			LOGGER.warn("해당 상품이 없습니다.");
 			throw new FrameworkException("-1001", "존재하지 않는 상품입니다"); // 오류 리턴 예시
 		}else{
-			updateProductOption.setOptionName(productOption.getOptionName());
+			updateProductOption.setOptionName1(productOption.getOptionName1());
+			updateProductOption.setOptionName1(productOption.getOptionName1());
+			updateProductOption.setOptionName2(productOption.getOptionName2());
+			updateProductOption.setOptionName2(productOption.getOptionName2());
+			updateProductOption.setAddPrice(productOption.getAddPrice());
+			updateProductOption.setInventory(productOption.getInventory());
+			updateProductOption.setAvailableYn(productOption.getAvailableYn());
+			updateProductOption.setDeleteYn(productOption.getDeleteYn());
+			updateProductOption.setUseYn(productOption.getUseYn());
 			updateProductOption.setProductId(productOption.getProductId());
 			updateProductOption.setSeq(productOption.getSeq());
 			updateProductOption.setModId(memberId);

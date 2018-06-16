@@ -58,9 +58,9 @@ public class ProductController extends CommonHeaderController{
      	
      	
      	
-     	if("on".equals(product.getBadgeTypeCd()) || "none".equals(product.getBadgeTypeCd())) {
-     		product.setBadgeTypeCd(null);
-     	}
+//     	if("on".equals(product.getBadgeTypeCd()) || "none".equals(product.getBadgeTypeCd())) {
+//     		product.setBadgeTypeCd(null);
+//     	}
      	
      	
      	
@@ -88,9 +88,9 @@ public class ProductController extends CommonHeaderController{
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
-     	if("on".equals(product.getBadgeTypeCd()) || "none".equals(product.getBadgeTypeCd())) {
-     		product.setBadgeTypeCd(null);
-     	}
+//     	if("on".equals(product.getBadgeTypeCd()) || "none".equals(product.getBadgeTypeCd())) {
+//     		product.setBadgeTypeCd(null);
+//     	}
      	
 		Product updateProduct = productService.updateProduct(product,productId,sessionVO.getMemberId());
 	
@@ -148,30 +148,6 @@ public class ProductController extends CommonHeaderController{
 	}
 	
 	
-	
-	//상품옵션등록
-		@PostMapping("/product-option-details")
-		public ModelAndView createProducOptionDetails(@RequestBody ProductOption productOption) {
-				
-			ModelAndView mav = new ModelAndView("jsonView");
-				
-			String resultCode = "0000";
-			String resultMsg = "";
-		        
-			SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
-
-	     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-			
-	     	productOption.setRegId(sessionVO.getMemberId());
-	     	
-		    	ProductOption result = productService.createProductOption(productOption);
-		        
-		       mav.addObject("result_code", resultCode);
-		       mav.addObject("result_msg", resultMsg);
-		       mav.addObject("data", result);
-				
-			 return mav;
-		}
 	
 
 	//상품옵션수정

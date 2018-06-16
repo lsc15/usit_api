@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,10 +137,19 @@ public class PostingController extends CommonHeaderController{
         CrawlingUtil cu = new CrawlingUtil();
         
         Document verify = cu.getDocument(postingHistory.getUrl());
+        Element data = null;
+        try {
+        data = verify.body();
 
+        }
+        catch (Exception e) {
+			// TODO: handle exception
+        	LOGGER.warn("포스트 히스토리 저장 실패.");
+			throw new FrameworkException("-1001", "올바른 url이 아니거나 body 부분을 포함하는 페이지가 아닙니다.");
+		}
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
-        mav.addObject("data", verify.toString());
+        mav.addObject("data", data.toString());
 		
 		 return mav;
 	}

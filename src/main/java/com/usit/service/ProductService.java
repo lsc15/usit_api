@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
-import com.usit.domain.ProductOptionDetail;
 
 public interface ProductService {
 
@@ -26,8 +25,6 @@ public interface ProductService {
 	
 	ProductOption createProductOption(ProductOption productOption);
 	
-	ProductOptionDetail createProductOptionDetail(ProductOptionDetail productOptionDetail);
-
 	Product updateProduct(Product product,int productId,String memberId);
 	
 	ProductOption updateProductOption(ProductOption productOption,int productId,String memberId);

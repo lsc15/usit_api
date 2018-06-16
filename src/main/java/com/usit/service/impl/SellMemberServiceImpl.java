@@ -88,6 +88,10 @@ public class SellMemberServiceImpl implements SellMemberService {
 		updateMember.setBusinessType(sellMember.getBusinessType());
 		updateMember.setBusinessClassCd(sellMember.getBusinessClassCd());
 		updateMember.setOnlineBusinessNo(sellMember.getOnlineBusinessNo());
+		updateMember.setReturnAddress(sellMember.getReturnAddress());
+		updateMember.setReturnAddressDetail(sellMember.getReleaseAddressDetail());
+		updateMember.setReturnPostcode(sellMember.getReleasePostcode());
+		updateMember.setReturnPhone(sellMember.getReleasePhone());
 		updateMember.setRepresentCategoryCd(sellMember.getRepresentCategoryCd());
 		updateMember.setReleaseAddress(sellMember.getReleaseAddress());
 		updateMember.setReleaseAddressDetail(sellMember.getReleaseAddressDetail());
