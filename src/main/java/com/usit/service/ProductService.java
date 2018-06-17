@@ -19,7 +19,7 @@ public interface ProductService {
 	
 	void deleteProduct(int productId);
 	
-	void deleteProductOption(int productId);
+//	void deleteProductOption(int productId);
 	
 	Product createProduct(Product product);
 	

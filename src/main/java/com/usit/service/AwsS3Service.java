@@ -7,6 +7,7 @@ import java.util.Map;
 
 public interface AwsS3Service {
 	public void uploadFile(File uploadFile, String fileName);
+	public void deleteFile(String fileName);
 	
 	
 	

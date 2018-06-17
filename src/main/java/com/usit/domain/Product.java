@@ -8,6 +8,8 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Where;
+import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
@@ -105,6 +107,7 @@ public class Product implements Serializable {
 	@OneToMany(fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "product_id", insertable = false, updatable = false)
+	@Where(clause = "delete_yn='N'")
 	private List<ProductOption> productOptions;
 	
 

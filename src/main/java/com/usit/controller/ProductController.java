@@ -176,21 +176,7 @@ public class ProductController extends CommonHeaderController{
 		
 		
 	//상품옵션삭제
-	@DeleteMapping("/product-options/{productOptionId}")
-	public ModelAndView deleteProductOption(@PathVariable int productOptionId) {
-
-		ModelAndView mav = new ModelAndView("jsonView");
-			
-		String resultCode = "0000";
-	    String resultMsg = "";
-	        
-		productService.deleteProductOption(productOptionId);
-		mav.addObject("result_code", resultCode);
-	    mav.addObject("result_msg", resultMsg);
-//	        mav.addObject("data", "");
-			
-	    return mav;
-		}
+//	@DeleteMapping("/produc 
 	
 	
 	
@@ -254,6 +240,12 @@ public class ProductController extends CommonHeaderController{
 
 	
 	
+	/**
+	 * @title 사용자 계정으로 등록된 상품목록
+	 * @param curPage
+	 * @param perPage
+	 * @return
+	 */
 	@GetMapping("/token")
 	public ModelAndView getTokenProducts(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
 		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "productId"));

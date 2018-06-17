@@ -36,6 +36,15 @@ public class AwsS3ServiceImpl implements AwsS3Service {
 			.withCannedAcl(CannedAccessControlList.PublicRead));
     }
     
+    
+    /*
+     * delete file to bucket
+     */ 
+     public void deleteFile(String filename) {
+ 		
+ 	s3client.deleteObject(nameCardBucket, filename);
+     }
+    
      
 
 }

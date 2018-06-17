@@ -164,15 +164,15 @@ public class ProductServiceImpl implements ProductService{
 			throw new FrameworkException("-1001", "존재하지 않는 상품입니다"); // 오류 리턴 예시
 		}else{
 			updateProductOption.setOptionName1(productOption.getOptionName1());
-			updateProductOption.setOptionName1(productOption.getOptionName1());
+			updateProductOption.setOptionValue1(productOption.getOptionValue1());
 			updateProductOption.setOptionName2(productOption.getOptionName2());
-			updateProductOption.setOptionName2(productOption.getOptionName2());
+			updateProductOption.setOptionValue2(productOption.getOptionValue2());
 			updateProductOption.setAddPrice(productOption.getAddPrice());
 			updateProductOption.setInventory(productOption.getInventory());
 			updateProductOption.setAvailableYn(productOption.getAvailableYn());
 			updateProductOption.setDeleteYn(productOption.getDeleteYn());
 			updateProductOption.setUseYn(productOption.getUseYn());
-			updateProductOption.setProductId(productOption.getProductId());
+//			updateProductOption.setProductId(productOption.getProductId());
 			updateProductOption.setSeq(productOption.getSeq());
 			updateProductOption.setModId(memberId);
 			updateProductOption = productOptionRepository.save(updateProductOption);
@@ -186,17 +186,17 @@ public class ProductServiceImpl implements ProductService{
 	
 	
 	
-	public void deleteProductOption(int productId) {
-		ProductOption productOption = productOptionRepository.findOne(productId);
-		if(productOption==null) {
-			LOGGER.warn("해당 상품옵션이 없습니다.");
-			throw new FrameworkException("-1001", "존재하지 않는 상품옵션입니다"); // 오류 리턴 예시
-		}else{
-			productOptionRepository.delete(productOption);
-		}
-		
-		
-	}
+//	public void deleteProductOption(int productId) {
+//		ProductOption productOption = productOptionRepository.findOne(productId);
+//		if(productOption==null) {
+//			LOGGER.warn("해당 상품옵션이 없습니다.");
+//			throw new FrameworkException("-1001", "존재하지 않는 상품옵션입니다"); // 오류 리턴 예시
+//		}else{
+//			productOptionRepository.delete(productOption);
+//		}
+//		
+//		
+//	}
 
 	
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
