@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,10 @@ import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @author seungcheol-i
+ *
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/files")
@@ -75,6 +80,42 @@ public class FileController extends CommonHeaderController{
 		return mv;
 	}
 	
+	
+	
+	
+	
+	/**
+	 * @title file delete
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	@DeleteMapping()
+	public ModelAndView deleteFile(@RequestParam("path") String path) throws IOException {
+		
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+		
+		try {
+			service.deleteFile(path);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			resultCode = "-1001";
+	        resultMsg = e.getMessage();
+		}
+		
+		
+		ModelAndView mv = new ModelAndView("jsonView");
+		
+		
+        
+        mv.addObject("result_code", resultCode);
+        mv.addObject("result_msg", resultMsg);
+		
+		return mv;
+	}
 	
 	
 	
