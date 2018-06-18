@@ -104,6 +104,9 @@ public class Product implements Serializable {
 	@Column(name="use_yn")
 	private String useYn;
 	
+	@Column(name="delete_yn")
+	private String deleteYn;
+	
 	@OneToMany(fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "product_id", insertable = false, updatable = false)
