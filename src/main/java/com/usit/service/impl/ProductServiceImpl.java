@@ -74,9 +74,9 @@ public class ProductServiceImpl implements ProductService{
 	}
 	
 	
-	public Page<Product> readAllByRegId(PageRequest pageRequest,String RegId) {
+	public Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,String RegId,String deleteYn) {
 
-		return productRepository.findAllByRegId(pageRequest,RegId);
+		return productRepository.findAllByRegIdAndDeleteYn(pageRequest,RegId,deleteYn);
 		
 	}
 			

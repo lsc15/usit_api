@@ -33,7 +33,7 @@ public class SimpleCorsFilter implements Filter {
 //            response.addHeader("Access-Control-Allow-Origin", "http://192.168.1.182:3000");
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
             response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers", "X-Auth-Token, usit-auth,usitshop-auth, Content-Type");
+            response.setHeader("Access-Control-Allow-Headers", "X-Auth-Token, usit-auth,usitshop-auth, X-Requested-With, Content-Type");
 //            response.setHeader("Access-Control-Allow-Headers", "X-Auth-Token, usitshop-auth, Content-Type");
 //        } else {
 //        	chain.doFilter(req, res);

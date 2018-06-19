@@ -15,7 +15,7 @@ public interface ProductService {
 	
 	Page<Product> readAllByCategoryCd(PageRequest pageRequest,String categoryCd);
 	
-	Page<Product> readAllByRegId(PageRequest pageRequest,String RegId);
+	Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,String RegId,String deleteYn);
 	
 	void deleteProduct(int productId);
 	

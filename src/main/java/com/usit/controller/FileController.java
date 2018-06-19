@@ -104,6 +104,28 @@ public class FileController extends CommonHeaderController{
 	}
 	
 	
+	/**
+	 * @title dummy for front lib
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	@PostMapping("/dummy")
+	public ModelAndView dummyCall() throws IOException {
+		
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+		
+		ModelAndView mv = new ModelAndView("jsonView");
+		
+		
+        
+        mv.addObject("result_code", resultCode);
+        mv.addObject("result_msg", resultMsg);
+		
+		return mv;
+	}
 	
 	public File convert(MultipartFile file) throws IOException
 	{    

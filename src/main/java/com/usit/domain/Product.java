@@ -114,7 +114,7 @@ public class Product implements Serializable {
 	private List<ProductOption> productOptions;
 	
 
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "category_cd", insertable = false, updatable = false)
 	private Category category;
 	

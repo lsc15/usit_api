@@ -16,7 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.usit.app.spring.exception.FrameworkException;
 import com.usit.domain.Member;
+import com.usit.domain.Product;
 import com.usit.domain.SellMember;
 import com.usit.domain.VerifyToken;
 import com.usit.repository.MemberRepository;
@@ -65,8 +67,13 @@ public class SellMemberServiceImpl implements SellMemberService {
 
 
 	public SellMember createMember(SellMember member) {
-//		int result = memberMapper.createMember(member);
+		SellMember existMember = sellMemberRepository.findOne(member.getSellMemberId());
+		if(existMember!=null) {
+			LOGGER.warn("이미 등록된 사용자입니다.");
+			throw new FrameworkException("-1001", "이미 등록된 사용자입니다."); // 오류 리턴 예시
+		}else{
 		return sellMemberRepository.save(member);
+		}
 	}
 	
 	
