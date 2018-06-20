@@ -105,7 +105,6 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setDiscountYn(product.getDiscountYn());
 			updateProduct.setDiscountedPrice(product.getDiscountedPrice());
 			updateProduct.setDeliveryPrice(product.getDeliveryPrice());
-			updateProduct.setDeliveryPriceCut(product.getDeliveryPriceCut());
 			updateProduct.setInventoryUseYn(product.getInventoryUseYn());
 			updateProduct.setInventory(product.getInventory());
 			updateProduct.setOptionUseYn(product.getOptionUseYn());
