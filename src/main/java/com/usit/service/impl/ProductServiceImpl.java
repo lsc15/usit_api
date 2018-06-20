@@ -118,6 +118,7 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setSellMemberId(product.getSellMemberId());
 			updateProduct.setUseYn(product.getUseYn());
 			updateProduct.setDeleteYn(product.getDeleteYn());
+			updateProduct.setTempYn(product.getTempYn());
 			updateProduct.setModId(memberId);
 			
 			return productRepository.save(updateProduct);
