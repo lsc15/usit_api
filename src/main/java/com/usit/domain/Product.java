@@ -42,6 +42,9 @@ public class Product implements Serializable {
 
 	@Column(name="delivery_price")
 	private int deliveryPrice;
+	
+	@Column(name="delivery_price_cut")
+	private int deliveryPriceCut;
 
 	@Column(name="detail_img")
 	private String detailImg;
