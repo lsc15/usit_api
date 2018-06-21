@@ -210,7 +210,8 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
-		Page<Product> page = productService.readAll(pageRequest,useYn);
+        String tempYn = "N";
+		Page<Product> page = productService.readAll(pageRequest,useYn,tempYn);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -227,8 +228,9 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
+        String tempYn = "N";
         //useYn = Y
-		Page<Product> page = productService.readAllByCategoryCd(pageRequest,categoryCd);
+		Page<Product> page = productService.readAllByCategoryCdAndTempYn(pageRequest,categoryCd,tempYn);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -253,11 +255,11 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
-        //useYn = Y
+        String deleteYn = "N";
         SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
         SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
-		Page<Product> page = productService.readAllByRegIdAndDeleteYn(pageRequest,sessionVO.getMemberId(),"N");
+		Page<Product> page = productService.readAllByRegIdAndDeleteYn(pageRequest,sessionVO.getMemberId(),deleteYn);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

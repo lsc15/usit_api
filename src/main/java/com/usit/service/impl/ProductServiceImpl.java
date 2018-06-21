@@ -53,12 +53,12 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 
-	public Page<Product> readAll(PageRequest pageRequest,String useYn) {
+	public Page<Product> readAll(PageRequest pageRequest,String useYn,String tempYn) {
 		
 		if(useYn==null) {
-			return productRepository.findAll(pageRequest);
+			return productRepository.findAllByTempYn(pageRequest,tempYn);
 		}else {
-			return productRepository.findAllByUseYn(pageRequest,useYn);
+			return productRepository.findAllByUseYnAndTempYn(pageRequest,useYn,tempYn);
 		}
 		
 		
@@ -66,10 +66,10 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 	
-	public Page<Product> readAllByCategoryCd(PageRequest pageRequest,String categoryCd) {
+	public Page<Product> readAllByCategoryCdAndTempYn(PageRequest pageRequest,String categoryCd,String tempYn) {
 
 		String useYn = "Y";
-		return productRepository.findAllByCategoryCdAndUseYn(pageRequest,categoryCd,useYn);
+		return productRepository.findAllByCategoryCdAndUseYnAndTempYn(pageRequest,categoryCd,useYn,tempYn);
 		
 	}
 	
@@ -111,7 +111,7 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setOptionUseYn(product.getOptionUseYn());
 			updateProduct.setTitleImg(product.getTitleImg());
 			updateProduct.setAdditionalImgs(product.getAdditionalImgs());
-			updateProduct.setDetailImg(product.getDetailImg());
+			updateProduct.setDetailImgs(product.getDetailImgs());
 			updateProduct.setDetailContent(product.getDetailContent());
 			updateProduct.setDetailImgUseYn(product.getDetailImgUseYn());
 			updateProduct.setSearchUseYn(product.getSearchUseYn());
@@ -138,7 +138,7 @@ public class ProductServiceImpl implements ProductService{
 			LOGGER.warn("해당 상품이 없습니다.");
 			throw new FrameworkException("-1001", "존재하지 않는 상품입니다"); // 오류 리턴 예시
 		}else{
-			productRepository.delete(product);;
+			productRepository.delete(product);
 		}
 		
 		

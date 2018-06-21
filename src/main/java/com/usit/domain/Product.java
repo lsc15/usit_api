@@ -46,8 +46,8 @@ public class Product implements Serializable {
 	@Column(name="delivery_price_cut")
 	private int deliveryPriceCut;
 
-	@Column(name="detail_img")
-	private String detailImg;
+	@Column(name="detail_imgs")
+	private String detailImgs;
 	
 	@Column(name="detail_content")
 	private String detailContent;
