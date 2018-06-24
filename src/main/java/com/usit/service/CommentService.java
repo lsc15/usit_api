@@ -15,7 +15,7 @@ public interface CommentService {
 
 //	Comment createComment(Comment comment);
 
-	Comment updateComment(Comment comment,int commentId,String memberId);
+	Comment updateComment(Comment comment,int commentId,Long memberId);
 
 //	void deleteComment(int commentId);
 

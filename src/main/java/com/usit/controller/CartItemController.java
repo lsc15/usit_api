@@ -109,7 +109,7 @@ public class CartItemController extends CommonHeaderController{
 
 	
 	@GetMapping("/member/{memberId}")
-	public ModelAndView getCartItems(@PathVariable String memberId) {
+	public ModelAndView getCartItems(@PathVariable Long memberId) {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		

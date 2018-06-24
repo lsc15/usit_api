@@ -38,21 +38,21 @@ public class MemberRole implements Serializable {
     private int roleSeq;
 
     @Column(name="member_id")
-    private int memberId;
+    private Long memberId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="mod_date")
     private LocalDateTime modDate;
 
     @Column(name="mod_id")
-    private String modId;
+    private Long modId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="reg_date")
     private LocalDateTime regDate;
 
     @Column(name="reg_id")
-    private String regId;
+    private Long regId;
 
     @Column(name="role_id")
     private String roleId;

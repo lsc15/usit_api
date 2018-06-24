@@ -141,7 +141,7 @@ public class TokenAuthenticationProcessingFilter extends AbstractAuthenticationP
 //            throw new AuthenticationServiceException("_INVALID_AUTH_TOKEN_");
 //        }
 
-        UserDetails user = detailService.getUserById(type,uid, password);
+        UserDetails user = detailService.getUserByUid(type,uid, password);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user.getUsername(), password);
 
@@ -185,7 +185,7 @@ public class TokenAuthenticationProcessingFilter extends AbstractAuthenticationP
         }
         System.out.println("token:" + token);
 
-        UserDetails user = detailService.getUserById(type,uid, password);
+        UserDetails user = detailService.getUserByUid(type,uid, password);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user.getUsername(), password);
 

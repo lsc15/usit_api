@@ -42,7 +42,10 @@ public class Member implements Serializable {
 
     @Id
     @Column(name="member_id")
-    private String memberId;
+    private Long memberId;
+    
+    @Column(name="member_uid")
+    private String memberUid;
 
     private String email;
 
@@ -50,12 +53,20 @@ public class Member implements Serializable {
 
     private String name;
     
+    private String postcode;
+    
+    private String address;
+    
+    @Column(name="address_detail")
+    private String addressDetail;
+    
+    
     @Column(name="mod_id")
-    private String modId;
+    private Long modId;
 
 
     @Column(name="reg_id")
-    private String regId;
+    private Long regId;
     
     @Transient
     private String storeKey;

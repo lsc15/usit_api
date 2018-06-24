@@ -58,7 +58,7 @@ public class MemberServiceImpl implements MemberService {
 	}
 	
 	
-	public Member getMemberByMemeberId(String memberId) {
+	public Member getMemberByMemeberId(Long memberId) {
 		return memberRepository.findOne(memberId);
 	}
 	
@@ -79,6 +79,12 @@ public class MemberServiceImpl implements MemberService {
 		Member updateMember = memberRepository.findOne(member.getMemberId());
 //		String encodedPassword = passwordEncoder.encode(member.getPassword());
 		
+		
+		updateMember.setName(member.getName());
+		updateMember.setMobile(member.getMobile());
+		updateMember.setPostcode(member.getPostcode());
+		updateMember.setAddress(member.getAddress());
+		updateMember.setAddressDetail(member.getAddressDetail());
 //		updateMember.setAddress(member.getAddress());
 //		updateMember.setAddressDetail(member.getAddressDetail());
 //		updateMember.setBirthDate(member.getBirthDate().replaceAll("-", ""));

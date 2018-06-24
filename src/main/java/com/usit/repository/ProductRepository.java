@@ -15,7 +15,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	
 	public Page<Product> findAllByCategoryCdAndUseYnAndTempYn(Pageable pageRequest,String categoryCd,String useYn,String tempYn);
 	
-	public Page<Product> findAllByRegIdAndDeleteYn(Pageable pageRequest,String regId,String deleteYn);
+	public Page<Product> findAllByRegIdAndDeleteYn(Pageable pageRequest,Long regId,String deleteYn);
 	
 	public Page<Product> findAllByUseYnAndTempYn(Pageable pageRequest,String useYn,String tempYn);
 	

@@ -28,14 +28,15 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     SellMemberRepository sellMemberRepository;
 
-    public SessionVO getLoginMember(String id) {
-        Member member = memberRepository.findOne(id);
+    public SessionVO getLoginMember(String uid) {
+        Member member = memberRepository.findByMemberUid(uid);
         LOGGER.info("user:{}", member);
         SessionVO sessionVO = null;
 
         if(member != null) {
             sessionVO = new SessionVO();
             sessionVO.setMemberId(member.getMemberId());
+            sessionVO.setMemberUid(member.getMemberUid());
             sessionVO.setMemberEmail(member.getEmail());
             sessionVO.setMemberName(member.getName());
 //            sessionVO.setPassword(member.getPassword());
@@ -45,8 +46,8 @@ public class LoginServiceImpl implements LoginService {
         return sessionVO;
     }
     
-    public SessionVO getLoginShopMember(String id) {
-        SellMember sellMember = sellMemberRepository.findOne(id);
+    public SessionVO getLoginShopMember(String uid) {
+        SellMember sellMember = sellMemberRepository.findBySellMemberUid(uid);
         LOGGER.info("selluser:{}", sellMember);
         SessionVO sessionVO = null;
 

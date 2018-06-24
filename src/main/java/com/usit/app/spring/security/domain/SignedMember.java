@@ -59,12 +59,21 @@ public class SignedMember extends UserDetailsWrapper{
         return this.vo.getPassword();
     }
 
-    public String getUserId() {
+    
+    public long getUserId() {
         return this.vo.getMemberId();
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(long userId) {
         this.vo.setMemberId(userId);
+    }
+    
+    public String getUserUid() {
+        return this.vo.getMemberUid();
+    }
+
+    public void setUserUid(String userUid) {
+        this.vo.setMemberUid(userUid);
     }
 
     public String getUserEmail() {

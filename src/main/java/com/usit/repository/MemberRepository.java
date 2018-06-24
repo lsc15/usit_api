@@ -10,8 +10,10 @@ import org.springframework.stereotype.Repository;
 import com.usit.domain.Member;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, String>{
+public interface MemberRepository extends JpaRepository<Member, Long>{
 
+	public Member findByMemberUid(String memberUid);
+	
 	public Member findByEmail(String email);
 
 	public Page<Member> findAll(Specification<Member> spec,Pageable pageRequest );

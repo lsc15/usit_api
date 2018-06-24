@@ -69,14 +69,14 @@ public class ProductOption {
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private String modId;
+	private Long modId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private String regId;
+	private Long regId;
 	
 	
 	@PrePersist

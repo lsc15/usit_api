@@ -16,7 +16,7 @@ public interface CommonService {
 	public List<Object> getCategoryStatistics();
     public List<UsitCode> getCodesByMasterCd(String masterCd);
     public List<Category> getCategoryCd();
-    public VerifyToken putCertList(VerifyToken verifyToken) throws Exception;
+//    public VerifyToken putCertList(VerifyToken verifyToken) throws Exception;
     public VerifyToken getCertInfo(VerifyToken verifyToken) throws Exception;
     
 }

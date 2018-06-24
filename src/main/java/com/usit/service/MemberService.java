@@ -15,7 +15,7 @@ public interface MemberService {
 	
 	Member getMemberByEmail(String email);
 	
-	Member getMemberByMemeberId(String memberId);
+	Member getMemberByMemeberId(Long memberId);
 
 	Member createMember(Member member);
 	

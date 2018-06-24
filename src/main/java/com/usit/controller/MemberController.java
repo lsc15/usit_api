@@ -202,7 +202,7 @@ public class MemberController extends CommonHeaderController{
 	
 	
 	@GetMapping("/{memberId}")
-	public ModelAndView getUserMemberId(@PathVariable("memberId") String memberId) {
+	public ModelAndView getUserMemberId(@PathVariable("memberId") Long memberId) {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -234,7 +234,7 @@ public class MemberController extends CommonHeaderController{
 		Member member = memberService.getMemberByMemeberId(sessionVO.getMemberId());
 		LOGGER.debug("!!!!:" +sessionVO.getMemberId());
 		AES256Util aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
-		member.setStoreKey(aes256Util.encrypt(member.getMemberId()));
+		member.setStoreKey(aes256Util.encrypt(member.getMemberUid()));
 		
 //        AES256Util aes256Util = new AES256Util(maas.getKey());
 //        String plainToken = aes256Util.decrypt(token.getToken());

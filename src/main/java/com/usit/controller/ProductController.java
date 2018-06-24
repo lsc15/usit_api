@@ -52,7 +52,7 @@ public class ProductController extends CommonHeaderController{
      	SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-     	String memberId = sessionVO.getMemberId();
+     	Long memberId = sessionVO.getMemberId();
      	product.setRegId(memberId);
      	
      	

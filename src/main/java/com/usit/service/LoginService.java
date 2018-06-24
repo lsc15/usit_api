@@ -5,9 +5,9 @@ import com.usit.domain.Member;
 
 public interface LoginService {
 
-    public SessionVO getLoginMember(String id);
+    public SessionVO getLoginMember(String uid);
 
-    public SessionVO getLoginShopMember(String id);
+    public SessionVO getLoginShopMember(String uid);
     
     public SessionVO getLoginMemberByEmail(String email);
     

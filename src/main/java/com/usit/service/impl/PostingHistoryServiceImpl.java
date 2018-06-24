@@ -37,7 +37,7 @@ public class PostingHistoryServiceImpl implements PostingHistoryService{
 
 
 	
-	public List<PostingHistory> getPostingHistoryList(String memberId) {
+	public List<PostingHistory> getPostingHistoryList(Long memberId) {
 		
 		return postingHistoryRepository.findByMemberIdOrderByPostingHistoryIdDesc(memberId);
 
@@ -51,7 +51,7 @@ public class PostingHistoryServiceImpl implements PostingHistoryService{
 	
 	
 
-	public PostingHistory updatePostingHistory(PostingHistory postingHistory,int postingHistoryId,String memberId) {
+	public PostingHistory updatePostingHistory(PostingHistory postingHistory,int postingHistoryId,Long memberId) {
 		PostingHistory updatePostingHistory = postingHistoryRepository.findOne(postingHistoryId);
 		
 		if(updatePostingHistory==null) {

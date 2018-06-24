@@ -59,7 +59,7 @@ public class SellMemberServiceImpl implements SellMemberService {
 
 	
 	
-	public SellMember getMemberByMemeberId(String memberId) {
+	public SellMember getMemberByMemeberId(Long memberId) {
 		return sellMemberRepository.findOne(memberId);
 	}
 	

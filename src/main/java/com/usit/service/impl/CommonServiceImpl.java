@@ -49,45 +49,45 @@ public class CommonServiceImpl extends CommonHeaderService implements CommonServ
     @Autowired
     private EntityManager em;
 
-    @Override
-    public VerifyToken putCertList(VerifyToken verifyToken) throws Exception{
-        //난수생성변수
-        int iSecureRand = 0;
-
-        String regId = "";
-
-        if(getSignedMember() != null) {
-            regId = getSignedMember().getUserId();
-        }
-
-        // 난수생성
-        iSecureRand = EtcUtil.getRandomNum(100000, 999999); // 6자리 생성
-
-        verifyToken.setToken(Integer.toString(iSecureRand));
-//        verifyToken.setToken("123456"); // 문자 발송 때까지 임시로 고정 번호 셋팅(for TEST)
-        verifyToken.setType("mobile");
-        verifyToken.setRegId(regId);
-
-        verifyTokenRepository.save(verifyToken);
-
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-
-        String msg = "usit 인증번호는 [" + iSecureRand + "] 입니다"; // TODO: 문구 DB 템플릿화 고려하기
-        paramMap.put("title", "usit 인증번호"); // 제목
-        paramMap.put("text", msg); // 보낼내용
-        paramMap.put("to", verifyToken.getMobile()); // 받는휴대폰 번호( '-' 문자 포함)
-
-        smsSender.setApiUrlForToken(env.getProperty("sms.infobank.rest.url_for_token"));
-        smsSender.setApiUrlForRequest(env.getProperty("sms.infobank.rest.url_for_request"));
-        smsSender.setUserId(env.getProperty("sms.infobank.rest.id"));
-        smsSender.setUserPwd(env.getProperty("sms.infobank.rest.password"));
-
-        
-        //	TODO 문자 발송 API 연동
-        smsSender.send(paramMap);
-
-        return verifyToken;
-    }
+//    @Override
+//    public VerifyToken putCertList(VerifyToken verifyToken) throws Exception{
+//        //난수생성변수
+//        int iSecureRand = 0;
+//
+//        String regId = "";
+//
+//        if(getSignedMember() != null) {
+//            regId = getSignedMember().getUserId();
+//        }
+//
+//        // 난수생성
+//        iSecureRand = EtcUtil.getRandomNum(100000, 999999); // 6자리 생성
+//
+//        verifyToken.setToken(Integer.toString(iSecureRand));
+////        verifyToken.setToken("123456"); // 문자 발송 때까지 임시로 고정 번호 셋팅(for TEST)
+//        verifyToken.setType("mobile");
+//        verifyToken.setRegId(regId);
+//
+//        verifyTokenRepository.save(verifyToken);
+//
+//        Map<String, Object> paramMap = new HashMap<String, Object>();
+//
+//        String msg = "usit 인증번호는 [" + iSecureRand + "] 입니다"; // TODO: 문구 DB 템플릿화 고려하기
+//        paramMap.put("title", "usit 인증번호"); // 제목
+//        paramMap.put("text", msg); // 보낼내용
+//        paramMap.put("to", verifyToken.getMobile()); // 받는휴대폰 번호( '-' 문자 포함)
+//
+//        smsSender.setApiUrlForToken(env.getProperty("sms.infobank.rest.url_for_token"));
+//        smsSender.setApiUrlForRequest(env.getProperty("sms.infobank.rest.url_for_request"));
+//        smsSender.setUserId(env.getProperty("sms.infobank.rest.id"));
+//        smsSender.setUserPwd(env.getProperty("sms.infobank.rest.password"));
+//
+//        
+//        //	TODO 문자 발송 API 연동
+//        smsSender.send(paramMap);
+//
+//        return verifyToken;
+//    }
 
     
     @Override

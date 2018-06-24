@@ -77,7 +77,7 @@ public class Product implements Serializable {
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private String modId;
+	private Long modId;
 
 	private String description;
 	
@@ -86,14 +86,14 @@ public class Product implements Serializable {
 	private String tags;
 
 	@Column(name="sell_member_id")
-	private String sellMemberId;
+	private Long sellMemberId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private String regId;
+	private Long regId;
 
 	@Column(name="temp_yn")
 	private String tempYn;

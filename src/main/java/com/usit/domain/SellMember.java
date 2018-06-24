@@ -37,7 +37,11 @@ public class SellMember implements Serializable {
 
     @Id
     @Column(name="sell_member_id")
-    private String sellMemberId;
+    private Long sellMemberId;
+    
+    
+    @Column(name="sell_member_uid")
+    private String sellMemberUid;
 
     private String name;
 
@@ -104,10 +108,10 @@ public class SellMember implements Serializable {
     
     
     @Column(name="mod_id")
-    private String modId;
+    private Long modId;
 
     @Column(name="reg_id")
-    private String regId;
+    private Long regId;
     
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="mod_date")

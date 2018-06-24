@@ -87,7 +87,7 @@ public class UserDetailsService implements AuthenticationUserDetailsService<Auth
          if(vo == null || vo.getMemberRoles().size() < 1) { // sets default as 'USIT_USER'
         	 if(vo == null) {
         		 vo = new SessionVO();
-        		 vo.setMemberId("");
+        		 vo.setMemberUid("");
         		 vo.setMemberName("");
         	 }
              List<String> _roll = new ArrayList<String>();
@@ -101,7 +101,7 @@ public class UserDetailsService implements AuthenticationUserDetailsService<Auth
          return signeduser;
     }
 
-    public UserDetails getUserById(String type, String id, String pwd) throws UsernameNotFoundException {
+    public UserDetails getUserByUid(String type, String uid, String pwd) throws UsernameNotFoundException {
 
             logger.debug("@@@");
         logger.debug("@@@ getUserKey ====================================");
@@ -109,16 +109,16 @@ public class UserDetailsService implements AuthenticationUserDetailsService<Auth
 
 
         logger.debug("@@@");
-        logger.debug("@@@ Input id    =[" + id + "]");
+        logger.debug("@@@ Input id    =[" + uid + "]");
         logger.debug("@@@ Input pwd    =[" + pwd + "]");
         logger.debug("@@@");
 
         SessionVO vo = null;
         try {
         	if(UsitCodeConstants.TYPE_USER.equals(type)) {
-        		vo = loginService.getLoginMember(id);
+        		vo = loginService.getLoginMember(uid);
         	}else if(UsitCodeConstants.TYPE_SELLER.equals(type)) {
-        		vo = loginService.getLoginShopMember(id);
+        		vo = loginService.getLoginShopMember(uid);
         	}
             
         } catch (Exception e) {
@@ -131,7 +131,7 @@ public class UserDetailsService implements AuthenticationUserDetailsService<Auth
             Map<String, Object> logInfoMap = new HashMap<String, Object>();
 
 //            logInfoMap.put("loginId", vo.getMemberEmail());
-            logInfoMap.put("loginId", id);
+            logInfoMap.put("loginId", uid);
             logInfoMap.put("loginPassword", pwd);
 
             logger.debug("@@@ request.RemoteAddr=" + request.getRemoteAddr());
@@ -150,8 +150,8 @@ public class UserDetailsService implements AuthenticationUserDetailsService<Auth
         	
         	if(vo == null) {
         	vo = new SessionVO();
-        	vo.setMemberId(id);
-        	vo.setMemberName(id);
+        	vo.setMemberUid(uid);
+        	vo.setMemberName(uid);
         	}
             List<String> _roll = new ArrayList<String>();
             _roll.add("USIT_USER");

@@ -9,7 +9,7 @@ import com.usit.domain.SellMember;
 public interface SellMemberService {
 	Collection<GrantedAuthority> getAuthorities(String membername);
 
-	SellMember getMemberByMemeberId(String sellMemberId);
+	SellMember getMemberByMemeberId(Long sellMemberId);
 
 	SellMember createMember(SellMember sellMember);
 

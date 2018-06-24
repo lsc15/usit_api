@@ -36,14 +36,14 @@ public class Comment implements Serializable {
 	private String content;
 
 	@Column(name="member_id")
-	private Integer memberId;
+	private Long memberId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="mod_date")
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private String modId;
+	private Long modId;
 
 	@Column(name="parent_comment_id")
 	private Integer parentCommentId;
@@ -58,7 +58,7 @@ public class Comment implements Serializable {
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private String regId;
+	private Long regId;
 
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)

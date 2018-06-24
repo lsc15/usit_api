@@ -118,7 +118,7 @@ public class CommentServiceImpl implements CommentService{
 	
 	
 
-	public Comment updateComment(Comment comment,int commentId,String memberId) {
+	public Comment updateComment(Comment comment,int commentId,Long memberId) {
 		Comment updateComment = commentRepository.findOne(commentId);
 		
 		if(updateComment==null) {

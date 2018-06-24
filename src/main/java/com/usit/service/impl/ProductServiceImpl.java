@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService{
 	}
 	
 	
-	public Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,String RegId,String deleteYn) {
+	public Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,Long RegId,String deleteYn) {
 
 		return productRepository.findAllByRegIdAndDeleteYn(pageRequest,RegId,deleteYn);
 		
@@ -89,7 +89,7 @@ public class ProductServiceImpl implements ProductService{
 	
 
 	//상품수정
-	public Product updateProduct(Product product,int productId,String memberId) {
+	public Product updateProduct(Product product,int productId,Long memberId) {
 		Product updateProduct = productRepository.findOne(productId);
 		
 		if(updateProduct==null) {
@@ -160,7 +160,7 @@ public class ProductServiceImpl implements ProductService{
 	
 
 	//상품상세수정
-	public ProductOption updateProductOption(ProductOption productOption, int productOptionId, String memberId) {
+	public ProductOption updateProductOption(ProductOption productOption, int productOptionId, Long memberId) {
 		ProductOption updateProductOption = productOptionRepository.findOne(productOptionId);
 		
 		if(updateProductOption==null) {
