@@ -23,6 +23,12 @@ public class AnonymousOrder {
 	@Column(name="order_id")
 	private String orderId;
 	
+	private String email;
+	
+	private String name;
+	
+	private String password;
+	
 	private String phone;
 	
 	@Column(name="user_ip")
