@@ -126,7 +126,7 @@ public class TokenAuthenticationProcessingFilter extends AbstractAuthenticationP
         } catch(Exception e) {
 
         	e.printStackTrace();
-        	
+        	throw new AuthenticationServiceException("_INVALID_AUTH_TOKEN_");
         }
         System.out.println("token:" + token);
 
@@ -181,7 +181,7 @@ public class TokenAuthenticationProcessingFilter extends AbstractAuthenticationP
         } catch(Exception e) {
 
         	e.printStackTrace();
-        	
+        	throw new AuthenticationServiceException("_INVALID_AUTH_TOKEN_");
         }
         System.out.println("token:" + token);
 
