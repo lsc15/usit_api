@@ -1,15 +1,10 @@
 package com.usit.controller;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +23,13 @@ import org.springframework.web.servlet.ModelAndView;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.domain.DeliveryCharge;
 import com.usit.domain.UsitOrder;
-import com.usit.domain.UsitOrderItem;
 import com.usit.domain.UsitOrderTransaction;
 import com.usit.service.CommonService;
 //import com.usit.service.OrderService;
+import com.usit.service.OrderService;
 
-import jxl.Workbook;
-import jxl.format.Alignment;
-import jxl.format.Colour;
-import jxl.format.VerticalAlignment;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -52,8 +40,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsitOrderController extends CommonHeaderController{
 
-//    @Autowired
-//    private OrderService orderService;
+    @Autowired
+    private OrderService orderService;
     
     @Autowired
     private CommonService commonService;
@@ -66,43 +54,43 @@ public class UsitOrderController extends CommonHeaderController{
      * @return
      * @throws Exception
      */
-//    @RequestMapping(value="/orders/member", method=RequestMethod.GET)
-//    public ModelAndView list(HttpServletRequest request, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) throws Exception{
-//
-//        ModelAndView mav = new ModelAndView("jsonView");
-//
-//        Map<String, Object> resultData = new HashMap<String, Object>();
-//        String resultCode = "0000";
-//        String resultMsg = "";
-//
-//        Page<My23Order> orderList = null;
-//
-//        try {
-//
-//            int memberId = getSignedMember().getMemberInfo().getMemberId();
-//            logger.debug("curPage:{}", curPage);
-//            logger.debug("perPage:{}", perPage);
-//
-//            Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "orderId");
-//            orderList = orderService.getMy23OrderListByMemberIdAndUseYn(memberId, pageRequest);
-//
-//
-//        }catch(FrameworkException e){
-//            logger.error("CommFrameworkException", e);
-//            resultCode = e.getMsgKey();
-//            resultMsg = e.getMsg();
-//        }catch(Exception e){
-//            logger.error("Exception", e);
-//            resultCode = "-9999";
-//            resultMsg = "처리중 오류가 발생하였습니다.";
-//        }
-//
-//        mav.addObject("result_code", resultCode);
-//        mav.addObject("result_msg", resultMsg);
-//        mav.addObject("data", orderList);
-//
-//        return mav;
-//    }
+    @RequestMapping(value="/orders/member", method=RequestMethod.GET)
+    public ModelAndView list(HttpServletRequest request, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) throws Exception{
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        Map<String, Object> resultData = new HashMap<String, Object>();
+        String resultCode = "0000";
+        String resultMsg = "";
+
+        Page<UsitOrder> orderList = null;
+
+        try {
+
+        	Long memberId = getSignedMember().getMemberInfo().getMemberId();
+            logger.debug("curPage:{}", curPage);
+            logger.debug("perPage:{}", perPage);
+
+            Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "orderId");
+            orderList = orderService.getUsitOrderListByMemberIdAndUseYn(memberId, pageRequest);
+
+
+        }catch(FrameworkException e){
+            logger.error("CommFrameworkException", e);
+            resultCode = e.getMsgKey();
+            resultMsg = e.getMsg();
+        }catch(Exception e){
+            logger.error("Exception", e);
+            resultCode = "-9999";
+            resultMsg = "처리중 오류가 발생하였습니다.";
+        }
+
+        mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", orderList);
+
+        return mav;
+    }
 
     /**
      * 주문 목록 조회(관리자용)
@@ -496,9 +484,9 @@ public class UsitOrderController extends CommonHeaderController{
 
         try {
 
-//            UsitOrder my23Order = orderService.getMy23OrderByMerchantUid(merchantUid);
+            UsitOrder usitOrder = orderService.getUsitOrderByMerchantUid(merchantUid);
 
-//            resultData.put("order_status_cd", UsitOrder.getOrderStatusCd());
+            resultData.put("order_status_cd", usitOrder.getOrderStatusCd());
 
         }catch(FrameworkException e){
             logger.error("CommFrameworkException", e);
@@ -567,39 +555,39 @@ public class UsitOrderController extends CommonHeaderController{
     * @return
     * @throws Exception
     */
-//   @RequestMapping(value="/orders", method=RequestMethod.POST)
-//   public ModelAndView saveOrder(HttpServletRequest request, @RequestBody My23OrderTransaction params) throws Exception{
-//
-//       ModelAndView mav = new ModelAndView("jsonView");
-//
-//       Map<String, Object> resultData = new HashMap<String, Object>();
-//       String resultCode = "0000";
-//       String resultMsg = "";
-//
-//       My23OrderTransaction savedOrderTransaction = new My23OrderTransaction();
-//
-//       try {
-//
-//           logger.debug("{}", params.getMy23Order().toString());
-//           logger.debug("{}", params.getMy23OrderItems().toString());
-//           savedOrderTransaction = orderService.saveOrderTransaction(params);
-//
-//       }catch(FrameworkException e){
-//           logger.error("CommFrameworkException", e);
-//           resultCode = e.getMsgKey();
-//           resultMsg = e.getMsg();
-//       }catch(Exception e){
-//           logger.error("Exception", e);
-//           resultCode = "-9999";
-//           resultMsg = "처리중 오류가 발생하였습니다.";
-//       }
-//
-//       mav.addObject("result_code", resultCode);
-//       mav.addObject("result_msg", resultMsg);
-//       mav.addObject("data", savedOrderTransaction);
-//
-//       return mav;
-//   }
+   @RequestMapping(value="/orders", method=RequestMethod.POST)
+   public ModelAndView saveOrder(HttpServletRequest request, @RequestBody UsitOrderTransaction params) throws Exception{
+
+       ModelAndView mav = new ModelAndView("jsonView");
+
+       Map<String, Object> resultData = new HashMap<String, Object>();
+       String resultCode = "0000";
+       String resultMsg = "";
+
+       UsitOrderTransaction savedOrderTransaction = new UsitOrderTransaction();
+
+       try {
+
+           logger.debug("{}", params.getUsitOrder().toString());
+           logger.debug("{}", params.getUsitOrderItems().toString());
+           savedOrderTransaction = orderService.saveOrderTransaction(params);
+
+       }catch(FrameworkException e){
+           logger.error("CommFrameworkException", e);
+           resultCode = e.getMsgKey();
+           resultMsg = e.getMsg();
+       }catch(Exception e){
+           logger.error("Exception", e);
+           resultCode = "-9999";
+           resultMsg = "처리중 오류가 발생하였습니다.";
+       }
+
+       mav.addObject("result_code", resultCode);
+       mav.addObject("result_msg", resultMsg);
+       mav.addObject("data", savedOrderTransaction);
+
+       return mav;
+   }
 
 
 
@@ -630,20 +618,20 @@ public class UsitOrderController extends CommonHeaderController{
           logger.debug("{}", paramData.get("status"));
 
 
-//          orderService.saveOrderConfirm(paramData);
+          orderService.saveOrderConfirm(paramData);
           
-//          if("paid".equals(paramData.get("status"))) {
-//        	  
-//        	  My23Order order = orderService.getMy23OrderByMerchantUid(paramData.get("merchant_uid"));
-//        	  
+          if("paid".equals(paramData.get("status"))) {
+        	  
+        	  UsitOrder order = orderService.getUsitOrderByMerchantUid(paramData.get("merchant_uid"));
+        	  
 //        	  String variable [] = new String [2];
-//        	  
+        	  
 //  			variable[0] = order.getOrdererName();
 //  			variable[1] = order.getName();
-//  			//카카오알림톡 발송
+  			//카카오알림톡 발송
 //  			int status = commonService.sendAlimtalk("B005",order.getOrdererPhone(),variable);
 //  			logger.info("kakaoStatus : "+status);
-//          }
+          }
           
 
       }catch(FrameworkException e){
@@ -673,54 +661,55 @@ public class UsitOrderController extends CommonHeaderController{
    * @return
    * @throws Exception
    */
-//  @RequestMapping(value="/orders/self-confirm", method=RequestMethod.POST)
-//  public ModelAndView saveOrderSelfConfirm(@RequestBody My23Order orderParam) throws Exception{
-//
-//
-//
-//      ModelAndView mav = new ModelAndView("jsonView");
-//      String resultCode = "0000";
-//      String resultMsg = "";
-//
-//      try {
-//
-//
-//    	  My23Order order = orderService.getMy23OrderByMerchantUid(orderParam.getMerchantUid());
-//          logger.debug("{}", orderParam.getMerchantUid());
-//
-//
-//          orderService.saveOrderSelfConfirm(order);
-//          
-//          if(order.getPaymentAmount() == 0) {
-//        	  
-//        	  
-//        	  
-//        	  String variable [] = new String [2];
-//        	  
-//  			variable[0] = order.getOrdererName();
-//  			variable[1] = order.getName();
-//  			//카카오알림톡 발송
-//  			int status = commonService.sendAlimtalk("B005",order.getOrdererPhone(),variable);
-//  			logger.info("kakaoStatus : "+status);
-//          }
-//          
-//
-//      }catch(FrameworkException e){
-//          logger.error("CommFrameworkException", e);
-//          resultCode = e.getMsgKey();
-//          resultMsg = e.getMsg();
-//      }catch(Exception e){
-//          logger.error("Exception", e);
-//          resultCode = "-9999";
-//          resultMsg = "처리중 오류가 발생하였습니다.";
-//      }
-//
-//      mav.addObject("result_code", resultCode);
-//      mav.addObject("result_msg", resultMsg);
-//
-//      return mav;
-//  }
+  /*
+  @RequestMapping(value="/orders/self-confirm", method=RequestMethod.POST)
+  public ModelAndView saveOrderSelfConfirm(@RequestBody UsitOrder orderParam) throws Exception{
 
+
+
+      ModelAndView mav = new ModelAndView("jsonView");
+      String resultCode = "0000";
+      String resultMsg = "";
+
+      try {
+
+
+    	  UsitOrder order = orderService.getUsitOrderByMerchantUid(orderParam.getMerchantUid());
+          logger.debug("{}", orderParam.getMerchantUid());
+
+
+          orderService.saveOrderSelfConfirm(order);
+          
+          if(order.getPaymentAmount() == 0) {
+        	  
+        	  
+        	  
+        	  String variable [] = new String [2];
+        	  
+  			variable[0] = order.getOrdererName();
+  			variable[1] = order.getName();
+  			//카카오알림톡 발송
+  			int status = commonService.sendAlimtalk("B005",order.getOrdererPhone(),variable);
+  			logger.info("kakaoStatus : "+status);
+          }
+          
+
+      }catch(FrameworkException e){
+          logger.error("CommFrameworkException", e);
+          resultCode = e.getMsgKey();
+          resultMsg = e.getMsg();
+      }catch(Exception e){
+          logger.error("Exception", e);
+          resultCode = "-9999";
+          resultMsg = "처리중 오류가 발생하였습니다.";
+      }
+
+      mav.addObject("result_code", resultCode);
+      mav.addObject("result_msg", resultMsg);
+
+      return mav;
+  }
+*/
 
   /**
    * 주문 취소 완료 콜백 (이니시스)
@@ -746,7 +735,7 @@ public class UsitOrderController extends CommonHeaderController{
 
           try {
 
-//               result = orderService.updateOrderStatus(order,returnReasonCd,returnReasonText);
+               result = orderService.updateOrderStatus(order,returnReasonCd,returnReasonText);
           }catch(FrameworkException e){
               logger.error("CommFrameworkException", e);
               resultCode = e.getMsgKey();
@@ -792,10 +781,21 @@ public class UsitOrderController extends CommonHeaderController{
 
       try {
 
-//          boolean result = orderService.getDeliveryCharge(postCode);
+    	  boolean isCharge = false;
+    	  String region ="";
+          List<DeliveryCharge> delivery = orderService.getDeliveryCharge(postCode);
+          
+          if(delivery.size() != 0) {
+        	isCharge = delivery.size() > 0;
+          	region = delivery.get(0).getRegion();
+          }
+          
+          Map<String, Object> result = new HashMap<String, Object>();
+          result.put("result", isCharge);
+          result.put("region", region);
           mav.addObject("result_code", resultCode);
           mav.addObject("result_msg", resultMsg);
-//          mav.addObject("data", result);
+          mav.addObject("data", result);
 
       }catch(FrameworkException e){
           logger.error("CommFrameworkException", e);

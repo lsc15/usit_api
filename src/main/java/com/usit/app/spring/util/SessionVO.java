@@ -11,7 +11,7 @@ public class SessionVO implements Serializable{
     private static final long serialVersionUID = 1397796912746748317L;
 
     /** 회원ID */
-    private long memberId;
+    private Long memberId;
     
     /** 회원UID */
     private String memberUid;
@@ -26,10 +26,10 @@ public class SessionVO implements Serializable{
     private List<String> memberRoles;
 
     
-    public long getMemberId() {
+    public Long getMemberId() {
         return memberId;
     }
-    public void setMemberId(long memberId) {
+    public void setMemberId(Long memberId) {
         this.memberId = memberId;
     }
     

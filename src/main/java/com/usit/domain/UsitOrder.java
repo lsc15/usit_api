@@ -47,7 +47,7 @@ public class UsitOrder implements Serializable {
     private String impUid;
 
     @Column(name="member_id")
-    private Integer memberId;
+    private Long memberId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="mod_date")
@@ -108,6 +108,12 @@ public class UsitOrder implements Serializable {
 
     @Column(name="use_yn")
     private String useYn;
+    
+    @Column(name="password")
+    private String password;
+    
+    @Column(name="user_ip")
+    private String userIp;
 
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -147,9 +153,12 @@ public class UsitOrder implements Serializable {
 				+ receiverAddress + ", receiverAddressDetail=" + receiverAddressDetail + ", receiverMessage="
 				+ receiverMessage + ", receiverName=" + receiverName + ", receiverPhone=" + receiverPhone
 				+ ", receiverPostcode=" + receiverPostcode + ", regDate=" + regDate + ", regId=" + regId
-				+ ", merchantUid=" + merchantUid + ", useYn=" + useYn + ", paymentMethod=" + paymentMethod
-				+ ", orderStatus=" + orderStatus + ", orderItems=" + orderItems + "]";
+				+ ", merchantUid=" + merchantUid + ", useYn=" + useYn + ", password=" + password + ", userIp=" + userIp
+				+ ", paymentMethod=" + paymentMethod + ", orderStatus=" + orderStatus + ", orderItems=" + orderItems
+				+ "]";
 	}
+
+	
     
 
 }

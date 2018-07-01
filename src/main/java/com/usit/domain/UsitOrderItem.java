@@ -66,6 +66,8 @@ public class UsitOrderItem implements Serializable {
     @Column(name="product_option_id")
     private Integer productOptionId;
 
+    private int amount;
+    
     private int quantity;
     
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

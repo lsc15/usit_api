@@ -152,5 +152,57 @@ public class CommonController extends CommonHeaderController{
 	}
     
 
+    
+    
+    
+    
+    /**
+     * 택배사 조회 호출
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/tracker/delivery-company-list")
+	public ModelAndView getTrackerCompany() throws Exception {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        JSONObject result = commonService.getTrackerCompany();
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", result);
+		
+		 return mav;
+	}
+    
+    
+    /**
+     * 배송상태조회 호출
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/tracker/{trackingNumber}")
+	public ModelAndView getTracker(@PathVariable("trackingNumber") String trackingNumber) throws Exception {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        JSONObject result = commonService.checkTracker(trackingNumber);
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", result);
+		
+		 return mav;
+	}
 
 }

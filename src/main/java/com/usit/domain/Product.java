@@ -110,6 +110,17 @@ public class Product implements Serializable {
 	@Column(name="delete_yn")
 	private String deleteYn;
 	
+
+	@Column(name="delivery_company_cd")
+	private String deliveryCompanyCd;
+	
+	@Column(name="delivery_rural_price")
+	private int deliveryRuralPrice;
+	
+	@Column(name="delivery_jeju_price")
+	private int deliveryJejuPrice;
+	
+	
 	@OneToMany(fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "product_id", insertable = false, updatable = false)
