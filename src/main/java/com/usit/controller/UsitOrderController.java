@@ -518,33 +518,33 @@ public class UsitOrderController extends CommonHeaderController{
      * @return
      * @throws Exception
      */
-//    @RequestMapping(value="/orders/{orderId}", method=RequestMethod.GET)
-//    public ModelAndView getOrder(HttpServletRequest request, @PathVariable("orderId") int orderId) throws Exception{
-//
-//        ModelAndView mav = new ModelAndView("jsonView");
-//
-//        String resultCode = "0000";
-//        String resultMsg = "";
-//
-//        try {
-//
-//            My23Order my23Order = orderService.getMy23OrderByOrderId(orderId);
-//            mav.addObject("result_code", resultCode);
-//            mav.addObject("result_msg", resultMsg);
-//            mav.addObject("data", my23Order);
-//
-//        }catch(FrameworkException e){
-//            logger.error("CommFrameworkException", e);
-//            resultCode = e.getMsgKey();
-//            resultMsg = e.getMsg();
-//        }catch(Exception e){
-//            logger.error("Exception", e);
-//            resultCode = "-9999";
-//            resultMsg = "처리중 오류가 발생하였습니다.";
-//        }
-//
-//        return mav;
-//    }
+    @RequestMapping(value="/orders/{orderId}", method=RequestMethod.GET)
+    public ModelAndView getOrder(HttpServletRequest request, @PathVariable("orderId") int orderId) throws Exception{
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        String resultCode = "0000";
+        String resultMsg = "";
+
+        try {
+        	
+            UsitOrder usitOrder = orderService.getUsitOrderByOrderId(orderId);
+            mav.addObject("result_code", resultCode);
+            mav.addObject("result_msg", resultMsg);
+            mav.addObject("data", usitOrder);
+
+        }catch(FrameworkException e){
+            logger.error("CommFrameworkException", e);
+            resultCode = e.getMsgKey();
+            resultMsg = e.getMsg();
+        }catch(Exception e){
+            logger.error("Exception", e);
+            resultCode = "-9999";
+            resultMsg = "처리중 오류가 발생하였습니다.";
+        }
+
+        return mav;
+    }
 
 
     /**
