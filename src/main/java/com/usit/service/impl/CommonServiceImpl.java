@@ -210,12 +210,12 @@ public JSONObject getTrackerCompany() throws Exception{
  * @return HTTPCODE
  * @throws Exception
  */
-public JSONObject checkTracker(String trackingNumber) throws Exception{
+public JSONObject checkTracker(String trackingNumber, String deliveryCompanyCd) throws Exception{
     
 
 	trackerSender.setUrl(env.getProperty("sweettracker.rest.url"));
 	trackerSender.settKey(env.getProperty("sweettracker.rest.api_key"));
-	trackerSender.settCode(env.getProperty("sweettracker.rest.api_company_code"));
+	trackerSender.settCode(deliveryCompanyCd);
 	
 	
     return trackerSender.send(trackingNumber);

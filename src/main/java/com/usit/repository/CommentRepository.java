@@ -13,7 +13,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
 
 	public Page<Comment> findByProductIdAndCommentTypeCd(Pageable pageRequest,int productId,String commentTypeCd);
 	public Page<Comment> findByParentCommentIdIs(Pageable pageRequest,int parentCommentId);
-	public long countByProductIdAndMemberId(int productId,int memberId);
+	public long countByProductIdAndMemberId(int productId,Long memberId);
 
 	
 }

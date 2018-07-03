@@ -91,25 +91,25 @@ public class CommentController extends CommonHeaderController{
 	}
 	
 	
-//	@DeleteMapping("/{commentId}")
-//	public ModelAndView deleteComment(@PathVariable int commentId) {
-//		
-//
-//		ModelAndView mav = new ModelAndView("jsonView");
-//		
-//		String resultCode = "0000";
-//        String resultMsg = "";
-//        
-//        
-//        commentService.deleteComment(commentId);
-//	
-//
-//		mav.addObject("result_code", resultCode);
-//        mav.addObject("result_msg", resultMsg);
-////        mav.addObject("data", cartItem);
-//		
-//		 return mav;
-//	}
+	@DeleteMapping("/{commentId}")
+	public ModelAndView deleteComment(@PathVariable int commentId) {
+		
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        
+        commentService.deleteComment(commentId);
+	
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+//        mav.addObject("data", cartItem);
+		
+		 return mav;
+	}
 
 	
 	@GetMapping("/product/{productId}/type/{commentTypeCd}")
@@ -151,24 +151,24 @@ public class CommentController extends CommonHeaderController{
 	
 	
 	
-//	@GetMapping("/is-review-writeable")
-//	public ModelAndView getCheckReview(@RequestParam("productId") int productId) { 
-//		ModelAndView mav = new ModelAndView("jsonView");
-//		
-//		String resultCode = "0000";
-//        String resultMsg = "";
-//        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
-//
-//     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-//        
-//		boolean result = commentService.getCheckReview(productId, sessionVO.getMemberId());
-//
-//		mav.addObject("result_code", resultCode);
-//        mav.addObject("result_msg", resultMsg);
-//        mav.addObject("data", result);
-//		
-//		 return mav;
-//	}
+	@GetMapping("/is-review-writeable")
+	public ModelAndView getCheckReview(@RequestParam("productId") int productId) { 
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+        
+		boolean result = commentService.getCheckReview(productId, sessionVO.getMemberId());
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", result);
+		
+		 return mav;
+	}
 
 
 

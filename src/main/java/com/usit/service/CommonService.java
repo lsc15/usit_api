@@ -21,7 +21,7 @@ public interface CommonService {
     public int sendAlimtalk(String templateCd,String mobile,String [] variable) throws Exception;
     public VerifyToken getCertInfo(VerifyToken verifyToken) throws Exception;
     public JSONObject getTrackerCompany() throws Exception;
-    public JSONObject checkTracker(String trackingNumber) throws Exception;
+    public JSONObject checkTracker(String trackingNumber, String deliveryCompanyCd) throws Exception;
     public JSONObject checkSweetTrackerReturnAcceptDay() throws Exception;
     public JSONObject orderSweetTrackerReturn(Map<String, String> params) throws Exception;
     

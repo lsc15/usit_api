@@ -44,7 +44,10 @@ public class Comment implements Serializable {
 
 	@Column(name="mod_id")
 	private Long modId;
-
+	
+	@Column(name="reg_id")
+	private Long regId;
+	
 	@Column(name="parent_comment_id")
 	private Integer parentCommentId;
 
@@ -57,8 +60,7 @@ public class Comment implements Serializable {
 	@Column(name="reg_date")
 	private LocalDateTime regDate;
 
-	@Column(name="reg_id")
-	private Long regId;
+	
 
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)

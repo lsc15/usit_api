@@ -506,7 +506,7 @@ public class UsitOrderItemController extends CommonHeaderController{
     	  
     	for (Iterator<UsitOrderItem> iterator = checkList.iterator(); iterator.hasNext();) {
     		UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
-			JSONObject result = commonService.checkTracker(usitOrderItem.getTrackingNumber());
+			JSONObject result = commonService.checkTracker(usitOrderItem.getTrackingNumber(),usitOrderItem.getProduct().getDeliveryCompanyCd());
 			if("Y".equals(result.get("completeYN"))) {
 				if("1203".equals(usitOrderItem.getDeliveryStatusCd())){
 					logger.info("@@equals 1203: ");
@@ -544,7 +544,7 @@ public class UsitOrderItemController extends CommonHeaderController{
      	  
      	for (Iterator<UsitOrderItem> iterator = returnCheckList.iterator(); iterator.hasNext();) {
  			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
- 			JSONObject result = commonService.checkTracker(usitOrderItem.getReturnTrackingNumber());
+ 			JSONObject result = commonService.checkTracker(usitOrderItem.getReturnTrackingNumber(), usitOrderItem.getProduct().getDeliveryCompanyCd());
  			if("Y".equals(result.get("completeYN"))) {
  					usitOrderItem.setReturnStatusCd("1403");
  					
