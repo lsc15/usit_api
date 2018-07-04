@@ -430,6 +430,57 @@ public class UsitOrderItemController extends CommonHeaderController{
    
    
    
+   /**
+    * 주문 취소 완료 콜백 (이니시스)
+    * @param request
+    * @param curPage
+    * @param perPage
+  * @return
+    * @return
+    * @throws Exception
+    */
+   @RequestMapping(value="/order-items/cancel", method=RequestMethod.POST)
+   public ModelAndView cancelOrder(@RequestBody UsitOrderItem orderItem,@RequestParam("returnReasonCd") String returnReasonCd,@RequestParam("returnReasonText") String returnReasonText) throws Exception{
+
+
+
+
+           ModelAndView mav = new ModelAndView("jsonView");
+           String resultCode = "0000";
+           String resultMsg = "";
+
+
+           JSONObject result = null;
+
+           try {
+
+                result = orderItemService.updateOrderItemStatus(orderItem,returnReasonCd,returnReasonText);
+           }catch(FrameworkException e){
+               logger.error("CommFrameworkException", e);
+               resultCode = e.getMsgKey();
+               resultMsg = e.getMsg();
+           }catch(Exception e){
+               logger.error("Exception", e);
+               resultCode = "-9999";
+               resultMsg = "처리중 오류가 발생하였습니다.";
+           }
+
+           mav.addObject("result_code", resultCode);
+           mav.addObject("result_msg", resultMsg);
+           mav.addObject("data", result);
+
+
+         return mav;
+
+
+
+   }
+   
+   
+   
+   
+   
+   
    
    
    /**

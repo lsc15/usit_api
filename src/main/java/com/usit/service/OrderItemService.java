@@ -3,8 +3,11 @@ package com.usit.service;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 
 public interface OrderItemService {
@@ -22,6 +25,7 @@ public interface OrderItemService {
     public UsitOrderItem setOrderItemReturnTracker(UsitOrderItem orderItem) throws Exception;
 //    public UsitOrderItem setOrderItemSendTheragen(UsitOrderItem orderItem) throws Exception;
     public Map<String,Object> setOrderItemReturnSweetTracker(Map<String, String> paramData) throws Exception;
+    public JSONObject updateOrderItemStatus(UsitOrderItem orderItem,String returnReasonCd,String returnReasonText) throws Exception;
     
     
     
