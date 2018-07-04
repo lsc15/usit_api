@@ -305,7 +305,11 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 //    		orderRepository.save(updateOrder);
     		List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
     		if(updateItems!=null) {
-    			for (int i = 0; i < updateItems.size(); i++) {
+    			int size = updateItems.size();
+    			for (int i = 0; i < size; i++) {
+    				if(updateItems.get(i).getOrderItemId() == orderItem.getOrderItemId()) {
+    					
+    				
     				payment += updateItems.get(i).getAmount();
     				
     				
@@ -315,8 +319,11 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     				store.setReturnReasonCd(returnReasonCd);
     				store.setReturnReasonText(returnReasonText);
                     orderItemRepository.save(store);
+                    
                     }
+    			}
                 }
+    		
 
 
             }
@@ -326,7 +333,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 
             JSONObject iamPort = new JSONObject();
             if(payment != 0 ) {
-            	iamPort= iamPortCancelItemAPI(updateOrder,payment);
+            	iamPort= iamPortCancelItemAPI(updateOrder,String.valueOf(payment));
             }else {
             	iamPort.put("type","amount:0");
             }
@@ -350,7 +357,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 
 
 
-    public JSONObject iamPortCancelItemAPI(UsitOrder order,int payment) throws ParseException, org.apache.http.ParseException, IOException {
+    public JSONObject iamPortCancelItemAPI(UsitOrder order,String payment) throws ParseException, org.apache.http.ParseException, IOException {
         String key = "2291864334475827";
         String secret = "uN3RFXiS9e4ZTwmhVQ0sEgcxqkd2DEG8rKZ7HiZRw4QpAdGw3GYIXbfnwsq966hyRhFyzFp6JgvktcRx";
 
@@ -385,6 +392,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
         urlParameters = new ArrayList<NameValuePair>();
 
         urlParameters.add(new BasicNameValuePair("imp_uid", order.getImpUid()));
+        urlParameters.add(new BasicNameValuePair("amount", payment));
 
 
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
