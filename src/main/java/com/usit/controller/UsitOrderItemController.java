@@ -32,7 +32,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.ui.dto.ComUiDTO;
+import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.domain.Member;
 import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 import com.usit.service.CommonService;
@@ -425,6 +427,68 @@ public class UsitOrderItemController extends CommonHeaderController{
    }
    
    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   /**
+    * 판매자 판매아이템 조회
+    * @param request
+    * @param curPage
+    * @param perPage
+    * @return
+    * @throws Exception
+    */
+   @RequestMapping(value="/order-items/seller-token", method=RequestMethod.GET)
+   public ModelAndView sellerOrderItemList(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
+		   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,
+		   @RequestParam(value="keywordCondition", defaultValue = "") String keywordCondition,@RequestParam(value="keyword", defaultValue = "") String keyword) throws Exception{
+	   
+//	   @RequestParam("curPage") int curPage, @RequestParam("perPage"), periodCondition, startDate, endDate, keywordCondition, keyword)
+//	   periodCondition = paymentDate(결제일), orderConfirmDate(발주확인일), sendDate(상품발송일)
+//	   keywordCondition = ordererName(구매자명), ordererPhone(구매자연락처), ordererEmail(구매자이메일), orderId(주문번호), orderItemId(주문상품번호), productId(상품번호), trackingNumber(송장번호)
+	   
+	   
+       ModelAndView mav = new ModelAndView("jsonView");
+
+       Map<String, Object> resultData = new HashMap<String, Object>();
+       String resultCode = "0000";
+       String resultMsg = "";
+
+       SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+       SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+       
+       Page<UsitOrderItem> orderItem = null;
+       UsitOrder order = null;
+       Long memberId = getSignedMember().getMemberInfo().getMemberId();
+       logger.debug("curPage:{}", curPage);
+       logger.debug("perPage:{}", perPage);
+
+       Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "orderId");
+       try {
+           orderItem = orderItemService.getSellerOrderItemList(pageRequest,memberId,periodCondition,startDate,endDate,keywordCondition,keyword);
+       }catch(FrameworkException e){
+           logger.error("CommFrameworkException", e);
+           resultCode = e.getMsgKey();
+           resultMsg = e.getMsg();
+       }catch(Exception e){
+           logger.error("Exception", e);
+           resultCode = "-9999";
+           resultMsg = "처리중 오류가 발생하였습니다.";
+       }
+
+       mav.addObject("result_code", resultCode);
+       mav.addObject("result_msg", resultMsg);
+       mav.addObject("data", orderItem);
+
+       return mav;
+   }
    
    
    

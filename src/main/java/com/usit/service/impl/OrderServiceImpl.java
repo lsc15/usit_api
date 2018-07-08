@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.service.CommonHeaderService;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.DeliveryCharge;
 import com.usit.domain.Member;
 import com.usit.domain.Product;
@@ -232,6 +233,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
         if(rsltOrder.getOrderId() > 0) {
             for(UsitOrderItem orderItem : pOrderItems) {
                 orderItem.setOrderId(rsltOrder.getOrderId());
+                orderItem.setSellMemberId(orderItem.getProduct().getSellMemberId());
                 rsltOrderItems.add(orderItemRepository.save(orderItem));
             }
         }
@@ -272,7 +274,20 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             //제고관리
             if(orderItems!=null) {
               int size = orderItems.size();
+              boolean isOrderItemUpdate = false;
+              if(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_COMPLETE.equals(updateOrder.getOrderStatusCd())) {
+            	  isOrderItemUpdate = true;
+              }
+              
               for (int i = 0; i < size; i++) {
+            	  
+            	  if(isOrderItemUpdate) {
+            		  orderItems.get(i).setPaymentDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+                    }
+            	  
+            	  orderItemRepository.save(orderItems);
+            	  
+            	  
                       if(orderItems.get(i).getProductOptionId() == null) {
                     	  //상품의 제고수량 갱신
                     	 Product product = productRepository.findOne(orderItems.get(i).getProductId());

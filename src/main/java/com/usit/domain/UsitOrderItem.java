@@ -2,6 +2,7 @@ package com.usit.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,12 +13,18 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.usit.util.TimeUtil;
 
 import lombok.Data;
@@ -30,6 +37,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="usit_order_item")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderItemId")//entity간 조인시 json단에서 무한재귀현상을 막아주는 어노테이션
 @NamedQuery(name="UsitOrderItem.findAll", query="SELECT m FROM UsitOrderItem m")
 public class UsitOrderItem implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -85,6 +93,21 @@ public class UsitOrderItem implements Serializable {
 
     @Column(name="cart_item_id")
     private Integer cartItemId;
+    
+    @Column(name="payment_date")
+    private LocalDateTime paymentDate;
+    
+    @Column(name="order_confirm_date")
+    private LocalDateTime orderConfirmDate;
+    
+    @Column(name="send_date")
+    private LocalDateTime sendDate;
+    
+    @Column(name="sell_member_id")
+    private Integer sellMemberId;
+    
+    @Column(name="store_key")
+    private String storeKey;
     
     
     @Column(name="return_object_type_cd")
@@ -157,7 +180,10 @@ public class UsitOrderItem implements Serializable {
     @JoinColumn(name = "return_status_cd", insertable = false, updatable = false)
     private UsitCode returnStatus;
     
-    
+    @ManyToOne(fetch = FetchType.EAGER)
+    //@Fetch(FetchMode.SELECT)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private UsitOrder order;
     
 	public UsitOrderItem() {
     }

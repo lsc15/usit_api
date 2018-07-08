@@ -86,7 +86,7 @@ public class Product implements Serializable {
 	private String tags;
 
 	@Column(name="sell_member_id")
-	private Long sellMemberId;
+	private Integer sellMemberId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")

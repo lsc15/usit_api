@@ -21,7 +21,10 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.usit.util.TimeUtil;
 
 import lombok.Data;
@@ -34,6 +37,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="usit_order")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderId")
 @NamedQuery(name="UsitOrder.findAll", query="SELECT m FROM UsitOrder m")
 public class UsitOrder implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -125,10 +129,20 @@ public class UsitOrder implements Serializable {
     private UsitCode orderStatus;
 
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SELECT)
-    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+//    @OneToMany(fetch = FetchType.EAGER)
+//    @Fetch(FetchMode.SELECT)
+//    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+//    private List<UsitOrderItem> orderItems;
+    
+    
+    @OneToMany(mappedBy="order")
+//    @Fetch(FetchMode.SELECT)
+//    @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private List<UsitOrderItem> orderItems;
+    
+//    @OneToMany(mappedBy="order")
+//    @JsonIgnore
+//    private List<UsitOrderItem> orderItems;
 
 
 

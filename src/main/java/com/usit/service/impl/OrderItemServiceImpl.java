@@ -6,6 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -19,6 +28,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.service.CommonHeaderService;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Member;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.ProductOption;
@@ -58,6 +69,9 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 	
 	@Autowired
     JdbcTemplate jdbcTemplate;
+	
+	@PersistenceContext
+	EntityManager entityManager;
 
     @Override
     public UsitOrderItem getUsitOrderItem(int orderItemId) throws Exception {
@@ -120,6 +134,131 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     
     @Override
+    public Page<UsitOrderItem> getSellerOrderItemList(Pageable pageRequest,Long memberId,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword) throws Exception{
+
+        logger.info("pageable.getPageNumber():{}", pageRequest.getPageNumber());
+        logger.info("pageable.getPageSize():{}", pageRequest.getPageSize());
+        
+        
+        
+        
+        
+     // CriteriaBuilder 인스턴스를 작성한다.
+
+    	CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+    	// CriteriaQuery 인스턴스를 생성한다. Board 제네릭 형식으로...
+
+    	CriteriaQuery<UsitOrderItem> criteriaQuery = criteriaBuilder.createQuery(UsitOrderItem.class);
+
+
+
+    	// Root는 영속적 엔티티를 표시하는 쿼리 표현식이다. SQL의 FROM 과 유사함
+
+    	Root<UsitOrderItem> root = criteriaQuery.from(UsitOrderItem.class);
+
+    	List<Predicate> restrictions = new ArrayList<>();
+
+    	// SQL의 WHERE절이다. 조건부는 CriteriaBuilder에 의해 생성
+
+    	// 리스트로 작성
+    	Predicate expFromDate = null;
+    	Predicate expToDate = null;
+    	Predicate expSellerId;
+    	Predicate expKeyword;
+    	Predicate and = null;
+    	
+    
+    	//기간 조건확인
+    	if(periodCondition.equals(UsitCodeConstants.PERIOD_CONDITION_ORDER_CONFIRM_DATE)) {
+    		expFromDate = criteriaBuilder.greaterThanOrEqualTo(root.get("orderConfirmDate"), startDate);
+    		expToDate = criteriaBuilder.lessThanOrEqualTo(root.get("orderConfirmDate"), endDate);
+    	}else if(periodCondition.equals(UsitCodeConstants.PERIOD_CONDITION_PAYMENT_DATE)) {
+    		expFromDate = criteriaBuilder.greaterThanOrEqualTo(root.get("paymentDate"), TimeUtil.getStringToDateTime(startDate+"0000"));
+    		expToDate = criteriaBuilder.lessThanOrEqualTo(root.get("paymentDate"), TimeUtil.getStringToDateTime(endDate+"2359"));
+    	}else if(periodCondition.equals(UsitCodeConstants.PERIOD_CONDITION_SEND_DATE)) {
+    		expFromDate = criteriaBuilder.greaterThanOrEqualTo(root.get("sendDate"), startDate);
+    		expToDate = criteriaBuilder.lessThanOrEqualTo(root.get("sendDate"), endDate);
+    	}
+    	
+    	//판매자 아이디조건
+    	expSellerId = criteriaBuilder.equal(root.get("sellMemberId"), memberId);
+    	
+    	//키워드 조건확인
+    	if(keywordCondition != null && !keywordCondition.equals("")) {
+    		
+    		Join<UsitOrderItem, UsitOrder> join = root.join("orderId");
+
+    		
+    		if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDER_ID)) {
+    	
+    			expKeyword = criteriaBuilder.equal(root.get("orderId"), keyword);
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDER_ITEM_ID)) {
+    			expKeyword = criteriaBuilder.equal(root.get("orderItemId"), keyword);	
+    	
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_EMAIL)) {
+    			expKeyword = criteriaBuilder.equal(join.get( "odererEmail"),keyword);
+    	
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_NAME)) {
+    			expKeyword = criteriaBuilder.equal(join.get( "odererName"),keyword);
+    	
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_PHONE)) {
+    			expKeyword = criteriaBuilder.equal(join.get( "odererPhone"),keyword);
+    	
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_PRODUCT_ID)) {
+    			expKeyword = criteriaBuilder.equal(root.get("productId"), keyword);
+    	
+    		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_TRACKING_NUMBER)) {
+    			expKeyword = criteriaBuilder.equal(root.get("trackingNumber"), keyword);
+    	    	
+    			 
+    			and = criteriaBuilder.and(expFromDate, expToDate, expSellerId,expKeyword);
+    		}
+    }else {
+    	 
+    	and = criteriaBuilder.and(expFromDate, expToDate, expSellerId);
+    }
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	//Predicate restrictions = criteriaBuilder.equal(root.get("sell_member_id"), memberId);
+//    	restrictions.add(criteriaBuilder.equal(root.get("sell_member_id"), memberId));
+    	restrictions.add(and);
+//    	criteriaQuery.where(restrictions);
+    	criteriaQuery.where(restrictions.toArray(new Predicate[]{} ));
+
+
+    	// ORDER BY절. CriteriaQuery로 생성
+
+//    	criteriaQuery.orderBy(criteriaBuilder.desc(root.get("orderId")));
+
+
+
+    	// 뭔가 복잡해 보여도 별거 없다. TypedQuery는 실행 결과를 리턴하는 타입이다.
+
+    	TypedQuery<UsitOrderItem> orderItemListQuery = entityManager.createQuery(criteriaQuery).setFirstResult(pageRequest.getPageNumber()).setMaxResults(pageRequest.getPageSize());
+
+    	List<UsitOrderItem> orderItem = orderItemListQuery.getResultList();
+        
+        
+    	
+//    	TypedQuery<UsitOrderItem> query = em.createQuery(cq);
+        Page<UsitOrderItem> result = new PageImpl<UsitOrderItem>(orderItem, pageRequest,orderItem.size());
+        
+        
+        
+//        Page<UsitOrderItem> list = orderItemRepository.findAllByReturnStatusCdIsNotNull(pageRequest);
+        logger.info("list.size():{}", result.getSize());
+        return result;
+    }    
+    
+    
+    
+    @Override
     public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable pageRequest,Long memberId) throws Exception{
 
         logger.info("pageable.getPageNumber():{}", pageRequest.getPageNumber());
@@ -143,6 +282,16 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     		//시간정보추가
     		orderItem.setRegDate(asIsOrderItem.getRegDate());
     		
+    		//시간정보추가
+    		orderItem.setRegDate(asIsOrderItem.getRegDate());
+    		
+    		if(UsitCodeConstants.DELIVERY_STATUS_CD_PAYMENT_COMPLETE.equals(orderItem.getDeliveryStatusCd())) {
+    			orderItem.setPaymentDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+    		}else if(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_STANDBY.equals(orderItem.getDeliveryStatusCd())) {
+    			orderItem.setOrderConfirmDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+    		}else if(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND.equals(orderItem.getDeliveryStatusCd())) {
+    			orderItem.setSendDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+    		}
     		
     		//부분취소 적용
 //    		if(!("1211".equals(asIsDeliveryStatusCd)) && "1211".equals(toBeDeliveryStatusCd) ) {
@@ -404,6 +553,8 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
         return (JSONObject) parser.parse(resString);
 
     }
+    
+    
     
     
     
