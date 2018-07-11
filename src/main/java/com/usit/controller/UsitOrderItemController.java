@@ -457,15 +457,11 @@ public class UsitOrderItemController extends CommonHeaderController{
 	   
        ModelAndView mav = new ModelAndView("jsonView");
 
-       Map<String, Object> resultData = new HashMap<String, Object>();
        String resultCode = "0000";
        String resultMsg = "";
 
-       SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
-       SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
        
        Page<UsitOrderItem> orderItem = null;
-       UsitOrder order = null;
        Long memberId = getSignedMember().getMemberInfo().getMemberId();
        logger.debug("curPage:{}", curPage);
        logger.debug("perPage:{}", perPage);
