@@ -1,6 +1,9 @@
 package com.usit.service.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,21 +36,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.service.CommonHeaderService;
+import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.DeliveryCharge;
 import com.usit.domain.Member;
+import com.usit.domain.PointHistory;
 import com.usit.domain.Product;
 import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.UsitOrderTransaction;
 import com.usit.domain.ProductOption;
+import com.usit.domain.ShareHistory;
 import com.usit.repository.CartItemRepository;
 import com.usit.repository.DeliveryChargeRepository;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
+import com.usit.repository.PointHistoryRepository;
 import com.usit.repository.ProductOptionRepository;
 import com.usit.repository.ProductRepository;
+import com.usit.repository.ShareHistoryRepository;
 import com.usit.service.OrderService;
 import com.usit.util.TimeUtil;
 
@@ -77,10 +85,16 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     private ProductOptionRepository productOptionRepository;
     
     @Autowired
+    private PointHistoryRepository pointHistoryRepository;
+    
+    @Autowired
+    private ShareHistoryRepository shareHistoryRepository;
+    
+    @Autowired
     private EntityManager em;
 
     @Override
-    public Page<UsitOrder> getUsitOrderListByMemberIdAndUseYn(Long memberId, Pageable pageable) throws Exception{
+    public Page<UsitOrder> getUsitOrderListByMemberIdAndUseYn(int memberId, Pageable pageable) throws Exception{
 
         logger.info("pageable.getPageNumber():{}", pageable.getPageNumber());
         logger.info("pageable.getPageSize():{}", pageable.getPageSize());
@@ -259,7 +273,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
 
         if("paid".equals(params.get("status"))) {
-//                int addPoint = 0;
+            int addPoint = 0;
             UsitOrder updateOrder = orderRepository.findFirstByMerchantUid(params.get("merchant_uid"));
 
             updateOrder.setImpUid(params.get("imp_uid"));
@@ -320,71 +334,140 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
 
 
-            /*
-            //포인트증가
+            //인플루언서 포인트증가
             if(orderItems!=null) {
                 int size = orderItems.size();
 
                 for (int i = 0; i < size; i++) {
                 	int orderItemPrice;
+                	//인플루언서 포인트확인
+                	if(orderItems.get(i).getStoreKey() != null) {
+                	
                 	if(orderItems.get(i).getAmount() != 0) {
                 		orderItemPrice = orderItems.get(i).getAmount();
                 	}else {
                 		orderItemPrice = 0;
                 	}
                     int quantity = orderItems.get(i).getQuantity();
-                    int optionAddPrice = 0;
-                        //상품옵션의 가격
-                        List<ProductOption> productOption=orderItems.get(i).getProduct().getProductOptions();
-                        if(productOption!=null) {
-                        for (int j = 0; j < productOption.size(); j++) {
-                            optionAddPrice+=productOption.get(j).getAddPrice();
-                        }
-                        }
+//                    int optionAddPrice = 0;
+                        //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
+//                        List<ProductOption> productOption=orderItems.get(i).getProduct().getProductOptions();
+//                        if(productOption!=null) {
+//                        for (int j = 0; j < productOption.size(); j++) {
+//                            optionAddPrice+=productOption.get(j).getAddPrice();
+//                        }
+//                        }
+                        double rate = 3;
 
-                        addPoint += calculatePoint((orderItemPrice+optionAddPrice)*quantity, rate);
+                        addPoint += calculatePoint(orderItemPrice * quantity, rate);
                     
                     
                     //쿠폰적용
-                    if(orderItems.get(i).getUsedCouponId() != null) {
+//                    if(orderItems.get(i).getUsedCouponId() != null) {
+//                    
+//                    	
+//                    	Coupon coupon = couponRepository.findOne(orderItems.get(i).getUsedCouponId());
+//                    	if("Y".equals(coupon.getUseYn()) || !orderItems.get(i).getMemberId().equals(coupon.getMemberId())) {
+//                    		logger.error("결제 실패 :"+ "사용할 수 없는 쿠폰입니다.");
+//                            throw new FrameworkException("-1001", "사용할 수 없는 쿠폰입니다."); // 오류 리턴 예시
+//                    	}
+//                    	
+//                    	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+//                    	coupon.setUseYn("Y");
+//                    	couponRepository.save(coupon);
+//                    }
                     
-                    	
-                    	Coupon coupon = couponRepository.findOne(orderItems.get(i).getUsedCouponId());
-                    	if("Y".equals(coupon.getUseYn()) || !orderItems.get(i).getMemberId().equals(coupon.getMemberId())) {
-                    		logger.error("결제 실패 :"+ "사용할 수 없는 쿠폰입니다.");
-                            throw new FrameworkException("-1001", "사용할 수 없는 쿠폰입니다."); // 오류 리턴 예시
-                    	}
-                    	
-                    	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
-                    	coupon.setUseYn("Y");
-                    	couponRepository.save(coupon);
-                    }
-                    
-                    
+                      //storeKey 인플루언서 구하기
+                        AES256Util aes256Util = null;
+                		String uId = null;
+                		try {
+                			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+                		} catch (UnsupportedEncodingException e) {
+                			// TODO Auto-generated catch block
+                			e.printStackTrace();
+                		}
+                		
+                		try {
+                			uId = aes256Util.decrypt(orderItems.get(i).getStoreKey());
+                		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+                			// TODO Auto-generated catch block
+                			e.printStackTrace();
+                		}
+                     	
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                		
+                		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
+                        
+                        
+                        
+                        
+                        
+                        if(addPoint != 0) {
+                            //포인트증감이력 저장
+                            PointHistory point = new PointHistory();
+                            point.setAddPoint(addPoint);
+                            point.setRegId(updateOrder.getMemberId());
+                            
+                            //상품구매코드
+                            if(orderItems.get(i).getStoreKey() != null) {
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_INFLUENCER);	
+                            }
+                            
+                            
+                            
+                            point.setOrderId(updateOrder.getOrderId());
+                            point.setMemberId(memberId);
+                            pointHistoryRepository.save(point);
+                            
+                            
+                            
+                            
+                    		
+                    		
+                    		//포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint();
+                            member.setTotalPoint(present+addPoint);
+                            memberRepository.save(member);
+                    		
+                    		
+                    		
+                    		ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                            
+                            
+                            
+                            
+                			try {
+                	        if(existShare != null) {
+                	    		
+                	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() + 1);
+                	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() + orderItems.get(i).getAmount());
+                	    		shareHistoryRepository.save(existShare);
+                	        
+                	        }else{
+                	        	ShareHistory share = new ShareHistory();
+                	    	    share.setMemberId(memberId);
+                	    	    share.setStoreKey(orderItems.get(i).getStoreKey());
+                	    	    share.setProductId(orderItems.get(i).getProductId());
+                	    		share.setDate(today);
+                	    		share.setPurchaseCnt(1);
+                	    		shareHistoryRepository.save(share);
+                	        }
+                			}catch (Exception e) {
+                				logger.warn("공유 히스토리 저장 실패.");
+                				throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시
+                			}
+                            
+                            
+                            
+                            }
+                        
+                
+                	}
                 }
 
             }
-
-            if(addPoint != 0) {
-            //포인트증감이력 저장
-            PointHistory point = new PointHistory();
-            point.setAddPoint(addPoint);
-            point.setRegId(updateOrder.getMemberId());
-            //상품구매코드
-            point.setPointTypeCd("1501");
-            point.setOrderId(updateOrder.getOrderId());
-            point.setMemberId(updateOrder.getMemberId());
-            pointHistoryRepository.save(point);
-            }
-            
-            //포인트적용
-            Member member = memberRepository.findOne(updateOrder.getMemberId());
-            int present = member.getPoint();
-            member.setPoint(present+addPoint);
-            memberRepository.save(member);
-            */
-            
-            
 
         }else {
             logger.error("결제 status = paid 가 아닙니다.");
@@ -522,7 +605,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     	UsitOrder updateOrder = orderRepository.findOne(order.getOrderId());
             
     	if(updateOrder!=null) {
-    		updateOrder.setOrderStatusCd("1104");
+    		updateOrder.setOrderStatusCd(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_CANCEL);
     		orderRepository.save(updateOrder);
     		List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
     		List <UsitOrderItem> orderItems = order.getOrderItems();
@@ -535,7 +618,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     				store=updateItems.get(i);
     				store.setReturnReasonCd(orderItems.get(i).getReturnReasonCd());
     				store.setReturnReasonText(orderItems.get(i).getReturnReasonText());
-    				store.setDeliveryStatusCd("1211");
+    				store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
     				store.setReturnReasonCd(returnReasonCd);
     				store.setReturnReasonText(returnReasonText);
                     orderItemRepository.save(store);
@@ -554,69 +637,144 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
         if("0".equals(String.valueOf(iamPort.get("code"))) || payment == 0) {
 
-        	/*
+        	
             //포인트차감
             int addPoint = 0;
             List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
             if(updateItems!=null) {
                 for (Iterator<UsitOrderItem> iterator = updateItems.iterator(); iterator.hasNext();) {
-                	UsitOrderItem my23OrderItem = (UsitOrderItem) iterator.next();
-
+                	
+                	UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+                	//인플루언서 포인트확인
+                	if(usitOrderItem.getStoreKey() != null) {
 
                     int optionAddPrice = 0;
-                    int quantity = my23OrderItem.getQuantity();
+                    int quantity = usitOrderItem.getQuantity();
                     int orderItemPrice;
                     if(payment != 0 ) {
-                    	orderItemPrice = my23OrderItem.getAmount();
+                    	orderItemPrice = usitOrderItem.getAmount();
                     }else {
                     	orderItemPrice = 0;
                     }
                    
 //                    double rate = my23OrderItem.getProduct().getPointRate();
+                    double rate = 3;
+                    //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
+//                    List<ProductOption> productOption=usitOrderItem.getProduct().getProductOptions();
+//                    if(productOption!=null) {
+//                        for (int j = 0; j < productOption.size(); j++) {
+//                            optionAddPrice+=productOption.get(j).getAddPrice();
+//                        }
+//                    }
 
-                    //상품옵션의 가격
-                    List<ProductOption> productOption=my23OrderItem.getProduct().getProductOptions();
-                    if(productOption!=null) {
-                        for (int j = 0; j < productOption.size(); j++) {
-                            optionAddPrice+=productOption.get(j).getAddPrice();
-                        }
-                    }
 
 
-
-                        addPoint -= calculatePoint((orderItemPrice+optionAddPrice)*quantity, rate);
+                        addPoint -= calculatePoint(orderItemPrice * quantity, rate);
 
                       //쿠폰적용
-                        if(my23OrderItem.getUsedCouponId() != null) {
-                        	Coupon coupon = couponRepository.findOne(my23OrderItem.getUsedCouponId());
-                        	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
-                        	coupon.setUseYn("N");
-                        	couponRepository.save(coupon);
-                        }
+//                        if(usitOrderItem.getUsedCouponId() != null) {
+//                        	Coupon coupon = couponRepository.findOne(usitOrderItem.getUsedCouponId());
+//                        	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+//                        	coupon.setUseYn("N");
+//                        	couponRepository.save(coupon);
+//                        }
 
+                        
+                        
+                      //storeKey 인플루언서 구하기
+                        AES256Util aes256Util = null;
+                		String uId = null;
+                		try {
+                			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+                		} catch (UnsupportedEncodingException e) {
+                			// TODO Auto-generated catch block
+                			e.printStackTrace();
+                		}
+                		
+                		try {
+                			uId = aes256Util.decrypt(usitOrderItem.getStoreKey());
+                		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+                			// TODO Auto-generated catch block
+                			e.printStackTrace();
+                		}
+                     	
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                		
+                		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        if(addPoint != 0) {
+                            //포인트증감이력 저장
+                            PointHistory point = new PointHistory();
+                            point.setAddPoint(addPoint);
+                            point.setRegId(updateOrder.getMemberId());
+                            
+                            
+                          //상품구매코드
+                            if(usitOrderItem.getStoreKey() != null) {
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_CANCEL);	
+                            }
+                            point.setOrderId(updateOrder.getOrderId());
+                            point.setMemberId(memberId);
+                            pointHistoryRepository.save(point);
+                            
+                            
+                            
+                          //포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint();
+                            member.setTotalPoint(present+addPoint);
+                            memberRepository.save(member);
+                            
+                            
+                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                            
+                            
+                            
+                            
+                			try {
+                	        if(existShare != null) {
+                	    		
+                	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() - 1);
+                	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() - usitOrderItem.getAmount());
+                	    		shareHistoryRepository.save(existShare);
+                	        
+                	        }else{
+                	        	ShareHistory share = new ShareHistory();
+                	    	    share.setMemberId(memberId);
+                	    	    share.setStoreKey(usitOrderItem.getStoreKey());
+                	    	    share.setProductId(usitOrderItem.getProductId());
+                	    		share.setDate(today);
+                	    		share.setPurchaseCnt(-1);
+                	    		shareHistoryRepository.save(share);
+                	        }
+                			}catch (Exception e) {
+                				logger.warn("공유 히스토리 저장 실패.");
+                				throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시
+                			}
+                            
+                            
+                            
+                            
+                            }
+                            
+                        
+                        
+                	}
                 }
             }
 
 
-            if(addPoint != 0) {
-            //포인트증감이력 저장
-            PointHistory point = new PointHistory();
-            point.setAddPoint(addPoint);
-            point.setRegId(updateOrder.getMemberId());
-            //상품구매 취소 코드
-            point.setPointTypeCd("1502");
-            point.setOrderId(updateOrder.getOrderId());
-            point.setMemberId(updateOrder.getMemberId());
-            pointHistoryRepository.save(point);
-            }
             
-            //포인트적용
-            Member member = memberRepository.findOne(updateOrder.getMemberId());
-            int present = member.getPoint();
-            member.setPoint(present+addPoint);
-            memberRepository.save(member);
-
-            */
 
             return iamPort;
         }else {

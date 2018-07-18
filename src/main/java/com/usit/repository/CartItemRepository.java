@@ -11,7 +11,7 @@ import com.usit.domain.CartItem;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Integer>{
 
-	public List<CartItem> findByMemberIdOrderByCartItemIdDesc(Long memberId);
+	public List<CartItem> findByMemberIdOrderByCartItemIdDesc(int memberId);
 
 
 	

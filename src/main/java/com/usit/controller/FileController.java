@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +49,8 @@ public class FileController extends CommonHeaderController{
 		
 		if (path != null) prefix = path + "/";
 		
-		String fileName = prefix + String.valueOf(System.currentTimeMillis());
-
+		String fileName = prefix + String.valueOf(System.currentTimeMillis()) + "." +FilenameUtils.getExtension(file.getOriginalFilename());
+		
 		service.uploadFile(convFile, fileName);
 		
 		ModelAndView mv = new ModelAndView("jsonView");

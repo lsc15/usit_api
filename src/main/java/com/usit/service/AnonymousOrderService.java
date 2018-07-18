@@ -11,7 +11,7 @@ public interface AnonymousOrderService {
 
 	AnonymousOrder createAnonymousOrder(AnonymousOrder anonymousOrder);
 
-	AnonymousOrder updateAnonymousOrder(AnonymousOrder anonymousOrder,int anonymousOrderId,Long memberId);
+	AnonymousOrder updateAnonymousOrder(AnonymousOrder anonymousOrder,int anonymousOrderId,int memberId);
 
 	void deleteAnonymousOrder(int anonymousOrderId);
 

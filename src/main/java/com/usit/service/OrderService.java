@@ -13,7 +13,7 @@ import com.usit.domain.UsitOrderTransaction;
 
 public interface OrderService {
 
-    public Page<UsitOrder> getUsitOrderListByMemberIdAndUseYn(Long memberId, Pageable pageable) throws Exception;
+    public Page<UsitOrder> getUsitOrderListByMemberIdAndUseYn(int memberId, Pageable pageable) throws Exception;
     public Page<UsitOrder> getUsitOrderListAll(Pageable pageable) throws Exception;
     public Page<UsitOrder> getUsitOrderListIn(Pageable pageable, String orderStartDate, String orderEndDate ,List<String> deliveryStatusCds) throws Exception;
 //    public List<UsitOrder> getUsitOrderExcelListIn(List<Integer> orderItems) throws Exception;

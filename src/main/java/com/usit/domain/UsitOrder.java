@@ -51,7 +51,7 @@ public class UsitOrder implements Serializable {
     private String impUid;
 
     @Column(name="member_id")
-    private Long memberId;
+    private Integer memberId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="mod_date")

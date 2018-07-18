@@ -94,12 +94,15 @@ public class UsitOrderItem implements Serializable {
     @Column(name="cart_item_id")
     private Integer cartItemId;
     
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="payment_date")
     private LocalDateTime paymentDate;
     
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="order_confirm_date")
     private LocalDateTime orderConfirmDate;
     
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="send_date")
     private LocalDateTime sendDate;
     

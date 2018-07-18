@@ -134,7 +134,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     
     @Override
-    public Page<UsitOrderItem> getSellerOrderItemList(Pageable pageRequest,Long memberId,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword) throws Exception{
+    public Page<UsitOrderItem> getSellerOrderItemList(Pageable pageRequest,int memberId,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword) throws Exception{
 
         logger.info("pageable.getPageNumber():{}", pageRequest.getPageNumber());
         logger.info("pageable.getPageSize():{}", pageRequest.getPageSize());
@@ -164,8 +164,8 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     	// 리스트로 작성
     	Predicate expFromDate = null;
     	Predicate expToDate = null;
-    	Predicate expSellerId;
-    	Predicate expKeyword;
+    	Predicate expSellerId = null;
+    	Predicate expKeyword = null;
     	Predicate and = null;
     	
     
@@ -187,8 +187,8 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     	//키워드 조건확인
     	if(keywordCondition != null && !keywordCondition.equals("")) {
     		
-    		Join<UsitOrderItem, UsitOrder> join = root.join("orderId");
-
+//    		Join<UsitOrderItem, UsitOrder> join = root.join("orderId");
+    		Join<UsitOrderItem, UsitOrder> join = root.join("order");
     		
     		if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDER_ID)) {
     	
@@ -197,23 +197,22 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     			expKeyword = criteriaBuilder.equal(root.get("orderItemId"), keyword);	
     	
     		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_EMAIL)) {
-    			expKeyword = criteriaBuilder.equal(join.get( "odererEmail"),keyword);
+    			expKeyword = criteriaBuilder.equal(join.get( "ordererEmail"),keyword);
     	
     		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_NAME)) {
-    			expKeyword = criteriaBuilder.equal(join.get( "odererName"),keyword);
+    			expKeyword = criteriaBuilder.equal(join.get( "ordererName"),keyword);
     	
     		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_ORDERER_PHONE)) {
-    			expKeyword = criteriaBuilder.equal(join.get( "odererPhone"),keyword);
+    			expKeyword = criteriaBuilder.equal(join.get( "ordererPhone"),keyword);
     	
     		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_PRODUCT_ID)) {
     			expKeyword = criteriaBuilder.equal(root.get("productId"), keyword);
     	
     		}else if(keywordCondition.equals(UsitCodeConstants.KEYWORD_CONDITION_TRACKING_NUMBER)) {
     			expKeyword = criteriaBuilder.equal(root.get("trackingNumber"), keyword);
-    	    	
-    			 
-    			and = criteriaBuilder.and(expFromDate, expToDate, expSellerId,expKeyword);
+    			
     		}
+    		and = criteriaBuilder.and(expFromDate, expToDate, expSellerId,expKeyword);
     }else {
     	 
     	and = criteriaBuilder.and(expFromDate, expToDate, expSellerId);
@@ -259,7 +258,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     
     @Override
-    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable pageRequest,Long memberId) throws Exception{
+    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable pageRequest,int memberId) throws Exception{
 
         logger.info("pageable.getPageNumber():{}", pageRequest.getPageNumber());
         logger.info("pageable.getPageSize():{}", pageRequest.getPageSize());
@@ -278,9 +277,6 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     	
 //    		String asIsDeliveryStatusCd = asIsOrderItem.getDeliveryStatusCd();
 //    		String toBeDeliveryStatusCd = orderItem.getDeliveryStatusCd();
-    		
-    		//시간정보추가
-    		orderItem.setRegDate(asIsOrderItem.getRegDate());
     		
     		//시간정보추가
     		orderItem.setRegDate(asIsOrderItem.getRegDate());

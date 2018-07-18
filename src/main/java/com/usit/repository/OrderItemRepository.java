@@ -27,7 +27,7 @@ public interface OrderItemRepository extends JpaRepository<UsitOrderItem, Intege
     
     public Page<UsitOrderItem> findAllByReturnStatusCdIsNotNull(Pageable page);
     
-    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable page,Long memberId);
+    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable page,int memberId);
 
     public List<UsitOrderItem> findByMemberIdAndReturnStatusCd(int memeberId, String returnStatusCd);
 

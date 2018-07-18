@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.usit.domain.Member;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long>{
+public interface MemberRepository extends JpaRepository<Member, Integer>{
 
 	public Member findByMemberUid(String memberUid);
 	

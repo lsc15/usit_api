@@ -36,17 +36,17 @@ public class Comment implements Serializable {
 	private String content;
 
 	@Column(name="member_id")
-	private Long memberId;
+	private Integer memberId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="mod_date")
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private Long modId;
+	private Integer modId;
 	
 	@Column(name="reg_id")
-	private Long regId;
+	private Integer regId;
 	
 	@Column(name="parent_comment_id")
 	private Integer parentCommentId;

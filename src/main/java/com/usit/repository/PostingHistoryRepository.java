@@ -11,7 +11,7 @@ import com.usit.domain.PostingHistory;
 @Repository
 public interface PostingHistoryRepository extends JpaRepository<PostingHistory, Integer>{
 
-	public List<PostingHistory> findByMemberIdOrderByPostingHistoryIdDesc(Long memberId);
+	public List<PostingHistory> findByMemberIdOrderByPostingHistoryIdDesc(int memberId);
 
 
 	

@@ -34,7 +34,7 @@ public class PostingHistory {
 	private int sequence;
 	
 	@Column(name="member_id")
-	private Long memberId;
+	private Integer memberId;
 	
 	@Column(name="product_id")
 	private int productId;
@@ -44,14 +44,14 @@ public class PostingHistory {
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private Long modId;
+	private Integer modId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private Long regId;
+	private Integer regId;
 	
 	@Column(name="confirm_yn")
 	private String confirmYn;

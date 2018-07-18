@@ -20,8 +20,8 @@ public interface OrderItemService {
     public List<UsitOrderItem> getUsitOrderItemListByOrderId(int orderId) throws Exception;
     public Page<UsitOrderItem> getUsitOrderItemListAll(Pageable pageable) throws Exception;
     public Page<UsitOrderItem> getUsitOrderItemReturnRequest(Pageable pageable) throws Exception;
-    public Page<UsitOrderItem> getSellerOrderItemList(Pageable pageable,Long memberId,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword) throws Exception;
-    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable pageable,Long memberId) throws Exception;
+    public Page<UsitOrderItem> getSellerOrderItemList(Pageable pageable,int memberId,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword) throws Exception;
+    public Page<UsitOrderItem> findAllByMemberIdAndReturnStatusCdIsNotNull(Pageable pageable,int memberId) throws Exception;
     public UsitOrderItem setOrderItem(UsitOrderItem orderItem) throws Exception;
     public UsitOrderItem setOrderItemTracker(UsitOrderItem orderItem) throws Exception;
     public UsitOrderItem setOrderItemReturnTracker(UsitOrderItem orderItem) throws Exception;

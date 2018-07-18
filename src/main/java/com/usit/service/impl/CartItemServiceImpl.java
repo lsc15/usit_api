@@ -42,7 +42,7 @@ public class CartItemServiceImpl implements CartItemService{
 
 
 	
-	public List<CartItem> getCartItemsList(Long memberId) {
+	public List<CartItem> getCartItemsList(int memberId) {
 		
 		return cartItemRepository.findByMemberIdOrderByCartItemIdDesc(memberId);
 
@@ -56,7 +56,7 @@ public class CartItemServiceImpl implements CartItemService{
 	
 	
 
-	public CartItem updateCartItem(CartItem cartItem,int cartItemId,Long memberId) {
+	public CartItem updateCartItem(CartItem cartItem,int cartItemId,int memberId) {
 		CartItem updateCartItem = cartItemRepository.findOne(cartItemId);
 		
 		if(updateCartItem==null) {

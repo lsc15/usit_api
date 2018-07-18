@@ -64,7 +64,7 @@ public class SignedMember extends UserDetailsWrapper{
         return this.vo.getMemberId();
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(int userId) {
         this.vo.setMemberId(userId);
     }
     

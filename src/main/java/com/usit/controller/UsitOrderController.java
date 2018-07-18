@@ -67,7 +67,7 @@ public class UsitOrderController extends CommonHeaderController{
 
         try {
 
-        	Long memberId = getSignedMember().getMemberInfo().getMemberId();
+        	int memberId = getSignedMember().getMemberInfo().getMemberId();
             logger.debug("curPage:{}", curPage);
             logger.debug("perPage:{}", perPage);
 
@@ -631,6 +631,10 @@ public class UsitOrderController extends CommonHeaderController{
   			//카카오알림톡 발송
 //  			int status = commonService.sendAlimtalk("B005",order.getOrdererPhone(),variable);
 //  			logger.info("kakaoStatus : "+status);
+        	  
+        	  
+        	  
+        	 
           }
           
 

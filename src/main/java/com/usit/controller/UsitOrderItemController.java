@@ -33,6 +33,7 @@ import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.util.SessionVO;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
 import com.usit.domain.UsitOrder;
@@ -130,8 +131,7 @@ public class UsitOrderItemController extends CommonHeaderController{
    @SuppressWarnings("unchecked")
    @RequestMapping(value="/order-items/{orderItemId}", method=RequestMethod.PUT)
    public ModelAndView saveOrder(ComUiDTO dto, HttpServletRequest request, @PathVariable String orderItemId, @RequestBody UsitOrderItem paramUsitOrderItem,
-			@RequestParam("updateReturnRegDate") String updateReturnRegDate,
-			@RequestParam("updateReturnModDate") String updateReturnModDate) throws Exception {
+			@RequestParam(name = "updateReturnRegDate",required = false) String updateReturnRegDate,@RequestParam(name ="updateReturnModDate",required = false) String updateReturnModDate) throws Exception {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		Map<String, Object> params = (Map<String, Object>) dto.getRequestBodyToObject();
@@ -142,7 +142,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 		UsitOrderItem result = new UsitOrderItem();
 		try {
 
-			
+			/*
 			//스윗트래커 반품접수 불가기간 체크 
 			if("1401".equals(paramUsitOrderItem.getReturnStatusCd()) && "1301".equals(paramUsitOrderItem.getReturnObjectTypeCd())) {
 				
@@ -189,7 +189,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 				}
 			}
 			
-			
+			*/
 			
 			//ORM은 객체가 달라도 DB와 같이 연동된다. 과거값은 변수로 저장할것
 			UsitOrderItem pastOrderItem = orderItemService.getUsitOrderItem(paramUsitOrderItem.getOrderItemId());
@@ -207,6 +207,27 @@ public class UsitOrderItemController extends CommonHeaderController{
 				} else {
 					paramUsitOrderItem.setReturnModDate(pastOrderItem.getReturnRegDate());
 				}
+				
+				//상품준비, 상품배송, 결제시간 업데이트
+				if(paramUsitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_PAYMENT_COMPLETE)) {
+				
+					paramUsitOrderItem.setPaymentDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+				}else {
+					paramUsitOrderItem.setPaymentDate(pastOrderItem.getPaymentDate());
+				}
+				if(paramUsitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_STANDBY)) {
+					paramUsitOrderItem.setOrderConfirmDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+				}else {
+					paramUsitOrderItem.setOrderConfirmDate(paramUsitOrderItem.getOrderConfirmDate());
+				}
+					
+				if(paramUsitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND)) {
+					paramUsitOrderItem.setSendDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+				}else {
+					paramUsitOrderItem.setSendDate(pastOrderItem.getSendDate());
+				}
+				
+				
 			}
 			
 			if(paramUsitOrderItem.getTrackingNumber() != null) {
@@ -219,100 +240,44 @@ public class UsitOrderItemController extends CommonHeaderController{
 
 			result = orderItemService.setOrderItem(paramUsitOrderItem);
 
-			// 검진서비스 카카오알림톡 발송
-			if ("1203".equals(paramUsitOrderItem.getDeliveryStatusCd()) && pastTrackingNumber == null
-					&& paramUsitOrderItem.getTrackingNumber() != null) {
-
-				UsitOrder order = orderService.getUsitOrderByOrderId(paramUsitOrderItem.getOrderId());
-				// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-				String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-
-				boolean isSendedItem = false;
-				int trackingNumberCount = 0;
-				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
-				List<UsitOrderItem> it = order.getOrderItems();
-				for (UsitOrderItem usitOrderItem : it) {
-					if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
-						trackingNumberCount++;
-					}
-				}
-				
-				isSendedItem = trackingNumberCount > 1;
-				if(!isSendedItem) {
-				
-				/**
-				 * #{고객명} #{주문번호} #{송장번호} #{배송일}
-				 */
-				String variable[] = new String[4];
-
-				variable[0] = order.getOrdererName();
-				variable[1] = String.valueOf(order.getOrderId());
-				variable[2] = paramUsitOrderItem.getTrackingNumber();
-				variable[3] = departureDate;
-
-				int status = commonService.sendAlimtalk("A009", order.getOrdererPhone(), variable);
-				LOGGER.info("kakaoStatus : " + status);
-				}
-				
-				
-				// 일반상품 카카오알림톡 발송
-			} else if ("1203".equals(paramUsitOrderItem.getDeliveryStatusCd())
-					&& pastTrackingNumber == null && paramUsitOrderItem.getTrackingNumber() != null) {
-				UsitOrder order = orderService.getUsitOrderByOrderId(paramUsitOrderItem.getOrderId());
-				// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-				String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-				
-				boolean isSendedItem = false;
-
-				int trackingNumberCount = 0;
-				int sameTrackingNumberCount = 0;
-				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
-				List<UsitOrderItem> it = order.getOrderItems();
-				for (UsitOrderItem usitOrderItem : it) {
-					
-					//주문번호내 송장번호가 이미 있는경우 제품명을 xx외1건 으로 사용하지 않기위한 조건
-					//이경우 item에있는 상품명으로 한다.
-					if(usitOrderItem.getTrackingNumber() != null) {
-						trackingNumberCount++;
-					}
-					
-					if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
-						sameTrackingNumberCount++;
-					}
-				}
-				isSendedItem = sameTrackingNumberCount > 1;
-				if(!isSendedItem) {
-					
-				/**
-				 * #{고객명} #{제품명} #{주문번호} #{택배사} #{송장번호} #{배송일}
-				 */
-
-					
-				String orderName;
-				if(trackingNumberCount > 1) {
-					orderName = paramUsitOrderItem.getProduct().getTitle();
-				}else {
-					orderName = paramUsitOrderItem.getProduct().getTitle();
-//					orderName = order.getName();
-				}
-				
-				String variable[] = new String[6];
-
-				variable[0] = order.getOrdererName();
-				variable[1] = orderName;
-				variable[2] = String.valueOf(order.getOrderId());
-				variable[3] = "대한통운";
-				variable[4] = paramUsitOrderItem.getTrackingNumber();
-				variable[5] = departureDate;
-
-				int status = commonService.sendAlimtalk("B007", order.getOrdererPhone(), variable);
-				LOGGER.info("kakaoStatus : " + status);
-				}
-				
-				
-			}
+			
+			// 배송 카카오알림톡 발송
+//			if (UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND.equals(paramUsitOrderItem.getDeliveryStatusCd()) && pastTrackingNumber == null
+//					&& paramUsitOrderItem.getTrackingNumber() != null) {
+//
+//				UsitOrder order = orderService.getUsitOrderByOrderId(paramUsitOrderItem.getOrderId());
+//				// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
+//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+//				String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+//
+//				boolean isSendedItem = false;
+//				int trackingNumberCount = 0;
+//				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
+//				List<UsitOrderItem> it = order.getOrderItems();
+//				for (UsitOrderItem usitOrderItem : it) {
+//					if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
+//						trackingNumberCount++;
+//					}
+//				}
+//				
+//				isSendedItem = trackingNumberCount > 1;
+//				if(!isSendedItem) {
+//				
+//				/**
+//				 * #{고객명} #{주문번호} #{송장번호} #{배송일}
+//				 */
+//				String variable[] = new String[4];
+//
+//				variable[0] = order.getOrdererName();
+//				variable[1] = String.valueOf(order.getOrderId());
+//				variable[2] = paramUsitOrderItem.getTrackingNumber();
+//				variable[3] = departureDate;
+//
+//				int status = commonService.sendAlimtalk("A009", order.getOrdererPhone(), variable);
+//				LOGGER.info("kakaoStatus : " + status);
+//				}
+//				
+//			}
 
 		} catch (FrameworkException e) {
 			logger.error("CommFrameworkException", e);
@@ -403,7 +368,7 @@ public class UsitOrderItemController extends CommonHeaderController{
        Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "orderItemId");
        String resultCode = "0000";
        String resultMsg = "";
-       Long memberId = getSignedMember().getMemberInfo().getMemberId();
+       int memberId = getSignedMember().getMemberInfo().getMemberId();
        Page<UsitOrderItem> page = null;
        try {
 
@@ -462,7 +427,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 
        
        Page<UsitOrderItem> orderItem = null;
-       Long memberId = getSignedMember().getMemberInfo().getMemberId();
+       int memberId = getSignedMember().getMemberInfo().getMemberId();
        logger.debug("curPage:{}", curPage);
        logger.debug("perPage:{}", perPage);
 

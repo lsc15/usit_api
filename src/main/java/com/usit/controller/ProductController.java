@@ -1,5 +1,7 @@
 package com.usit.controller;
 
+import java.time.format.DateTimeFormatter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +19,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
+import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.SessionVO;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
+import com.usit.domain.ShareHistory;
 import com.usit.service.ProductService;
+import com.usit.service.ShareHistoryService;
+import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +45,9 @@ public class ProductController extends CommonHeaderController{
 
 	@Autowired
 	ProductService productService;
+	
+	@Autowired
+	ShareHistoryService shareHistoryService;
 
 	
 	
@@ -52,7 +64,7 @@ public class ProductController extends CommonHeaderController{
      	SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-     	Long memberId = sessionVO.getMemberId();
+     	int memberId = sessionVO.getMemberId();
      	product.setRegId(memberId);
      	
      	
@@ -184,7 +196,7 @@ public class ProductController extends CommonHeaderController{
 
 	
 	@GetMapping("/{productId}")
-	public ModelAndView getProduct(@PathVariable int productId) { 
+	public ModelAndView getProduct(@PathVariable int productId,@RequestParam(name = "storeKey", required = false) String storeKey) { 
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		String resultCode = "0000";
@@ -192,8 +204,31 @@ public class ProductController extends CommonHeaderController{
 
         
         
-		Product data = productService.getProduct(productId);
+		
+        //shareHistory visit생성
 
+		if(storeKey!=null) {
+			
+	     	
+			ShareHistory share = shareHistoryService.getShareHistory(storeKey);
+			try {
+	        if(share != null) {
+	        	share = shareHistoryService.updateShareHistory(productId,share.getShareId());
+	        
+	        }else{
+	        	share = shareHistoryService.createShareHistory(productId,storeKey);
+	        }
+			}catch (Exception e) {
+				LOGGER.warn("공유 히스토리 저장 실패.");
+				throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시
+			}
+			
+			
+		}
+		
+		
+		Product data = productService.getProduct(productId);
+		
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
         mav.addObject("data", data);

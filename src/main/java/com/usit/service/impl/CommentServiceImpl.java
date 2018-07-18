@@ -68,7 +68,7 @@ public class CommentServiceImpl implements CommentService{
 	
 	
 	
-	public boolean getCheckReview(int productId,Long memberId) {
+	public boolean getCheckReview(int productId,int memberId) {
 
 		boolean result = false;
 		//review count
@@ -125,7 +125,7 @@ public class CommentServiceImpl implements CommentService{
 	
 	
 
-	public Comment updateComment(Comment comment,int commentId,Long memberId) {
+	public Comment updateComment(Comment comment,int commentId,int memberId) {
 		Comment updateComment = commentRepository.findOne(commentId);
 		
 		if(updateComment==null) {

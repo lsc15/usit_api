@@ -202,7 +202,7 @@ public class MemberController extends CommonHeaderController{
 	
 	
 	@GetMapping("/{memberId}")
-	public ModelAndView getUserMemberId(@PathVariable("memberId") Long memberId) {
+	public ModelAndView getUserMemberId(@PathVariable("memberId") int memberId) {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		

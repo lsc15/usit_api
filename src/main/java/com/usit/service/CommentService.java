@@ -11,11 +11,11 @@ public interface CommentService {
 	
 	Page<Comment> getCommentListAll(Pageable pageRequest);
 	
-	boolean getCheckReview(int productId,Long memberId);
+	boolean getCheckReview(int productId,int memberId);
 
 	Comment createComment(Comment comment);
 
-	Comment updateComment(Comment comment,int commentId,Long memberId);
+	Comment updateComment(Comment comment,int commentId,int memberId);
 
 	void deleteComment(int commentId);
 

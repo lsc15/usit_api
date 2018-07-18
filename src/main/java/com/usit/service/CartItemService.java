@@ -7,11 +7,11 @@ import com.usit.domain.CartItem;
 
 public interface CartItemService {
 
-	List<CartItem> getCartItemsList(Long memberId);
+	List<CartItem> getCartItemsList(int memberId);
 
 	CartItem createCartItem(CartItem cartItem);
 
-	CartItem updateCartItem(CartItem cartItem,int cartItemId,Long memberId);
+	CartItem updateCartItem(CartItem cartItem,int cartItemId,int memberId);
 
 	void deleteCartItem(int cartItemId);
 

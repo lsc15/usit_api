@@ -26,13 +26,13 @@ public class CartItem implements Serializable {
 	private Integer cartItemId;
 
 	@Column(name="member_id")
-	private Long memberId;
+	private Integer memberId;
 
 	@Column(name="mod_date")
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private Long modId;
+	private Integer modId;
 
 	@Column(name="product_id")
 	private Integer productId;
@@ -46,7 +46,7 @@ public class CartItem implements Serializable {
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private Long regId;
+	private Integer regId;
 	
 	
 	

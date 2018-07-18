@@ -15,7 +15,7 @@ public interface ProductService {
 	
 	Page<Product> readAllByCategoryCdAndTempYn(PageRequest pageRequest,String categoryCd,String tempYn);
 	
-	Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,Long RegId,String deleteYn);
+	Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,int RegId,String deleteYn);
 	
 	void deleteProduct(int productId);
 	
@@ -25,9 +25,9 @@ public interface ProductService {
 	
 	ProductOption createProductOption(ProductOption productOption);
 	
-	Product updateProduct(Product product,int productId,Long memberId);
+	Product updateProduct(Product product,int productId,int memberId);
 	
-	ProductOption updateProductOption(ProductOption productOption,int productId,Long memberId);
+	ProductOption updateProductOption(ProductOption productOption,int productId,int memberId);
 
 
 }

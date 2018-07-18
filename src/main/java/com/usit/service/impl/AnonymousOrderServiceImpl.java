@@ -50,7 +50,7 @@ public class AnonymousOrderServiceImpl implements AnonymousOrderService{
 	
 	
 
-	public AnonymousOrder updateAnonymousOrder(AnonymousOrder anonymousOrder,int anonymousOrderId,Long memberId) {
+	public AnonymousOrder updateAnonymousOrder(AnonymousOrder anonymousOrder,int anonymousOrderId,int memberId) {
 		AnonymousOrder updateAnonymousOrder = anonymousOrderRepository.findOne(anonymousOrderId);
 		
 		if(updateAnonymousOrder==null) {

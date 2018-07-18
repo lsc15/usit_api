@@ -42,7 +42,7 @@ public class Member implements Serializable {
 
     @Id
     @Column(name="member_id")
-    private Long memberId;
+    private Integer memberId;
     
     @Column(name="member_uid")
     private String memberUid;
@@ -60,6 +60,11 @@ public class Member implements Serializable {
     @Column(name="address_detail")
     private String addressDetail;
     
+    @Column(name="total_point")
+	private int totalPoint;
+    
+    @Column(name="withdrawable_point")
+	private int withdrawablePoint;
     
     @Column(name="mod_id")
     private Long modId;

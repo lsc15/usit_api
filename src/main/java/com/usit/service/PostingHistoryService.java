@@ -7,11 +7,11 @@ import com.usit.domain.PostingHistory;
 
 public interface PostingHistoryService {
 
-	List<PostingHistory> getPostingHistoryList(Long memberId);
+	List<PostingHistory> getPostingHistoryList(int memberId);
 
 	PostingHistory createPostingHistory(PostingHistory postingHistory);
 
-	PostingHistory updatePostingHistory(PostingHistory postingHistory,int postingHistoryId,Long memberId);
+	PostingHistory updatePostingHistory(PostingHistory postingHistory,int postingHistoryId,int memberId);
 
 	void deletePostingHistory(int postingHistoryId);
 

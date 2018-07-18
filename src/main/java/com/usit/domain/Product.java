@@ -77,7 +77,7 @@ public class Product implements Serializable {
 	private LocalDateTime modDate;
 
 	@Column(name="mod_id")
-	private Long modId;
+	private Integer modId;
 
 	private String description;
 	
@@ -93,7 +93,7 @@ public class Product implements Serializable {
 	private LocalDateTime regDate;
 
 	@Column(name="reg_id")
-	private Long regId;
+	private Integer regId;
 
 	@Column(name="temp_yn")
 	private String tempYn;
