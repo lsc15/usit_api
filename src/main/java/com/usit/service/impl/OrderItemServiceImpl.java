@@ -41,10 +41,12 @@ import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Member;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.ProductOption;
+import com.usit.domain.SellMember;
 import com.usit.domain.UsitOrder;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
+import com.usit.repository.SellMemberRepository;
 import com.usit.service.OrderItemService;
 import com.usit.util.TimeUtil;
 
@@ -63,9 +65,9 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 	
     @Autowired
     private OrderItemRepository orderItemRepository;
-    
+	
 	@Autowired
-	private MemberRepository memberRepository;
+	private SellMemberRepository sellMemberRepository;
 	
 	@Autowired
     JdbcTemplate jdbcTemplate;
@@ -140,7 +142,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
         logger.info("pageable.getPageSize():{}", pageRequest.getPageSize());
         
         
-        
+        SellMember sellMember = sellMemberRepository.getOne(memberId);
         
         
      // CriteriaBuilder 인스턴스를 작성한다.
@@ -212,10 +214,20 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     			expKeyword = criteriaBuilder.equal(root.get("trackingNumber"), keyword);
     			
     		}
-    		and = criteriaBuilder.and(expFromDate, expToDate, expSellerId,expKeyword);
+    		if(UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(sellMember.getMemberTypeCd())) {
+    			
+    			and = criteriaBuilder.and(expFromDate, expToDate,expKeyword);
+    		}else {
+    			and = criteriaBuilder.and(expFromDate, expToDate, expSellerId,expKeyword);
+    		}
     }else {
     	 
-    	and = criteriaBuilder.and(expFromDate, expToDate, expSellerId);
+    	if(UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(sellMember.getMemberTypeCd())) {
+    	
+    		and = criteriaBuilder.and(expFromDate, expToDate);
+    	}else {
+    		and = criteriaBuilder.and(expFromDate, expToDate, expSellerId);
+    	}
     }
     	
     	

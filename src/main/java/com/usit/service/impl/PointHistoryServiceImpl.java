@@ -45,4 +45,17 @@ public class PointHistoryServiceImpl extends CommonHeaderService implements Poin
 		
 	}
 	
+	
+	public Page<PointHistory> getPointSummaryByMemberId(PageRequest page,int memberId){
+		
+		
+		Page<PointHistory> list =  pointHistoryRepository.findAllByMemberId(page,memberId);
+		
+		return list;
+		
+	}
+	
+	
+	
+	
 }

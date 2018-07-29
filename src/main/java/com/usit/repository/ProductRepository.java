@@ -13,13 +13,15 @@ import com.usit.domain.Product;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 
 	
-	public Page<Product> findAllByCategoryCdAndUseYnAndTempYn(Pageable pageRequest,String categoryCd,String useYn,String tempYn);
+	public Page<Product> findAllByCategoryCdAndProductStatusCdNot(Pageable pageRequest,String categoryCd,String productStatusCd);
 	
-	public Page<Product> findAllByRegIdAndDeleteYn(Pageable pageRequest,int regId,String deleteYn);
+	public Page<Product> findAllByProductStatusCdNot(Pageable pageRequest,String productDelete);
 	
-	public Page<Product> findAllByUseYnAndTempYn(Pageable pageRequest,String useYn,String tempYn);
+	public Page<Product> findAllByRegIdAndProductStatusCdNot(Pageable pageRequest,int regId,String productDelete);
 	
-	public Page<Product> findAllByTempYn(Pageable pageRequest,String tempYn);
+	public Page<Product> findAllByProductStatusCd(Pageable pageRequest,String productStatusCd);
+	
+//	public Page<Product> findAllByTempYn(Pageable pageRequest,String tempYn);
 	
 //	public List<Coupon> findByMemberId(int memberId);
 	

@@ -11,4 +11,7 @@ public interface PointHistoryService {
 	PointHistory addPoint(PointHistory point);
 	
 	Page<PointHistory> getPointListByMemberId(PageRequest page,int member);
+	
+	Page<PointHistory> getPointSummaryByMemberId(PageRequest page,int member);
+	
 }

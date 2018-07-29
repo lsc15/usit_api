@@ -28,7 +28,7 @@ public class CrawlingUtil {
             // 요청 URL
             URL url = new URL(resource);
             // 문자열로 URL 표현
-            System.out.println("URL :" + url.toExternalForm());
+//            System.out.println("URL :" + url.toExternalForm());
             connection = (HttpURLConnection) url.openConnection();
             // 요청 방식(GET or POST)
             connection.setRequestMethod("GET");
@@ -37,6 +37,8 @@ public class CrawlingUtil {
             // 읽기 타임아웃 설정
             connection.setReadTimeout(3000);
  
+//            System.out.println(connection.getResponseCode());
+            
             // 요청한 URL에 대한 응답 내용 출력.
             BufferedReader reader = 
                     new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
@@ -46,6 +48,7 @@ public class CrawlingUtil {
                 buffer.append(line).append("\r\n");
             }
             reader.close();
+//            System.out.println(connection.getResponseCode());
  
 //            System.out.println(buCffer.toString());
             

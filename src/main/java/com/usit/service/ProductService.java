@@ -11,11 +11,11 @@ public interface ProductService {
 
 	Product getProduct(int productId);
 
-	Page<Product> readAll(PageRequest pageRequest,String useYn,String tempYn);
+	Page<Product> readAll(PageRequest pageRequest,String productStatusCd);
 	
-	Page<Product> readAllByCategoryCdAndTempYn(PageRequest pageRequest,String categoryCd,String tempYn);
+	Page<Product> readAllByCategoryCdAndProductStatusCdNot(PageRequest pageRequest,String categoryCd,String productStatusCd);
 	
-	Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,int RegId,String deleteYn);
+	Page<Product> readAllByRegIdAndProductStatusCdNot(PageRequest pageRequest,int RegId,String productDelete);
 	
 	void deleteProduct(int productId);
 	

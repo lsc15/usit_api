@@ -15,11 +15,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.exception.FrameworkException;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Member;
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
+import com.usit.domain.SellMember;
 import com.usit.repository.ProductOptionRepository;
 import com.usit.repository.ProductRepository;
+import com.usit.repository.SellMemberRepository;
 import com.usit.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,9 @@ public class ProductServiceImpl implements ProductService{
 	@Autowired
 	ProductOptionRepository productOptionRepository;
 	
+	@Autowired
+	SellMemberRepository sellMemberRepository;
+	
 	
 
 	private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -53,31 +59,30 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 
-	public Page<Product> readAll(PageRequest pageRequest,String useYn,String tempYn) {
+	public Page<Product> readAll(PageRequest pageRequest,String productStatusCd) {
 		
-		if(useYn==null) {
-			return productRepository.findAllByTempYn(pageRequest,tempYn);
+			return productRepository.findAllByProductStatusCd(pageRequest,productStatusCd);
+
+	}
+	
+	public Page<Product> readAllByCategoryCdAndProductStatusCdNot(PageRequest pageRequest,String categoryCd,String productStatusCd) {
+
+		return productRepository.findAllByCategoryCdAndProductStatusCdNot(pageRequest,categoryCd,productStatusCd);
+		
+	}
+	
+	
+	public Page<Product> readAllByRegIdAndProductStatusCdNot(PageRequest pageRequest,int regId,String productDelete) {
+
+		
+		SellMember sellMember =  sellMemberRepository.getOne(regId);
+		
+		if(sellMember.getMemberTypeCd().equals(UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER)) {
+		return productRepository.findAllByProductStatusCdNot(pageRequest,productDelete);
 		}else {
-			return productRepository.findAllByUseYnAndTempYn(pageRequest,useYn,tempYn);
+		return productRepository.findAllByRegIdAndProductStatusCdNot(pageRequest,regId,productDelete);
 		}
-		
-		
-		
-
-	}
 	
-	public Page<Product> readAllByCategoryCdAndTempYn(PageRequest pageRequest,String categoryCd,String tempYn) {
-
-		String useYn = "Y";
-		return productRepository.findAllByCategoryCdAndUseYnAndTempYn(pageRequest,categoryCd,useYn,tempYn);
-		
-	}
-	
-	
-	public Page<Product> readAllByRegIdAndDeleteYn(PageRequest pageRequest,int RegId,String deleteYn) {
-
-		return productRepository.findAllByRegIdAndDeleteYn(pageRequest,RegId,deleteYn);
-		
 	}
 			
 
@@ -117,12 +122,11 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setSearchUseYn(product.getSearchUseYn());
 			updateProduct.setTags(product.getTags());
 			updateProduct.setSellMemberId(product.getSellMemberId());
-			updateProduct.setUseYn(product.getUseYn());
-			updateProduct.setDeleteYn(product.getDeleteYn());
-			updateProduct.setTempYn(product.getTempYn());
+			updateProduct.setProductStatusCd(product.getProductStatusCd());
 			updateProduct.setDeliveryCompanyCd(product.getDeliveryCompanyCd());
 			updateProduct.setDeliveryRuralPrice(product.getDeliveryRuralPrice());
 			updateProduct.setDeliveryJejuPrice(product.getDeliveryJejuPrice());
+			updateProduct.setCommissionPct(product.getCommissionPct());
 			updateProduct.setModId(memberId);
 			
 			return productRepository.save(updateProduct);

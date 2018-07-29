@@ -277,7 +277,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             UsitOrder updateOrder = orderRepository.findFirstByMerchantUid(params.get("merchant_uid"));
 
             updateOrder.setImpUid(params.get("imp_uid"));
-            updateOrder.setOrderStatusCd("1102");
+            updateOrder.setOrderStatusCd(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_COMPLETE);
 
             orderRepository.save(updateOrder);
 
@@ -297,8 +297,10 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             	  
             	  if(isOrderItemUpdate) {
             		  orderItems.get(i).setPaymentDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
-                    }
-            	  
+
+            		  orderItems.get(i).setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_PAYMENT_COMPLETE);
+            	  }
+            	  //orderItem의 결제상태변경 (1299에서 1201)
             	  orderItemRepository.save(orderItems);
             	  
             	  
@@ -348,7 +350,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 	}else {
                 		orderItemPrice = 0;
                 	}
-                    int quantity = orderItems.get(i).getQuantity();
+//                    int quantity = orderItems.get(i).getQuantity();
 //                    int optionAddPrice = 0;
                         //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
 //                        List<ProductOption> productOption=orderItems.get(i).getProduct().getProductOptions();
@@ -357,9 +359,36 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 //                            optionAddPrice+=productOption.get(j).getAddPrice();
 //                        }
 //                        }
-                        double rate = 3;
+                    
+                  //storeKey 인플루언서 구하기
+                    AES256Util aes256Util = null;
+            		String uId = null;
+            		try {
+            			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+            		} catch (UnsupportedEncodingException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		
+            		try {
+            			uId = aes256Util.decrypt(orderItems.get(i).getStoreKey());
+            		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+                 	
+                    
+            		
+            		Member influencer = memberRepository.findByMemberUid(uId);
+            		
+            		Integer memberId = influencer.getMemberId();
+                        
+            		double productRate = orderItems.get(i).getProduct().getCommissionPct();
 
-                        addPoint += calculatePoint(orderItemPrice * quantity, rate);
+            		double influencerRate = influencer.getCommissionPct();
+                    
+//            		addPoint += calculatePoint(orderItemPrice * quantity, productRate , influencerRate);
+            		addPoint += calculatePoint(orderItemPrice, productRate , influencerRate);
                     
                     
                     //쿠폰적용
@@ -377,46 +406,34 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 //                    	couponRepository.save(coupon);
 //                    }
                     
-                      //storeKey 인플루언서 구하기
-                        AES256Util aes256Util = null;
-                		String uId = null;
-                		try {
-                			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
-                		} catch (UnsupportedEncodingException e) {
-                			// TODO Auto-generated catch block
-                			e.printStackTrace();
-                		}
-                		
-                		try {
-                			uId = aes256Util.decrypt(orderItems.get(i).getStoreKey());
-                		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-                			// TODO Auto-generated catch block
-                			e.printStackTrace();
-                		}
-                     	
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-                		
-                		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
+                      
                         
                         
                         
                         
                         
                         if(addPoint != 0) {
+                        	//포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint() + addPoint;
+                            member.setTotalPoint(present);
+                            memberRepository.save(member);
+                        	
                             //포인트증감이력 저장
                             PointHistory point = new PointHistory();
                             point.setAddPoint(addPoint);
                             point.setRegId(updateOrder.getMemberId());
+                            point.setBalancePoint(present);
+                            point.setAddPct((addPoint / orderItemPrice ) * 100);
                             
                             //상품구매코드
                             if(orderItems.get(i).getStoreKey() != null) {
-                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_INFLUENCER);	
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_SELL);	
                             }
                             
                             
                             
-                            point.setOrderId(updateOrder.getOrderId());
+                            point.setOrderItemId(orderItems.get(i).getOrderItemId());
                             point.setMemberId(memberId);
                             pointHistoryRepository.save(point);
                             
@@ -424,12 +441,9 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                             
                             
                     		
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
                     		
-                    		//포인트적용
-                            Member member = memberRepository.findOne(memberId);
-                            int present = member.getTotalPoint();
-                            member.setTotalPoint(present+addPoint);
-                            memberRepository.save(member);
                     		
                     		
                     		
@@ -648,8 +662,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 	//인플루언서 포인트확인
                 	if(usitOrderItem.getStoreKey() != null) {
 
-                    int optionAddPrice = 0;
-                    int quantity = usitOrderItem.getQuantity();
+//                    int quantity = usitOrderItem.getQuantity();
                     int orderItemPrice;
                     if(payment != 0 ) {
                     	orderItemPrice = usitOrderItem.getAmount();
@@ -657,8 +670,32 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                     	orderItemPrice = 0;
                     }
                    
+                    
+                    
+                  //storeKey 인플루언서 구하기
+                    AES256Util aes256Util = null;
+            		String uId = null;
+            		try {
+            			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+            		} catch (UnsupportedEncodingException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		
+            		try {
+            			uId = aes256Util.decrypt(usitOrderItem.getStoreKey());
+            		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		Member influencer = memberRepository.findByMemberUid(uId);
+            		Integer memberId = influencer.getMemberId();
+            		
+            		
+            		
 //                    double rate = my23OrderItem.getProduct().getPointRate();
-                    double rate = 3;
+                    double productRate = usitOrderItem.getProduct().getCommissionPct();
+                    double influencerRate = influencer.getCommissionPct();
                     //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
 //                    List<ProductOption> productOption=usitOrderItem.getProduct().getProductOptions();
 //                    if(productOption!=null) {
@@ -667,9 +704,9 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 //                        }
 //                    }
 
-
-
-                        addPoint -= calculatePoint(orderItemPrice * quantity, rate);
+                        
+//                    addPoint -= calculatePoint(orderItemPrice * quantity, productRate, influencerRate);
+                    addPoint -= calculatePoint(orderItemPrice, productRate, influencerRate);
 
                       //쿠폰적용
 //                        if(usitOrderItem.getUsedCouponId() != null) {
@@ -681,60 +718,37 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
                         
                         
-                      //storeKey 인플루언서 구하기
-                        AES256Util aes256Util = null;
-                		String uId = null;
-                		try {
-                			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
-                		} catch (UnsupportedEncodingException e) {
-                			// TODO Auto-generated catch block
-                			e.printStackTrace();
-                		}
-                		
-                		try {
-                			uId = aes256Util.decrypt(usitOrderItem.getStoreKey());
-                		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-                			// TODO Auto-generated catch block
-                			e.printStackTrace();
-                		}
-                     	
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-                		
-                		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
                         if(addPoint != 0) {
+                        	
+                        	//포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint() + addPoint;
+                            member.setTotalPoint(present);
+                            memberRepository.save(member);
+                            
+                            
+                            
                             //포인트증감이력 저장
                             PointHistory point = new PointHistory();
                             point.setAddPoint(addPoint);
                             point.setRegId(updateOrder.getMemberId());
-                            
+                            point.setBalancePoint(present);
+                            point.setAddPct((addPoint / orderItemPrice) * 100);
                             
                           //상품구매코드
                             if(usitOrderItem.getStoreKey() != null) {
-                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_CANCEL);	
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_SELL_CANCEL);	
                             }
-                            point.setOrderId(updateOrder.getOrderId());
+                            point.setOrderItemId(usitOrderItem.getOrderItemId());
                             point.setMemberId(memberId);
                             pointHistoryRepository.save(point);
                             
                             
                             
-                          //포인트적용
-                            Member member = memberRepository.findOne(memberId);
-                            int present = member.getTotalPoint();
-                            member.setTotalPoint(present+addPoint);
-                            memberRepository.save(member);
+                          
                             
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
                             
                             ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
                             
@@ -844,10 +858,17 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
 
 
-    //포인트계산
+    //포인트계산 rate는 퍼센트
     int calculatePoint(int price,double rate) {
 
         return (int) Math.round(price * (rate / 100));
+
+    }
+    
+  //포인트계산 (상품판매금액 * 수수료 * 인플루언서 수수료) rate는 퍼센트
+    int calculatePoint(int price,double rate,double influencerRate) {
+
+        return (int) Math.round((price * (rate / 100)) * (influencerRate / 100));
 
     }
 

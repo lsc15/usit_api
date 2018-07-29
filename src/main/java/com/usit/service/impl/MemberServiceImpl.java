@@ -85,6 +85,7 @@ public class MemberServiceImpl implements MemberService {
 		updateMember.setPostcode(member.getPostcode());
 		updateMember.setAddress(member.getAddress());
 		updateMember.setAddressDetail(member.getAddressDetail());
+		updateMember.setCommissionPct(member.getCommissionPct());
 //		updateMember.setAddress(member.getAddress());
 //		updateMember.setAddressDetail(member.getAddressDetail());
 //		updateMember.setBirthDate(member.getBirthDate().replaceAll("-", ""));
