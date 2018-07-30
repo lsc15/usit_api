@@ -9,7 +9,6 @@ import javax.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Where;
-import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
@@ -95,8 +94,6 @@ public class Product implements Serializable {
 	@Column(name="reg_id")
 	private Integer regId;
 
-	@Column(name="temp_yn")
-	private String tempYn;
 
 	private String title;
 
@@ -104,13 +101,9 @@ public class Product implements Serializable {
 	private String titleImg;
 	
 	
-	@Column(name="use_yn")
-	private String useYn;
+	@Column(name="product_status_cd")
+	private String productStatusCd;
 	
-	@Column(name="delete_yn")
-	private String deleteYn;
-	
-
 	@Column(name="delivery_company_cd")
 	private String deliveryCompanyCd;
 	
@@ -119,6 +112,12 @@ public class Product implements Serializable {
 	
 	@Column(name="delivery_jeju_price")
 	private int deliveryJejuPrice;
+	
+	@Column(name="related_product_id")
+	private int relatedProductId;
+	
+	@Column(name="commission_pct")
+	private int commissionPct;
 	
 	
 	@OneToMany(fetch = FetchType.EAGER)
@@ -131,6 +130,7 @@ public class Product implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "category_cd", insertable = false, updatable = false)
 	private Category category;
+	
 	
 	@PrePersist
 	protected void onCreate() {

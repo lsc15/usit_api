@@ -239,14 +239,13 @@ public class ProductController extends CommonHeaderController{
 	//currentPage,PerPage를 받는
 
 	@GetMapping
-	public ModelAndView getProducts(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,@RequestParam(name ="useYn",required = false)  String useYn) {
+	public ModelAndView getProducts(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage, @RequestParam("productStatusCd") String productStatusCd) {
 		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "productId"));
 		ModelAndView mav = new ModelAndView("jsonView");
 		
 		String resultCode = "0000";
         String resultMsg = "";
-        String tempYn = "N";
-		Page<Product> page = productService.readAll(pageRequest,useYn,tempYn);
+		Page<Product> page = productService.readAll(pageRequest,productStatusCd);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -263,9 +262,9 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
-        String tempYn = "N";
+        String temp = UsitCodeConstants.PRODUCT_STATUS_CD_ENROLL;
         //useYn = Y
-		Page<Product> page = productService.readAllByCategoryCdAndTempYn(pageRequest,categoryCd,tempYn);
+		Page<Product> page = productService.readAllByCategoryCdAndProductStatusCdNot(pageRequest,categoryCd,temp);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -290,11 +289,14 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
-        String deleteYn = "N";
+        String productStatusCdDelete = UsitCodeConstants.PRODUCT_STATUS_CD_DELETE;
         SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
         SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
-		Page<Product> page = productService.readAllByRegIdAndDeleteYn(pageRequest,sessionVO.getMemberId(),deleteYn);
+        
+        
+        
+		Page<Product> page = productService.readAllByRegIdAndProductStatusCdNot(pageRequest,sessionVO.getMemberId(),productStatusCdDelete);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

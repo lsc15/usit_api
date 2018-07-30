@@ -62,8 +62,8 @@ public class PointHistoryController extends CommonHeaderController{
 	
 
 	
-	@GetMapping("/member/{memberId}")
-	public ModelAndView getCartItems(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,@PathVariable int memberId) {
+	@GetMapping()
+	public ModelAndView getPointList(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
 		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "pointId"));
 
 		ModelAndView mav = new ModelAndView("jsonView");
@@ -71,9 +71,36 @@ public class PointHistoryController extends CommonHeaderController{
 		String resultCode = "0000";
         String resultMsg = "";
         
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
 
         
-        Page<PointHistory> page = pointHistoryService.getPointListByMemberId(pageRequest,memberId);
+        Page<PointHistory> page = pointHistoryService.getPointListByMemberId(pageRequest,sessionVO.getMemberId());
+        
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", page);
+		
+		 return mav;
+	}
+	
+	
+	@GetMapping("/summary")
+	public ModelAndView getPointSummary(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
+		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "pointId"));
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+
+        
+        Page<PointHistory> page = pointHistoryService.getPointSummaryByMemberId(pageRequest,sessionVO.getMemberId());
         
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

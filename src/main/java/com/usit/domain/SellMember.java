@@ -106,6 +106,9 @@ public class SellMember implements Serializable {
     @Column(name="return_phone")
     private String returnPhone;
     
+    @Column(name="member_type_cd")
+    private String memberTypeCd;
+    
     
     @Column(name="mod_id")
     private Integer modId;
@@ -128,7 +131,7 @@ public class SellMember implements Serializable {
     @JoinColumn(name = "member_id", insertable = false, updatable = false)
     private List<MemberRole> memberRoles;
 
-
+    
     @PrePersist
     protected void onCreate() {
         regDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul");

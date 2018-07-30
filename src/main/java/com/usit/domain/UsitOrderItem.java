@@ -78,6 +78,14 @@ public class UsitOrderItem implements Serializable {
     
     private int quantity;
     
+    
+    @Column(name="commission_pct")
+    private Integer commissionPct;
+    
+    @Column(name="inf_commission_pct")
+    private Integer infCommissionPct;
+    
+    
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="reg_date")
     private LocalDateTime regDate;
@@ -184,12 +192,8 @@ public class UsitOrderItem implements Serializable {
     private UsitCode returnStatus;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    //@Fetch(FetchMode.SELECT)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private UsitOrder order;
-    
-	public UsitOrderItem() {
-    }
     
 
     @PrePersist

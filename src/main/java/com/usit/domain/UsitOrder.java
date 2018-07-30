@@ -171,8 +171,6 @@ public class UsitOrder implements Serializable {
 				+ ", paymentMethod=" + paymentMethod + ", orderStatus=" + orderStatus + ", orderItems=" + orderItems
 				+ "]";
 	}
-
-	
     
 
 }

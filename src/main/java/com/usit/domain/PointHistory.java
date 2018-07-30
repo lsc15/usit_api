@@ -2,8 +2,12 @@ package com.usit.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
@@ -33,6 +37,18 @@ public class PointHistory implements Serializable {
 
 	@Column(name="member_id")
 	private Integer memberId;
+	
+	@Column(name="order_item_id")
+	private Integer orderItemId;
+
+	@Column(name="point_type_cd")
+	private String pointTypeCd;
+	
+	@Column(name="add_pct")
+	private int addPct;
+	
+	@Column(name="balance_point")
+	private int balancePoint;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="mod_date")
@@ -41,15 +57,6 @@ public class PointHistory implements Serializable {
 	@Column(name="mod_id")
 	private Integer modId;
 
-	@Column(name="order_id")
-	private Integer orderId;
-
-	@Column(name="point_type_cd")
-	private String pointTypeCd;
-	
-	@Column(name="add_pct")
-	private int addPct;
-	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="withdrawable_date")
 	private LocalDateTime withdrawableDate;
@@ -66,6 +73,10 @@ public class PointHistory implements Serializable {
 	@JoinColumn(name = "point_type_cd", insertable = false, updatable = false)
 	private UsitCode pointType;
 
+	@ManyToOne(fetch = FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@JoinColumn(name = "order_item_id", insertable = false, updatable = false)
+	private UsitOrderItem orderItem;
 	
 	@PrePersist
 	protected void onCreate() {

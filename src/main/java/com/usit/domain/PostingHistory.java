@@ -56,7 +56,6 @@ public class PostingHistory {
 	@Column(name="confirm_yn")
 	private String confirmYn;
 	
-	
 	@PrePersist
 	protected void onCreate() {
 		regDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul");

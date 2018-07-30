@@ -28,11 +28,23 @@ public class UsitCodeConstants {
     public static final String KEYWORD_CONDITION_TRACKING_NUMBER = "trackingNumber";
     
     
+    /* 상품상태 코드 */
+    public static final String PRODUCT_STATUS_CD_TEMP = "2201";
+    public static final String PRODUCT_STATUS_CD_DELETE = "2204";
+    public static final String PRODUCT_STATUS_CD_ENROLL = "2203";
+    
     /* 포인트 적립유형 */
     public static final String POINT_TYPE_CD_PURCHASE ="1501";
     public static final String POINT_TYPE_CD_CANCEL ="1502";
+    
+    public static final String POINT_TYPE_CD_SELL ="1505";
+    public static final String POINT_TYPE_CD_SELL_CANCEL ="1506";
+    
     public static final String POINT_TYPE_CD_INFLUENCER = "1510";
 
+    
+    /*판매자 상태 코드*/
+    public static final String SELLMEMBER_TYPE_CD_MASTER = "2302";
     
     /* 생성자 방지 */
     private UsitCodeConstants(){ 

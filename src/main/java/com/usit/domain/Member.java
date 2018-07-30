@@ -66,6 +66,9 @@ public class Member implements Serializable {
     @Column(name="withdrawable_point")
 	private int withdrawablePoint;
     
+    @Column(name="commission_pct")
+	private int commissionPct;
+    
     @Column(name="mod_id")
     private Long modId;
 
