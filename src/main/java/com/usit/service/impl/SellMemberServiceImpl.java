@@ -67,7 +67,7 @@ public class SellMemberServiceImpl implements SellMemberService {
 
 
 	public SellMember createMember(SellMember member) {
-		SellMember existMember = sellMemberRepository.findOne(member.getSellMemberId());
+		SellMember existMember = sellMemberRepository.findBySellMemberUid(member.getSellMemberUid());
 		if(existMember!=null) {
 			LOGGER.warn("이미 등록된 사용자입니다.");
 			throw new FrameworkException("-1001", "이미 등록된 사용자입니다."); // 오류 리턴 예시
