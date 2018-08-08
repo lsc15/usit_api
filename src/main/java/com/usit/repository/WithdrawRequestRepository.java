@@ -1,22 +1,20 @@
 package com.usit.repository;
 
 
-
-
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.usit.domain.PointHistory;
+
+import com.usit.domain.WithdrawRequest;
 
 @Repository
-public interface PointHistoryRepository extends JpaRepository<PointHistory, Integer>{
+public interface WithdrawRequestRepository extends JpaRepository<WithdrawRequest, Integer>{
 
-	
-	public Page<PointHistory> findAllByMemberId(Pageable Pageable,int memberId);
-	
-	public List<PointHistory> findAllByMemberId(int memberId);
 
+	public List<WithdrawRequest> findAllByMemberId(Integer memberId);
+	
+	
 }

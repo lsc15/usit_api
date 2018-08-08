@@ -1,7 +1,6 @@
 package com.usit.controller;
 
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,11 +30,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.ui.dto.ComUiDTO;
-import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
-import com.usit.domain.Member;
-import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 import com.usit.service.CommonService;
 import com.usit.service.OrderItemService;
@@ -457,10 +452,11 @@ public class UsitOrderItemController extends CommonHeaderController{
    
    /**
     * 주문 취소 완료 콜백 (이니시스)
+    * 아이템단위 취소를 위한 메소드
     * @param request
     * @param curPage
     * @param perPage
-  * @return
+    * @return
     * @return
     * @throws Exception
     */

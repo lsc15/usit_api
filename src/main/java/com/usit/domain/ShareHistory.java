@@ -49,6 +49,11 @@ public class ShareHistory implements Serializable {
 	@Column(name="purchase_amount")
 	private int purchaseAmount;
 	
+	
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
+	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="mod_date")
 	private LocalDateTime modDate;

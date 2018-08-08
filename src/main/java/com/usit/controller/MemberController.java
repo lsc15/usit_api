@@ -220,7 +220,7 @@ public class MemberController extends CommonHeaderController{
 	
 	
 	@PostMapping("/token")
-	public ModelAndView getUseInfor(@RequestBody VerifyToken token) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+	public ModelAndView getUseInfo(@RequestBody VerifyToken token) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		

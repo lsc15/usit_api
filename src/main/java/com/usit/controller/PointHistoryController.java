@@ -2,6 +2,8 @@ package com.usit.controller;
 
 
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,7 @@ public class PointHistoryController extends CommonHeaderController{
 
         
         Page<PointHistory> page = pointHistoryService.getPointListByMemberId(pageRequest,sessionVO.getMemberId());
+//        List<PointHistory> page = pointHistoryService.getPointListByMemberId2(sessionVO.getMemberId());
         
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

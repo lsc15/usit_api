@@ -4,10 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,6 +77,41 @@ public class ShareController extends CommonHeaderController{
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
         mav.addObject("data", share);
+		
+		 return mav;
+	}
+    
+    
+    
+    /**
+     * 공유내역 조회
+     * @param request
+     * @param params
+     * @return 해당토큰유저의 공유내용 전체
+     * @throws UnsupportedEncodingException 
+     * @throws GeneralSecurityException 
+     * @throws NoSuchAlgorithmException 
+     * @throws Exception
+     */
+    @GetMapping("/token")
+	public ModelAndView getShareHistory() throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+
+   		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+        
+     	List<ShareHistory> shareList = shareHistoryService.getShareHistoryByMemberId(sessionVO.getMemberId());
+		
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", shareList);
 		
 		 return mav;
 	}

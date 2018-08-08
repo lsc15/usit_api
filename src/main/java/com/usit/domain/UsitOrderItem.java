@@ -22,6 +22,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -191,6 +192,8 @@ public class UsitOrderItem implements Serializable {
     @JoinColumn(name = "return_status_cd", insertable = false, updatable = false)
     private UsitCode returnStatus;
     
+    
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private UsitOrder order;

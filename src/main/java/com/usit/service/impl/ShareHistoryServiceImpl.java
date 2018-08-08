@@ -4,6 +4,7 @@ package com.usit.service.impl;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,14 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
 		
 		return shareHistoryRepository.findByDateAndMemberId(today,memberId);
+
+	}
+	
+	
+	
+public List<ShareHistory> getShareHistoryByMemberId(Integer memberId) {
+		
+		return shareHistoryRepository.findByMemberId(memberId);
 
 	}
 	

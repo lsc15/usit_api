@@ -27,6 +27,13 @@ public class UsitCodeConstants {
     public static final String KEYWORD_CONDITION_PRODUCT_ID = "productId";
     public static final String KEYWORD_CONDITION_TRACKING_NUMBER = "trackingNumber";
     
+    public static final String PERIOD_CONDITION_REQUEST_DATE ="regDate";
+    public static final String PERIOD_CONDITION_PROCESS_DATE = "modDate";
+    public static final String KEYWORD_CONDITION_OWNER_NAME = "ownerName";
+    public static final String KEYWORD_CONDITION_ACCOUNT_NUMBER = "accountNumber";
+    
+    
+    
     
     /* 상품상태 코드 */
     public static final String PRODUCT_STATUS_CD_TEMP = "2201";
@@ -40,11 +47,21 @@ public class UsitCodeConstants {
     public static final String POINT_TYPE_CD_SELL ="1505";
     public static final String POINT_TYPE_CD_SELL_CANCEL ="1506";
     
+    public static final String POINT_TYPE_CD_WITHDRAW ="1507";
+    public static final String POINT_TYPE_CD_WITHDRAW_CANCEL ="1508";
+    
     public static final String POINT_TYPE_CD_INFLUENCER = "1510";
 
     
     /*판매자 상태 코드*/
     public static final String SELLMEMBER_TYPE_CD_MASTER = "2302";
+    
+    
+    
+    /* 포인트 출금 요청유형 */
+    public static final String POINT_WITHDRAW_TYPE_CD_STANDBY ="2501";
+    public static final String POINT_WITHDRAW_TYPE_CD_COMPLETE ="2502";
+    public static final String POINT_WITHDRAW_TYPE_CD_DENY ="2503";
     
     /* 생성자 방지 */
     private UsitCodeConstants(){ 

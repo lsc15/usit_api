@@ -1,8 +1,12 @@
 package com.usit.service.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,16 +41,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.service.CommonHeaderService;
+import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Member;
+import com.usit.domain.PointHistory;
 import com.usit.domain.UsitOrderItem;
-import com.usit.domain.ProductOption;
 import com.usit.domain.SellMember;
+import com.usit.domain.ShareHistory;
 import com.usit.domain.UsitOrder;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
+import com.usit.repository.PointHistoryRepository;
 import com.usit.repository.SellMemberRepository;
+import com.usit.repository.ShareHistoryRepository;
 import com.usit.service.OrderItemService;
 import com.usit.util.TimeUtil;
 
@@ -68,6 +76,15 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 	
 	@Autowired
 	private SellMemberRepository sellMemberRepository;
+	
+	@Autowired
+	private MemberRepository memberRepository;
+	
+	@Autowired
+    private PointHistoryRepository pointHistoryRepository;
+    
+    @Autowired
+    private ShareHistoryRepository shareHistoryRepository;
 	
 	@Autowired
     JdbcTemplate jdbcTemplate;
@@ -456,46 +473,188 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     	
     	int payment = 0;
     	UsitOrder updateOrder = orderRepository.findOne(orderItem.getOrderId());
+    	
+    	UsitOrderItem updateOrderItem = orderItemRepository.findOne(orderItem.getOrderItemId());
             
+    	
     	if(updateOrder!=null) {
-//    		updateOrder.setOrderStatusCd("1104");
-//    		orderRepository.save(updateOrder);
+    		boolean isLast = false;
     		List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
-    		if(updateItems!=null) {
-    			int size = updateItems.size();
-    			for (int i = 0; i < size; i++) {
-    				if(updateItems.get(i).getOrderItemId() == orderItem.getOrderItemId()) {
-    					
-    				
-    				payment += updateItems.get(i).getAmount();
+    		for (Iterator iterator = updateItems.iterator(); iterator.hasNext();) {
+				UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+				if(orderItem.getOrderItemId() != usitOrderItem.getOrderItemId() && !usitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL)) {
+					isLast = true;
+				}
+			}
+    		
+    		if(isLast) {
+    		updateOrder.setOrderStatusCd(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_CANCEL);
+    		orderRepository.save(updateOrder);
+    		}
+    		
+    		
+    		if(updateOrderItem!=null) {
+    				payment += updateOrderItem.getAmount();
     				
     				
     				UsitOrderItem store = new UsitOrderItem();
-    				store=updateItems.get(i);
-    				store.setDeliveryStatusCd("1211");
+    				store=updateOrderItem;
+    				store.setReturnReasonCd(updateOrderItem.getReturnReasonCd());
+    				store.setReturnReasonText(updateOrderItem.getReturnReasonText());
+    				store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
     				store.setReturnReasonCd(returnReasonCd);
     				store.setReturnReasonText(returnReasonText);
                     orderItemRepository.save(store);
-                    
-                    }
-    			}
                 }
-    		
 
 
             }
-    	
-    	// checksum 취소 트랜잭션 수행 전, 현재시점의 취소 가능한 잔액.
-    	// API요청자가 기록하고 있는 취소가능 잔액과 아임포트가 기록하고 있는 취소가능 잔액이 일치하는지 사전에 검증 추가할것
 
             JSONObject iamPort = new JSONObject();
             if(payment != 0 ) {
-            	iamPort= iamPortCancelItemAPI(updateOrder,String.valueOf(payment));
+            	iamPort = iamPortCancelItemAPI(updateOrder,String.valueOf(payment));
             }else {
             	iamPort.put("type","amount:0");
             }
 
         if("0".equals(String.valueOf(iamPort.get("code"))) || payment == 0) {
+
+        	
+            //포인트차감
+            int addPoint = 0;
+            if(updateOrderItem!=null) {
+                	
+                	//인플루언서 포인트확인
+                	if(updateOrderItem.getStoreKey() != null) {
+
+//                    int quantity = usitOrderItem.getQuantity();
+                    int orderItemPrice;
+                    if(payment != 0 ) {
+                    	orderItemPrice = updateOrderItem.getAmount();
+                    }else {
+                    	orderItemPrice = 0;
+                    }
+                   
+                    
+                    
+                  //storeKey 인플루언서 구하기
+                    AES256Util aes256Util = null;
+            		String uId = null;
+            		try {
+            			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+            		} catch (UnsupportedEncodingException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		
+            		try {
+            			uId = aes256Util.decrypt(updateOrderItem.getStoreKey());
+            		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		Member influencer = memberRepository.findByMemberUid(uId);
+            		Integer memberId = influencer.getMemberId();
+            		
+            		
+            		
+//                    double rate = my23OrderItem.getProduct().getPointRate();
+                    double productRate = updateOrderItem.getProduct().getCommissionPct();
+                    double influencerRate = influencer.getCommissionPct();
+                    //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
+//                    List<ProductOption> productOption=usitOrderItem.getProduct().getProductOptions();
+//                    if(productOption!=null) {
+//                        for (int j = 0; j < productOption.size(); j++) {
+//                            optionAddPrice+=productOption.get(j).getAddPrice();
+//                        }
+//                    }
+
+                        
+//                    addPoint -= calculatePoint(orderItemPrice * quantity, productRate, influencerRate);
+                    addPoint -= calculatePoint(orderItemPrice, productRate, influencerRate);
+
+                      //쿠폰적용
+//                        if(usitOrderItem.getUsedCouponId() != null) {
+//                        	Coupon coupon = couponRepository.findOne(usitOrderItem.getUsedCouponId());
+//                        	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+//                        	coupon.setUseYn("N");
+//                        	couponRepository.save(coupon);
+//                        }
+
+                        
+                        
+                        if(addPoint != 0) {
+                        	
+                        	//포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint() + addPoint;
+                            member.setTotalPoint(present);
+                            memberRepository.save(member);
+                            
+                            
+                            
+                            //포인트증감이력 저장
+                            PointHistory point = new PointHistory();
+                            point.setAddPoint(addPoint);
+                            point.setRegId(updateOrder.getMemberId());
+                            point.setBalancePoint(present);
+                            point.setAddPct((addPoint / orderItemPrice) * 100);
+                            
+                          //상품구매코드
+                            if(updateOrderItem.getStoreKey() != null) {
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_SELL_CANCEL);	
+                            }
+                            point.setOrderItemId(updateOrderItem.getOrderItemId());
+                            point.setMemberId(memberId);
+                            pointHistoryRepository.save(point);
+                            
+                            
+                            
+                          
+                            
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                            
+                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                            
+                            
+                            
+                            
+                			try {
+                	        if(existShare != null) {
+                	    		
+                	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() - 1);
+                	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() - updateOrderItem.getAmount());
+                	    		shareHistoryRepository.save(existShare);
+                	        
+                	        }else{
+                	        	ShareHistory share = new ShareHistory();
+                	    	    share.setMemberId(memberId);
+                	    	    share.setStoreKey(updateOrderItem.getStoreKey());
+                	    	    share.setProductId(updateOrderItem.getProductId());
+                	    		share.setDate(today);
+                	    		share.setPurchaseCnt(-1);
+                	    		share.setPurchaseAmount(-updateOrderItem.getAmount());
+                	    		shareHistoryRepository.save(share);
+                	        }
+                			}catch (Exception e) {
+                				logger.warn("공유 히스토리 저장 실패.");
+                				throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시
+                			}
+                            
+                            
+                            
+                            
+                            }
+                            
+                        
+                        
+                	}
+            }
+
+
+            
+
             return iamPort;
         }else {
 
@@ -566,11 +725,18 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     
     
-    		 //포인트계산
-    	    int calculatePoint(int price,double rate) {
+  //포인트계산 rate는 퍼센트
+    int calculatePoint(int price,double rate) {
 
-    	        return (int) Math.round(price * (rate / 100));
+        return (int) Math.round(price * (rate / 100));
 
-    	    }
+    }
+    
+  //포인트계산 (상품판매금액 * 수수료 * 인플루언서 수수료) rate는 퍼센트
+    int calculatePoint(int price,double rate,double influencerRate) {
+
+        return (int) Math.round((price * (rate / 100)) * (influencerRate / 100));
+
+    }
 
 }
