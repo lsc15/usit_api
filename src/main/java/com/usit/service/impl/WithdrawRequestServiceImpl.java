@@ -179,7 +179,7 @@ public class WithdrawRequestServiceImpl implements WithDrawRequestService{
 //		ArrayList<WithdrawRequest> withdrawRequestResult = (ArrayList<WithdrawRequest>) ((List) ( (ArrayList) withdrawRequest).clone());
 		//주민번호 복호화
 		AES256Util aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
-		for (Iterator iterator = withdrawRequest.iterator(); iterator.hasNext();) {
+		for (Iterator<WithdrawRequest> iterator = withdrawRequest.iterator(); iterator.hasNext();) {
 			WithdrawRequest ori = (WithdrawRequest) iterator.next();
 			WithdrawRequest clone = new WithdrawRequest();
 			clone.setAccountNumber(ori.getAccountNumber());
@@ -226,7 +226,7 @@ public class WithdrawRequestServiceImpl implements WithDrawRequestService{
 		//주민번호 복호화
 		
 		AES256Util aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
-		for (Iterator iterator = withdrawRequest.iterator(); iterator.hasNext();) {
+		for (Iterator<WithdrawRequest> iterator = withdrawRequest.iterator(); iterator.hasNext();) {
 			WithdrawRequest ori = (WithdrawRequest) iterator.next();
 			WithdrawRequest clone = new WithdrawRequest();
 			clone.setAccountNumber(ori.getAccountNumber());

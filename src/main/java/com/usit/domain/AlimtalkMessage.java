@@ -41,6 +41,11 @@ public class AlimtalkMessage implements Serializable {
 	@Column(name="variable_list")
 	private String variableList;
 
+	@Column(name="mobile_url")
+	private String mobileUrl;
+	
+	@Column(name="pc_url")
+	private String pcUrl;
 	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")

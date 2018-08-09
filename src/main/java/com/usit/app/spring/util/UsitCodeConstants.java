@@ -63,6 +63,11 @@ public class UsitCodeConstants {
     public static final String POINT_WITHDRAW_TYPE_CD_COMPLETE ="2502";
     public static final String POINT_WITHDRAW_TYPE_CD_DENY ="2503";
     
+    
+    /* 카카오알림톡 요청유형 */
+    public static final String KAKAO_WELCOME ="U001";
+    
+    
     /* 생성자 방지 */
     private UsitCodeConstants(){ 
 
