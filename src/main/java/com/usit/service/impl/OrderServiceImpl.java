@@ -45,6 +45,7 @@ import com.usit.domain.Product;
 import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.UsitOrderTransaction;
+import com.usit.domain.VerifyToken;
 import com.usit.domain.ProductOption;
 import com.usit.domain.ShareHistory;
 import com.usit.repository.CartItemRepository;
@@ -57,6 +58,7 @@ import com.usit.repository.ProductOptionRepository;
 import com.usit.repository.ProductRepository;
 import com.usit.repository.ShareHistoryRepository;
 import com.usit.service.OrderService;
+import com.usit.util.MailUtil;
 import com.usit.util.TimeUtil;
 
 @Service
@@ -223,6 +225,14 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     
     
     @Override
+    public UsitOrder getUsitOrderByOrderIdAndOrdererPhone(int orderId, String ordererPhone) throws Exception{
+
+        UsitOrder usitOrder = orderRepository.findByOrderIdAndOrdererPhone(orderId, ordererPhone);
+
+        return usitOrder;
+    }
+    
+    @Override
     public List<DeliveryCharge> getDeliveryCharge(String postCode) throws Exception{
     	
     	
@@ -334,6 +344,19 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 //            }
 
 
+            
+          //비회원구매 메일발송
+    		if(updateOrder.getMemberId() == null) {
+    			
+    			MailUtil mu = new MailUtil();
+    			try {
+    				mu.anonymousSendMail(updateOrder.getOrdererEmail(), updateOrder.getOrderId(), updateOrder.getOrdererPhone());
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			
+    		}
 
 
             //인플루언서 포인트증가
@@ -409,9 +432,6 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                       
                         
                         
-                        
-                        
-                        
                         if(addPoint != 0) {
                         	//포인트적용
                             Member member = memberRepository.findOne(memberId);
@@ -443,11 +463,11 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                     		
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                    		int productId = orderItems.get(i).getProductId();
                     		
                     		
                     		
-                    		
-                    		ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                    		ShareHistory existShare = shareHistoryRepository.findByDateAndMemberIdAndProductId(today,memberId,productId);
                             
                             
                             
@@ -457,11 +477,14 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 	    		
                 	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() + 1);
                 	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() + orderItems.get(i).getAmount());
+                	            existShare.setPoint(existShare.getPoint() + addPoint);
                 	    		shareHistoryRepository.save(existShare);
                 	        
                 	        }else{
                 	        	ShareHistory share = new ShareHistory();
                 	    	    share.setMemberId(memberId);
+                	    	    share.setPurchaseAmount(orderItems.get(i).getAmount());
+                	    	    share.setPoint(addPoint);
                 	    	    share.setStoreKey(orderItems.get(i).getStoreKey());
                 	    	    share.setProductId(orderItems.get(i).getProductId());
                 	    		share.setDate(today);
@@ -749,8 +772,9 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                             
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                    		int productId = usitOrderItem.getProductId();
                             
-                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberIdAndProductId(today,memberId,productId);
                             
                             
                             
@@ -760,6 +784,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 	    		
                 	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() - 1);
                 	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() - usitOrderItem.getAmount());
+                	        	existShare.setPoint(existShare.getPoint() - addPoint);
                 	    		shareHistoryRepository.save(existShare);
                 	        
                 	        }else{
@@ -768,6 +793,8 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 	    	    share.setStoreKey(usitOrderItem.getStoreKey());
                 	    	    share.setProductId(usitOrderItem.getProductId());
                 	    		share.setDate(today);
+                	    		share.setPurchaseAmount(-usitOrderItem.getAmount());
+                	    		share.setPoint(-addPoint);
                 	    		share.setPurchaseCnt(-1);
                 	    		shareHistoryRepository.save(share);
                 	        }

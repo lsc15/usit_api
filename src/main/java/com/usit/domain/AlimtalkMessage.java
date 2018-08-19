@@ -40,9 +40,21 @@ public class AlimtalkMessage implements Serializable {
 	
 	@Column(name="variable_list")
 	private String variableList;
-
+	
+	@Column(name="button_yn")
+	private String buttonYn;
+	
+	@Column(name="button_name")
+	private String buttonName;
+	
 	@Column(name="mobile_url")
 	private String mobileUrl;
+	
+	@Column(name="button_bk")
+	private String buttonBk;
+	
+	@Column(name="button_md")
+	private String buttonMd;
 	
 	@Column(name="pc_url")
 	private String pcUrl;

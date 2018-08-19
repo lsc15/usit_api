@@ -37,6 +37,9 @@ public class Comment implements Serializable {
 
 	@Column(name="member_id")
 	private Integer memberId;
+	
+	@Column(name="sell_member_id")
+	private Integer sellMemberId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="mod_date")

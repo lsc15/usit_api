@@ -19,18 +19,18 @@ public class MailUtil {
     private static Logger LOGGER = LoggerFactory.getLogger(MailUtil.class);
     // Replace sender@example.com with your "From" address.
     // This address must be verified.
-    static final String FROM = "";
-    static final String FROMNAME = "info";
+    static final String FROM = "admin@usit.co.kr";
+    static final String FROMNAME = "admin";
 	
     // Replace recipient@example.com with a "To" address. If your account 
     // is still in the sandbox, this address must be verified.
     String to = "";
     
     // Replace smtp_username with your Amazon SES SMTP user name.
-    static final String SMTP_USERNAME = "AKIAIF4X6HOQL2RVZMBA";
+    static final String SMTP_USERNAME = "AKIAJANSHG37D2I4B67Q";
     
     // Replace smtp_password with your Amazon SES SMTP password.
-    static final String SMTP_PASSWORD = "Aplxu1DxgvaNRm6UhuugcY4GWX+LHDa/lETw2vX1LUUh";
+    static final String SMTP_PASSWORD = "Ak6gZzTkhRdU6iewWJFJ0FdkOidf1VGWO2tch70v01NP";
     
     // The name of the Configuration Set to use for this message.
     // If you comment out or remove this variable, you will also need to
@@ -43,7 +43,7 @@ public class MailUtil {
     // The port you will connect to on the Amazon SES SMTP endpoint. 
     static final int PORT = 587;
     
-    static final String SUBJECT = "본인 인증메일";
+    static final String SUBJECT = "[유짓]비회원 구매정보";
     static final String SUBJECT_PASS_MAIL = "임시 비밀번호";
     
     String body = "";
@@ -165,6 +165,75 @@ public class MailUtil {
     msg.setFrom(new InternetAddress(FROM,FROMNAME));
     msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
     msg.setSubject(SUBJECT_PASS_MAIL);
+    msg.setContent(body,"text/html; charset=euc-kr");
+ // Add a configuration set header. Comment or delete the 
+ // next line if you are not using a configuration set
+//        msg.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
+            
+ // Create a transport.
+    Transport transport = session.getTransport();
+                    
+        // Send the message.
+        try
+        {
+            LOGGER.info("Sending...");
+            
+            // Connect to Amazon SES using the SMTP username and password you specified above.
+            transport.connect(HOST, SMTP_USERNAME, SMTP_PASSWORD);
+        	
+            // Send the email.
+            transport.sendMessage(msg, msg.getAllRecipients());
+            LOGGER.info("Email sent!");
+        }
+        catch (Exception ex) {
+            LOGGER.error("The email was not sent.");
+            LOGGER.error("Error message: " + ex.getMessage());
+        }
+        finally
+        {
+            // Close and terminate the connection.
+            transport.close();
+        }
+    }
+    
+    
+    
+    
+    
+    public void anonymousSendMail(String mail,int orderId,String ordererPhone) throws Exception {
+    	
+    	
+    	to = mail;
+
+    		body =
+    		    	String.join(
+    		        	    System.getProperty("line.separator"),
+    		        	    "<h1> 상품주문에 감사드립니다!</h1>",
+    		        	    "<p>주문하신 상품의 정보를 통해 유짓에서 배송추적이 가능합니다. ",
+    		        	    "<p>주문번호 : "+orderId,
+    		        	    "<p>주문자 휴대폰 번호 : "+ordererPhone,
+    		        	    "<p><a href='https://www.usit.co.kr'><B><U>유짓 사이트가기</U></B></a>",
+    		        	    "<p>감사합니다."
+    		        	);
+
+    	
+    	
+    	
+    // Create a Properties object to contain connection configuration information.
+    	Properties props = System.getProperties();
+    	props.put("mail.transport.protocol", "smtp");
+    	props.put("mail.smtp.port", PORT); 
+    	props.put("mail.smtp.starttls.enable", "true");
+    	props.put("mail.smtp.auth", "true");
+
+    // Create a Session object to represent a mail session with the specified properties. 
+    	Session session = Session.getDefaultInstance(props);
+
+    // Create a message with the specified information. 
+    MimeMessage msg = new MimeMessage(session);
+    msg.setFrom(new InternetAddress(FROM,FROMNAME));
+    msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+    msg.setSubject(SUBJECT);
     msg.setContent(body,"text/html; charset=euc-kr");
  // Add a configuration set header. Comment or delete the 
  // next line if you are not using a configuration set

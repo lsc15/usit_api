@@ -6,7 +6,7 @@ import com.usit.domain.ShareHistory;
 
 public interface ShareHistoryService {
 
-	ShareHistory getShareHistory(String storeKey);
+	ShareHistory getShareHistory(int productId,String storeKey);
 	
 	List<ShareHistory> getShareHistoryByMemberId(Integer memberId);
 
@@ -17,7 +17,7 @@ public interface ShareHistoryService {
 	
 	ShareHistory updateShareHistory(int productId,Integer shareId);
 	
-	ShareHistory updateShareHistory(ShareHistory shareHistory,Integer shareHistoryId);
+//	ShareHistory updateShareHistory(ShareHistory shareHistory,Integer shareHistoryId);
 
 
 

@@ -193,7 +193,8 @@ public class UsitOrderItem implements Serializable {
     private UsitCode returnStatus;
     
     
-    @JsonIgnore
+//    @JsonIgnore 주문취소시 잘못된 order가 넘어와서 사용했지만 json을 완전 무시하면 셀러오더아이템 조회시 주문이 조인안되는 문제발생해서 아래 json프로퍼티사용
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private UsitOrder order;

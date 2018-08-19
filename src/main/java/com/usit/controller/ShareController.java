@@ -59,16 +59,18 @@ public class ShareController extends CommonHeaderController{
         String resultMsg = "";
         
      	ShareHistory share = new ShareHistory();
-		share = shareHistoryService.getShareHistory(shareHistory.getStoreKey());
+		share = shareHistoryService.getShareHistory(shareHistory.getProductId(),shareHistory.getStoreKey());
 		
 		try {
-        if(share != null) {
+//        if(share != null) {
         	
-        	share = shareHistoryService.updateShareHistory(shareHistory, share.getShareId());
+//        	share = shareHistoryService.updateShareHistory(shareHistory, share.getShareId());
         
-        }else{
+//        }else{
+			if(share == null) {
         	share = shareHistoryService.createShareHistory(shareHistory);
-        }
+			}
+//        }
 		}catch (Exception e) {
 			LOGGER.warn("공유 히스토리 저장 실패.");
 			throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시

@@ -3,8 +3,6 @@ package com.usit.controller;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,22 +22,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.usit.UsitApiApplication;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.security.handler.BaseAuthenticationSuccessHandler;
-import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
-import com.usit.domain.MemberRole;
 import com.usit.domain.VerifyToken;
 import com.usit.service.CommonService;
 import com.usit.service.MemberService;
 import com.usit.util.MailUtil;
-import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +53,6 @@ public class MemberController extends CommonHeaderController{
 	@Autowired
 	AuthenticationManager authenticationManager;
 
-	private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	
 	@PostMapping
@@ -72,11 +63,12 @@ public class MemberController extends CommonHeaderController{
 		String resultCode = "0000";
         String resultMsg = "";
 		
-        
-//        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
 
-//     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-//     	member.setReg_id(sessionVO.getMemberId());
+        
+        /**
+         * 기본 50% 커미션
+         */
+        member.setCommissionPct(50);
 		Member result = memberService.createMember(member);
 		 
 		 

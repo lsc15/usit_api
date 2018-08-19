@@ -11,7 +11,7 @@ import com.usit.domain.ShareHistory;
 @Repository
 public interface ShareHistoryRepository extends JpaRepository<ShareHistory, Integer>{
 
-	public ShareHistory findByDateAndMemberId(String today, Integer memberId);
+	public ShareHistory findByDateAndMemberIdAndProductId(String today, Integer memberId,int productId);
 	
 	public List<ShareHistory> findByMemberId(Integer memberId);
 

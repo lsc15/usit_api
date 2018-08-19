@@ -210,7 +210,7 @@ public class ProductController extends CommonHeaderController{
 		if(storeKey!=null) {
 			
 	     	
-			ShareHistory share = shareHistoryService.getShareHistory(storeKey);
+			ShareHistory share = shareHistoryService.getShareHistory(productId,storeKey);
 			try {
 	        if(share != null) {
 	        	share = shareHistoryService.updateShareHistory(productId,share.getShareId());

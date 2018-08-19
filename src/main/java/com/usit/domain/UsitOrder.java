@@ -113,8 +113,6 @@ public class UsitOrder implements Serializable {
     @Column(name="use_yn")
     private String useYn;
     
-    @Column(name="password")
-    private String password;
     
     @Column(name="user_ip")
     private String userIp;
@@ -135,7 +133,7 @@ public class UsitOrder implements Serializable {
 //    private List<UsitOrderItem> orderItems;
     
     
-    @OneToMany(mappedBy="order")
+    @OneToMany(mappedBy="order",fetch = FetchType.EAGER)
 //    @Fetch(FetchMode.SELECT)
 //    @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private List<UsitOrderItem> orderItems;
@@ -167,7 +165,7 @@ public class UsitOrder implements Serializable {
 				+ receiverAddress + ", receiverAddressDetail=" + receiverAddressDetail + ", receiverMessage="
 				+ receiverMessage + ", receiverName=" + receiverName + ", receiverPhone=" + receiverPhone
 				+ ", receiverPostcode=" + receiverPostcode + ", regDate=" + regDate + ", regId=" + regId
-				+ ", merchantUid=" + merchantUid + ", useYn=" + useYn + ", password=" + password + ", userIp=" + userIp
+				+ ", merchantUid=" + merchantUid + ", useYn=" + useYn + ",  userIp=" + userIp
 				+ ", paymentMethod=" + paymentMethod + ", orderStatus=" + orderStatus + ", orderItems=" + orderItems
 				+ "]";
 	}

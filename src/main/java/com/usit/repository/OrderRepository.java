@@ -21,5 +21,6 @@ public interface OrderRepository extends JpaRepository<UsitOrder, Integer>{
  
 //    public Page<My23Order> findAllByAndDeliverStatusCdInOrderStatusCdNot(Pageable pageable, List<String> deliveryStatusCds, String orderStatusCd);
     public UsitOrder findFirstByMerchantUid(String merchantUid);
+    public UsitOrder findByOrderIdAndOrdererPhone(int orderId ,String ordererPhone);
 
 }

@@ -19,6 +19,7 @@ public interface OrderService {
 //    public List<UsitOrder> getUsitOrderExcelListIn(List<Integer> orderItems) throws Exception;
     public UsitOrder getUsitOrderByMerchantUid(String merchantUid) throws Exception;
     public UsitOrder getUsitOrderByOrderId(int orderId) throws Exception;
+    public UsitOrder getUsitOrderByOrderIdAndOrdererPhone(int orderId,String ordererPhone) throws Exception;
     public List<DeliveryCharge> getDeliveryCharge(String postCode) throws Exception;
     public UsitOrderTransaction saveOrderTransaction(UsitOrderTransaction order) throws Exception;
     public UsitOrder saveOrder(UsitOrder order) throws Exception;

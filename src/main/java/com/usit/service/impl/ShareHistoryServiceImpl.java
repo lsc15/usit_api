@@ -39,10 +39,12 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 
 
 	
-	public ShareHistory getShareHistory(String storeKey) {
+	public ShareHistory getShareHistory(int productId,String storeKey) {
 		
 		AES256Util aes256Util = null;
 		String uId = null;
+		String today = null;
+		Integer memberId = null;
 		try {
 			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
 		} catch (UnsupportedEncodingException e) {
@@ -50,19 +52,22 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 			e.printStackTrace();
 		}
 		
+		
 		try {
 			uId = aes256Util.decrypt(storeKey);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+			today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+			
+			memberId = memberRepository.findByMemberUid(uId).getMemberId();
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			LOGGER.warn("공유 히스토리 저장 실패.");
+			throw new FrameworkException("-1001", "공유 URL이 올바르지 않습니다."); // 오류 리턴 예시
 		}
      	
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
 		
-		Integer memberId = memberRepository.findByMemberUid(uId).getMemberId();
-		
-		return shareHistoryRepository.findByDateAndMemberId(today,memberId);
+		return shareHistoryRepository.findByDateAndMemberIdAndProductId(today, memberId, productId);
 
 	}
 	
@@ -139,25 +144,27 @@ public List<ShareHistory> getShareHistoryByMemberId(Integer memberId) {
 	}
 	
 	
-	
+	/**
+	 * 보안상 주문 callback시 서버처리
+	 * 
+	 */
 	//purchase증감용 공유히스토리
-	public ShareHistory updateShareHistory(ShareHistory shareHistory,Integer shareHistoryId) {
-		ShareHistory updateShareHistory = shareHistoryRepository.findOne(shareHistoryId);
-		
-		if(updateShareHistory==null) {
-			LOGGER.warn("해당 히스토리가 없습니다.");
-			throw new FrameworkException("-1001", "존재하지 않는 히스토리입니다"); // 오류 리턴 예시
-		}else{
-//			updateShareHistory.setVisitCnt(updateShareHistory.getVisitCnt() + shareHistory.getVisitCnt());
-			updateShareHistory.setPurchaseCnt(updateShareHistory.getPurchaseCnt() + shareHistory.getPurchaseCnt());
-			updateShareHistory.setPurchaseAmount(updateShareHistory.getPurchaseAmount() + shareHistory.getPurchaseAmount());
-		return shareHistoryRepository.save(updateShareHistory);
-			
-		}
-		
-		
-		
-	}
+//	public ShareHistory updateShareHistory(ShareHistory shareHistory,Integer shareHistoryId) {
+//		ShareHistory updateShareHistory = shareHistoryRepository.findOne(shareHistoryId);
+//		
+//		if(updateShareHistory==null) {
+//			LOGGER.warn("해당 히스토리가 없습니다.");
+//			throw new FrameworkException("-1001", "존재하지 않는 히스토리입니다"); // 오류 리턴 예시
+//		}else{
+//			updateShareHistory.setPurchaseCnt(updateShareHistory.getPurchaseCnt() + shareHistory.getPurchaseCnt());
+//			updateShareHistory.setPurchaseAmount(updateShareHistory.getPurchaseAmount() + shareHistory.getPurchaseAmount());
+//		return shareHistoryRepository.save(updateShareHistory);
+//			
+//		}
+//		
+//		
+//		
+//	}
 
 	
 

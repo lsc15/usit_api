@@ -43,6 +43,8 @@ public class ShareHistory implements Serializable {
 	@Column(name="visit_cnt")
 	private int visitCnt;
 	
+	private int point;
+	
 	@Column(name="purchase_cnt")
 	private int purchaseCnt;
 	

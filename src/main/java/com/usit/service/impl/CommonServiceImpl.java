@@ -19,14 +19,12 @@ import com.usit.app.util.messenger.alimtalk.AlimTalkSender;
 import com.usit.domain.AlimtalkMessage;
 import com.usit.repository.AlimtalkMessageRepository;
 import com.usit.app.spring.service.CommonHeaderService;
-import com.usit.app.util.messenger.sms.SmsSender;
 import com.usit.app.util.sweettracker.TrackerSender;
 import com.usit.domain.VerifyToken;
 import com.usit.repository.CategoryRepository;
 import com.usit.repository.UsitCodeRepository;
 import com.usit.repository.VerifyTokenRepository;
 import com.usit.service.CommonService;
-import com.usit.util.EtcUtil;
 
 @Service
 public class CommonServiceImpl extends CommonHeaderService implements CommonService {
@@ -35,8 +33,6 @@ public class CommonServiceImpl extends CommonHeaderService implements CommonServ
     private VerifyTokenRepository verifyTokenRepository;
     
     
-    @Autowired
-    private SmsSender smsSender;
     
     @Autowired
     private TrackerSender trackerSender;
@@ -294,7 +290,7 @@ public int sendAlimtalk(String templateCd,String mobile,String [] variable) thro
 
 	paramMap.put("template_code", templateCd);
 
-	return alimTalkSender.send(paramMap);
+	return alimTalkSender.send(paramMap,kakao);
 
 }
 
@@ -306,7 +302,7 @@ public int sendAlimtalk(String templateCd,String mobile,String [] variable) thro
  	*/
 	public List<Category> getCategoryCd() {
 		
-		List<Category> category = categoryRepository.findAll();
+		List<Category> category = categoryRepository.findAllByOrderByCategoryOrderAsc();
 		return category;
 	}
     

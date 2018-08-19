@@ -397,7 +397,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 //        My23OrderItem my23OrderItem = orderItemRepository.save(asIsOrderItem);
 
         
-        jdbcTemplate.update("UPDATE my23_order_item SET delivery_status_cd = ? WHERE order_item_id = ?", orderItem.getDeliveryStatusCd(), orderItem.getOrderItemId());
+        jdbcTemplate.update("UPDATE usit_order_item SET delivery_status_cd = ? WHERE order_item_id = ?", orderItem.getDeliveryStatusCd(), orderItem.getOrderItemId());
         
         return asIsOrderItem;
     }
@@ -494,21 +494,21 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     		
     		
     		if(updateOrderItem!=null) {
-    				payment += updateOrderItem.getAmount();
-    				
-    				
-    				UsitOrderItem store = new UsitOrderItem();
-    				store=updateOrderItem;
-    				store.setReturnReasonCd(updateOrderItem.getReturnReasonCd());
-    				store.setReturnReasonText(updateOrderItem.getReturnReasonText());
-    				store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
-    				store.setReturnReasonCd(returnReasonCd);
-    				store.setReturnReasonText(returnReasonText);
-                    orderItemRepository.save(store);
-                }
+    			payment += updateOrder.getDeliveryAmount();
+    			payment += updateOrderItem.getAmount();
+    			UsitOrderItem store = new UsitOrderItem();
+    			store=updateOrderItem;
+    			store.setReturnReasonCd(updateOrderItem.getReturnReasonCd());
+    			store.setReturnReasonText(updateOrderItem.getReturnReasonText());
+    			store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
+    			store.setReturnReasonCd(returnReasonCd);
+    			store.setReturnReasonText(returnReasonText);
+    			orderItemRepository.save(store);
+    		}
 
 
-            }
+            
+    	}
 
             JSONObject iamPort = new JSONObject();
             if(payment != 0 ) {
@@ -614,8 +614,9 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
                             
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-                            
-                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberId(today,memberId);
+                            int productId = updateOrderItem.getProductId();
+                    		
+                            ShareHistory existShare = shareHistoryRepository.findByDateAndMemberIdAndProductId(today, memberId, productId);
                             
                             
                             

@@ -1,6 +1,7 @@
 package com.usit.controller;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +26,14 @@ import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.DeliveryCharge;
+import com.usit.domain.SellMember;
 import com.usit.domain.UsitOrder;
+import com.usit.domain.UsitOrderItem;
 import com.usit.domain.UsitOrderTransaction;
 import com.usit.service.CommonService;
 //import com.usit.service.OrderService;
 import com.usit.service.OrderService;
+import com.usit.service.SellMemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +50,9 @@ public class UsitOrderController extends CommonHeaderController{
     
     @Autowired
     private CommonService commonService;
+    
+    @Autowired
+	SellMemberService sellMemberService;
 
     /**
      * 나의 주문내역 조회
@@ -487,6 +495,7 @@ public class UsitOrderController extends CommonHeaderController{
             UsitOrder usitOrder = orderService.getUsitOrderByMerchantUid(merchantUid);
 
             resultData.put("order_status_cd", usitOrder.getOrderStatusCd());
+            resultData.put("order_id", usitOrder.getOrderId());
 
         }catch(FrameworkException e){
             logger.error("CommFrameworkException", e);
@@ -546,6 +555,46 @@ public class UsitOrderController extends CommonHeaderController{
         return mav;
     }
 
+    
+    
+    
+    
+    /**
+     * 비회원구매 오더ID조회
+     *
+     * @param request
+     * @param merchantUid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value="/orders/anonymous/{orderId}", method=RequestMethod.GET)
+    public ModelAndView getOrder(HttpServletRequest request, @PathVariable("orderId") Integer orderId,@RequestParam("ordererPhone") String ordererPhone) throws Exception{
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        String resultCode = "0000";
+        String resultMsg = "";
+
+        try {
+        	
+            UsitOrder usitOrder = orderService.getUsitOrderByOrderIdAndOrdererPhone(orderId, ordererPhone);
+            mav.addObject("result_code", resultCode);
+            mav.addObject("result_msg", resultMsg);
+            mav.addObject("data", usitOrder);
+
+        }catch(FrameworkException e){
+            logger.error("CommFrameworkException", e);
+            resultCode = e.getMsgKey();
+            resultMsg = e.getMsg();
+        }catch(Exception e){
+            logger.error("Exception", e);
+            resultCode = "-9999";
+            resultMsg = "처리중 오류가 발생하였습니다.";
+        }
+
+        return mav;
+    }
+    
 
     /**
     * 주문 저장
@@ -624,13 +673,33 @@ public class UsitOrderController extends CommonHeaderController{
         	  
         	  UsitOrder order = orderService.getUsitOrderByMerchantUid(paramData.get("merchant_uid"));
         	  
-//        	  String variable [] = new String [2];
+        	  String productName = null;
+        	  String company;
+        	  int sellerId = 0;
         	  
-//  			variable[0] = order.getOrdererName();
-//  			variable[1] = order.getName();
-  			//카카오알림톡 발송
-//  			int status = commonService.sendAlimtalk("B005",order.getOrdererPhone(),variable);
-//  			logger.info("kakaoStatus : "+status);
+        	  List<UsitOrderItem> item = order.getOrderItems();
+        	  for (Iterator<UsitOrderItem> iterator = item.iterator(); iterator.hasNext();) {
+				UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+				sellerId = usitOrderItem.getProduct().getSellMemberId();
+				productName = usitOrderItem.getProduct().getTitle();
+				
+			}
+        	  SellMember seller = sellMemberService.getMemberByMemeberId(sellerId);  
+        	  
+        	  if(item.size() > 1) {
+        		  productName = productName+ " 외"+(item.size() - 1)+"건" ;
+        	  }
+        	  
+        	  company = seller.getCompanyNm();
+        	  
+        	  
+        	  String variable [] = new String [3];
+        	  variable[0] = order.getOrdererName();
+        	  variable[1] = productName;
+        	  variable[2] = company;
+//        	  카카오알림톡 발송 #{고객명},#{상품명},#{판매회사명}
+        	  int status = commonService.sendAlimtalk("U014",order.getOrdererPhone(),variable);
+        	  logger.info("kakaoStatus : "+status);
         	  
         	  
         	  
@@ -720,7 +789,6 @@ public class UsitOrderController extends CommonHeaderController{
    * @param request
    * @param curPage
    * @param perPage
- * @return
    * @return
    * @throws Exception
    */
@@ -817,6 +885,45 @@ public class UsitOrderController extends CommonHeaderController{
 
 
 
+//카카오 테스트 초 분 시 일 월 주(년)
+// 	@Scheduled(cron = "0 21 16 * * ?")
+//     public void test() throws Exception{
+// 		UsitOrder order = orderService.getUsitOrderByMerchantUid("order_54_1534660882781");
+//  	  
+//  	  String productName = null;
+//  	  String company;
+//  	  int sellerId = 0;
+//  	  
+//  	  List<UsitOrderItem> item = order.getOrderItems();
+////  	  for (int i = 0; i < item.size(); i++) {
+////  		item.get(i).getProduct().getSellMemberId();
+////  		item.get(i).getProduct().getTitle();
+////	}
+//  	  
+//  	  for (Iterator<UsitOrderItem> iterator = item.iterator(); iterator.hasNext();) {
+//			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+//			sellerId = usitOrderItem.getProduct().getSellMemberId();
+//			productName = usitOrderItem.getProduct().getTitle();
+//			
+//		}
+//  	  SellMember seller = sellMemberService.getMemberByMemeberId(sellerId);  
+//  	  
+//  	  if(item.size() > 1) {
+//  		  productName = productName+ " 외"+(item.size() - 1)+"건" ;
+//  	  }
+//  	  
+//  	  company = seller.getCompanyNm();
+//  	  
+//  	  
+//  	  String variable [] = new String [3];
+//  	  variable[0] = order.getOrdererName();
+//  	  variable[1] = productName;
+//  	  variable[2] = company;
+////  	  카카오알림톡 발송 #{고객명},#{상품명},#{판매회사명}
+//  	  int status = commonService.sendAlimtalk("U014",order.getOrdererPhone(),variable);
+//  	  logger.info("kakaoStatus : "+status);
+// 		
+//     }
 
 
 

@@ -35,6 +35,9 @@ public class Category {
 	@Column(name="sub_category_name")
 	private String subCategoryName;
 
+	@Column(name="category_order")
+	private int categoryOrder;
+	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="reg_date")
 	private LocalDateTime regDate;

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.usit.domain.AlimtalkMessage;
 
 @Component
 public class AlimTalkSender {
@@ -33,7 +34,7 @@ public class AlimTalkSender {
     
 	
 	
-    public int send(Map<String, String> params) throws Exception {
+    public int send(Map<String, String> params,AlimtalkMessage kakao) throws Exception {
 
         HttpURLConnection con = null;
         DataOutputStream wr = null;
@@ -71,6 +72,54 @@ public class AlimTalkSender {
             msgAttr.put("template_code", params.get("template_code"));
             msgAttr.put("response_method", responseMethod);
 //            msgList.add(msgAttr);
+            
+            /**
+             * 버튼추가
+             */
+            ArrayList<Map<String, Object>> buttonList = new ArrayList<Map<String,Object>>();
+
+            if("Y".equals(kakao.getButtonYn())) {
+            
+            	
+            	Map<String, Object> buttonAttr = new HashMap<String, Object>();
+ 
+            	
+            	//웹링크
+            	if(kakao.getButtonName() != null) {
+            		buttonAttr.put("name", kakao.getButtonName());
+            		buttonAttr.put("type", "WL");
+            		if(kakao.getPcUrl() != null) {
+            			buttonAttr.put("url_pc", kakao.getPcUrl());
+            		}
+            		if(kakao.getMobileUrl() != null) {
+            			buttonAttr.put("url_mobile", kakao.getMobileUrl());
+            		}
+            	}
+            	buttonList.add(buttonAttr);
+            	
+            	//봇키워드
+            	if(kakao.getButtonBk() != null) {
+            		Map<String, Object> bkButtonAttr = new HashMap<String, Object>();
+                	bkButtonAttr.put("name", kakao.getButtonBk());
+                	bkButtonAttr.put("type", "BK");
+                	buttonList.add(bkButtonAttr);
+                }
+                
+                //배송조회
+                if(kakao.getButtonMd() != null) {
+                	Map<String, Object> mdButtonAttr = new HashMap<String, Object>();
+                	mdButtonAttr.put("name", kakao.getButtonBk());
+                	mdButtonAttr.put("type", "MD");
+                	buttonList.add(mdButtonAttr);            	
+                }
+                Map<String, Object> button = new HashMap<String, Object>();
+                button.put("button", buttonList);
+                msgAttr.put("attachment", button);
+            }
+            
+            
+            
+            
             kakaoParam.put("msg_attr", msgAttr);
 
             String postJsonData = new ObjectMapper().writeValueAsString(kakaoParam);

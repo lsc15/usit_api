@@ -65,7 +65,7 @@ public class UsitCodeConstants {
     
     
     /* 카카오알림톡 요청유형 */
-    public static final String KAKAO_WELCOME ="U001";
+    public static final String KAKAO_WELCOME ="U013";
     
     
     /* 생성자 방지 */

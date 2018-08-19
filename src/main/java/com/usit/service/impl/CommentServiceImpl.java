@@ -1,5 +1,6 @@
 package com.usit.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,14 +60,63 @@ public class CommentServiceImpl implements CommentService{
 
 	}
 	
-	public Page<Comment> getCommentListAll(Pageable pageRequest) {
+	public Page<Comment> getCommentListAll(Pageable pageRequest,int sellMemberId,String commentTypeCd,String replyYn,String startDate,String endDate) {
+		
+		Page<Comment> comment;
+		int isReply = 0;
+		if("Y".equals(replyYn)) {
+			isReply = 1;
+		}
+		int syear = Integer.parseInt(startDate.substring(0, 4));
+		int smonth = Integer.parseInt(startDate.substring(4, 6));
+		int sday = Integer.parseInt(startDate.substring(6, 8));
+		int eyear = Integer.parseInt(endDate.substring(0, 4));
+		int emonth = Integer.parseInt(endDate.substring(4, 6));
+		int eday = Integer.parseInt(endDate.substring(6, 8));
+		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 00);
+		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
+		
 		//parentCommentId가 없는 0인 결과만 select
-		return commentRepository.findByParentCommentIdIs(pageRequest,0);
-
+		if("".equals(replyYn)) {
+			comment = commentRepository.findBySellMemberIdAndCommentTypeCdAndRegDateGreaterThanEqualAndRegDateLessThanEqualAndParentCommentIdIsNull(pageRequest,sellMemberId,commentTypeCd,s,e);
+		}else {
+			comment = commentRepository.findBySellMemberIdAndCommentTypeCdAndChildCntGreaterThanEqualAndRegDateGreaterThanEqualAndRegDateLessThanEqualAndParentCommentIdIsNull(pageRequest,sellMemberId,commentTypeCd,isReply,s,e);
+		}
+		
+		return comment;
 	}
 	
 	
+
+	public Page<Comment> getCommentListAllAdmin(Pageable pageRequest,String commentTypeCd,String replyYn,String startDate,String endDate) {
+		
+		Page<Comment> comment;
+		int isReply = 0;
+		if("Y".equals(replyYn)) {
+			isReply = 1;
+		}
+		int syear = Integer.parseInt(startDate.substring(0, 4));
+		int smonth = Integer.parseInt(startDate.substring(4, 6));
+		int sday = Integer.parseInt(startDate.substring(6, 8));
+		int eyear = Integer.parseInt(endDate.substring(0, 4));
+		int emonth = Integer.parseInt(endDate.substring(4, 6));
+		int eday = Integer.parseInt(endDate.substring(6, 8));
+		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 01);
+		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
+		//parentCommentId가 없는 0인 결과만 select
+		if("".equals(replyYn)) {
+			comment = commentRepository.findByCommentTypeCdAndRegDateGreaterThanEqualAndRegDateLessThanEqualAndParentCommentIdIsNull(pageRequest,commentTypeCd,s,e);
+		}else {
+			comment = commentRepository.findByCommentTypeCdAndChildCntGreaterThanEqualAndRegDateGreaterThanEqualAndRegDateLessThanEqualAndParentCommentIdIsNull(pageRequest,commentTypeCd,isReply,s,e);
+		}
+		return comment;
+	}
 	
+	
+	public Comment getReview(int commentId) {
+		
+		return commentRepository.findOne(commentId);
+	}
 	
 	public boolean getCheckReview(int productId,int memberId) {
 
@@ -120,6 +170,12 @@ public class CommentServiceImpl implements CommentService{
 			memberRepository.save(member);
 		}
 		*/
+		
+		if(comment.getParentCommentId() != null) {
+			Comment updateComment = commentRepository.findOne(comment.getParentCommentId());
+			updateComment.setChildCnt(updateComment.getChildCnt() + 1);
+		}
+		
 		return commentRepository.save(comment);
 	}
 	
@@ -171,7 +227,10 @@ public class CommentServiceImpl implements CommentService{
 					memberRepository.save(member);
 				}
 				*/
-				
+				if(comment.getParentCommentId() != null) {
+					Comment updateComment = commentRepository.findOne(comment.getParentCommentId());
+					updateComment.setChildCnt(updateComment.getChildCnt() - 1);
+				}
 				commentRepository.delete(comment);
 			}
 			
