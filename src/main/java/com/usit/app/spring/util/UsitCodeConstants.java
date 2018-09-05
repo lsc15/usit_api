@@ -68,6 +68,19 @@ public class UsitCodeConstants {
     public static final String KAKAO_WELCOME ="U013";
     
     
+    
+    /* 수정심사 요청유형 */
+    public static final String APPROVAL_STATUS_CD_APPROVAL ="2701";
+    public static final String APPROVAL_STATUS_CD_DENY ="2703";
+    public static final String APPROVAL_STATUS_CD_CONFIRM ="2702";
+    
+    
+    /* 기간조건 요청유형 */
+    public static final String PERIOD_CONDITION_PURCHASE ="purchaseConfirmDate";
+    public static final String PERIOD_CONDITION_DUE_DATE ="calculationDueDate";
+    public static final String PERIOD_CONDITION_COMPLETE_DATE ="calculationDate";
+    
+    
     /* 생성자 방지 */
     private UsitCodeConstants(){ 
 

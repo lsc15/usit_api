@@ -101,14 +101,13 @@ public class CalculationController extends CommonHeaderController{
      */
     @GetMapping()
 	public ModelAndView getCalculation(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
-			   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,
-			   @RequestParam(value="keywordCondition", defaultValue = "") String keywordCondition,@RequestParam(value="keyword", defaultValue = "") String keyword) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+			   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
 //    	@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
 //		   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,
 //		   @RequestParam(value="keywordCondition", defaultValue = "") String keywordCondition,@RequestParam(value="keyword", defaultValue = "") String keyword
     	
-    	PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "withdrawRequestId"));
+    	PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "calculationId"));
    		ModelAndView mav = new ModelAndView("jsonView");
 		
 		String resultCode = "0000";
@@ -125,7 +124,7 @@ public class CalculationController extends CommonHeaderController{
 			throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
      	}
         
-     	Page<Calculation> page = calculationService.readAll(pageRequest,periodCondition,startDate,endDate,keywordCondition,keyword);
+     	Page<Calculation> page = calculationService.readAll(pageRequest,periodCondition,startDate,endDate);
 		
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -150,7 +149,8 @@ public class CalculationController extends CommonHeaderController{
      * @throws Exception
      */
     @GetMapping("/token")
-	public ModelAndView getMyCalculation(HttpServletRequest request, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+	public ModelAndView getMyCalculation(HttpServletRequest request, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
+			@RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
     	PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "calculationId"));
    		ModelAndView mav = new ModelAndView("jsonView");
@@ -162,7 +162,7 @@ public class CalculationController extends CommonHeaderController{
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
-     	Page<Calculation> page = calculationService.readAllByToken(pageRequest,startDate,endDate,sessionVO.getMemberId());
+     	Page<Calculation> page = calculationService.readAllByToken(pageRequest,periodCondition,startDate,endDate,sessionVO.getMemberId());
 		
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

@@ -13,7 +13,7 @@ import com.usit.domain.Product;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 
 	
-	public Page<Product> findAllByCategoryCdAndProductStatusCdNot(Pageable pageRequest,String categoryCd,String productStatusCd);
+	public Page<Product> findAllByCategoryCdAndProductStatusCd(Pageable pageRequest,String categoryCd,String productStatusCd);
 	
 	public Page<Product> findAllByProductStatusCdNot(Pageable pageRequest,String productDelete);
 	

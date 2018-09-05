@@ -94,8 +94,16 @@ public class AlimTalkSender {
             		if(kakao.getMobileUrl() != null) {
             			buttonAttr.put("url_mobile", kakao.getMobileUrl());
             		}
+            		buttonList.add(buttonAttr);
             	}
-            	buttonList.add(buttonAttr);
+            	
+            	 //배송조회
+                if(kakao.getButtonDs() != null) {
+                	Map<String, Object> mdButtonAttr = new HashMap<String, Object>();
+                	mdButtonAttr.put("name", kakao.getButtonDs());
+                	mdButtonAttr.put("type", "DS");
+                	buttonList.add(mdButtonAttr);            	
+                }
             	
             	//봇키워드
             	if(kakao.getButtonBk() != null) {
@@ -105,13 +113,7 @@ public class AlimTalkSender {
                 	buttonList.add(bkButtonAttr);
                 }
                 
-                //배송조회
-                if(kakao.getButtonMd() != null) {
-                	Map<String, Object> mdButtonAttr = new HashMap<String, Object>();
-                	mdButtonAttr.put("name", kakao.getButtonBk());
-                	mdButtonAttr.put("type", "MD");
-                	buttonList.add(mdButtonAttr);            	
-                }
+               
                 Map<String, Object> button = new HashMap<String, Object>();
                 button.put("button", buttonList);
                 msgAttr.put("attachment", button);

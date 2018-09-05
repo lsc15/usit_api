@@ -6,14 +6,13 @@ import java.util.Map;
 import org.json.simple.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 
 public interface OrderItemService {
 
     public UsitOrderItem getUsitOrderItem(int orderId) throws Exception;
+    public Page<UsitOrderItem> getUsitOrderItemByMemberIdAndDeliveryStatusCdIn(int memberId, List<String> deliveryStatusCds, Pageable pageable) throws Exception;
+    public Map<String,Object> getCountByMemberIdAndDeliveryStatusCdIn(int memberId, List<String> deliveryStatusCds) throws Exception;
     public List<UsitOrderItem> getUsitOrderItemByDeliveryStatusCdIn(List<String> orderItemStatusCd) throws Exception;
 //    public List<UsitOrderItem> getUsitOrderItemByDeliveryStatusCdInAndTheragenSendYn(List<String> orderItemStatusCd,String theragenSendYn) throws Exception;
     public List<UsitOrderItem> getUsitOrderItemByReturnStatusCd(String returnStatusCd) throws Exception;

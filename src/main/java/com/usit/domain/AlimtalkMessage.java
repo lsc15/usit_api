@@ -53,8 +53,8 @@ public class AlimtalkMessage implements Serializable {
 	@Column(name="button_bk")
 	private String buttonBk;
 	
-	@Column(name="button_md")
-	private String buttonMd;
+	@Column(name="button_ds")
+	private String buttonDs;
 	
 	@Column(name="pc_url")
 	private String pcUrl;

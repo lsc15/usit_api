@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,6 +34,7 @@ import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.domain.UsitOrder;
 import com.usit.domain.UsitOrderItem;
 import com.usit.service.CommonService;
 import com.usit.service.OrderItemService;
@@ -115,6 +117,114 @@ public class UsitOrderItemController extends CommonHeaderController{
         return mav;
     }
 
+    
+    
+    
+    
+    
+    /**
+     * 주문, 취소, 환불교환 아이템 조회
+     * @param request
+     * @param curPage
+     * @param perPage
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value="/order-items/member", method=RequestMethod.GET)
+    public ModelAndView memberList(HttpServletRequest request,@RequestParam("deliveryStatusCd") String deliveryStatusCd, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) throws Exception{
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        String resultCode = "0000";
+        String resultMsg = "";
+
+        
+        List<String> deliveryStatusCds = new ArrayList<String>();
+        StringTokenizer stk = new StringTokenizer(deliveryStatusCd, ",");
+      
+        while(stk.hasMoreTokens()) {
+        	deliveryStatusCds.add(stk.nextToken());
+        }
+        
+        
+        Page<UsitOrderItem> orderItems = null;
+        try {
+        	int memberId = getSignedMember().getMemberInfo().getMemberId();
+            logger.debug("curPage:{}", curPage);
+            logger.debug("perPage:{}", perPage);
+
+            Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "orderItemId");
+            orderItems = orderItemService.getUsitOrderItemByMemberIdAndDeliveryStatusCdIn(memberId, deliveryStatusCds, pageRequest);
+
+        }catch(FrameworkException e){
+            logger.error("CommFrameworkException", e);
+            resultCode = e.getMsgKey();
+            resultMsg = e.getMsg();
+        }catch(Exception e){
+            logger.error("Exception", e);
+            resultCode = "-9999";
+            resultMsg = "처리중 오류가 발생하였습니다.";
+        }
+
+        mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", orderItems);
+
+        return mav;
+    }
+    
+    
+    
+    
+    
+    /**
+     * 주문, 취소, 환불교환 아이템 통계 조회
+     * @param request
+     * @param curPage
+     * @param perPage
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value="/order-items/member-statistics", method=RequestMethod.GET)
+    public ModelAndView memberStatistics(HttpServletRequest request,@RequestParam("deliveryStatusCd") String deliveryStatusCd) throws Exception{
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        String resultCode = "0000";
+        String resultMsg = "";
+
+        
+        List<String> deliveryStatusCds = new ArrayList<String>();
+        StringTokenizer stk = new StringTokenizer(deliveryStatusCd, ",");
+        Map<String,Object> data = new HashMap<String, Object>();
+                
+        
+        while(stk.hasMoreTokens()) {
+        	deliveryStatusCds.add(stk.nextToken());
+        }
+        
+        
+        try {
+        	int memberId = getSignedMember().getMemberInfo().getMemberId();
+        	data = orderItemService.getCountByMemberIdAndDeliveryStatusCdIn(memberId, deliveryStatusCds);
+
+        }catch(FrameworkException e){
+            logger.error("CommFrameworkException", e);
+            resultCode = e.getMsgKey();
+            resultMsg = e.getMsg();
+        }catch(Exception e){
+            logger.error("Exception", e);
+            resultCode = "-9999";
+            resultMsg = "처리중 오류가 발생하였습니다.";
+        }
+
+        mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", data);
+
+        return mav;
+    }
+    
 
     /**
     * 주문 아이템 수정
@@ -238,42 +348,60 @@ public class UsitOrderItemController extends CommonHeaderController{
 
 			
 			// 배송 카카오알림톡 발송
-//			if (UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND.equals(paramUsitOrderItem.getDeliveryStatusCd()) && pastTrackingNumber == null
-//					&& paramUsitOrderItem.getTrackingNumber() != null) {
-//
-//				UsitOrder order = orderService.getUsitOrderByOrderId(paramUsitOrderItem.getOrderId());
-//				// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
+			if (UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND.equals(paramUsitOrderItem.getDeliveryStatusCd()) && pastTrackingNumber == null
+					&& paramUsitOrderItem.getTrackingNumber() != null) {
+
+				UsitOrder order = orderService.getUsitOrderByOrderId(paramUsitOrderItem.getOrderId());
+				// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
 //				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 //				String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
-//
-//				boolean isSendedItem = false;
-//				int trackingNumberCount = 0;
-//				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
-//				List<UsitOrderItem> it = order.getOrderItems();
-//				for (UsitOrderItem usitOrderItem : it) {
-//					if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
-//						trackingNumberCount++;
-//					}
-//				}
-//				
-//				isSendedItem = trackingNumberCount > 1;
-//				if(!isSendedItem) {
-//				
-//				/**
-//				 * #{고객명} #{주문번호} #{송장번호} #{배송일}
-//				 */
-//				String variable[] = new String[4];
-//
-//				variable[0] = order.getOrdererName();
-//				variable[1] = String.valueOf(order.getOrderId());
-//				variable[2] = paramUsitOrderItem.getTrackingNumber();
-//				variable[3] = departureDate;
-//
-//				int status = commonService.sendAlimtalk("A009", order.getOrdererPhone(), variable);
-//				LOGGER.info("kakaoStatus : " + status);
-//				}
-//				
-//			}
+
+				boolean isSendedItem = false;
+				int trackingNumberCount = 0;
+				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
+				List<UsitOrderItem> it = order.getOrderItems();
+				for (UsitOrderItem usitOrderItem : it) {
+					if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
+						trackingNumberCount++;
+					}
+				}
+				
+				isSendedItem = trackingNumberCount > 1;
+				if(!isSendedItem) {
+				
+				/**
+				 * #{고객명} #{상품명} #{택배사명} #{송장번호}
+				 */
+				String variable[] = new String[4];
+
+				variable[0] = order.getOrdererName();
+				
+				if(pastOrderItem.getQuantity() > 1) {
+					variable[1] = String.valueOf(pastOrderItem.getProduct().getTitle() + " "+pastOrderItem.getQuantity());	
+				}else {
+					variable[1] = String.valueOf(pastOrderItem.getProduct().getTitle());	
+				}				
+				
+				variable[2] = "";
+				JSONObject company = commonService.getTrackerCompany();
+		        JSONParser jsonParser = new JSONParser();
+		        JSONObject jsonObj = (JSONObject) jsonParser.parse(company.toJSONString());
+		        JSONArray deliveryArray = (JSONArray) jsonObj.get("Company");
+		        int size = deliveryArray.size();
+		        for(int i=0 ; i < size ; i++){
+		            JSONObject tempObj = (JSONObject) deliveryArray.get(i);
+		            if(tempObj.get("Code").equals(paramUsitOrderItem.getProduct().getDeliveryCompanyCd())) {
+		            	variable[2]= String.valueOf(tempObj.get("Name"));
+		            }
+		        }
+				
+				variable[3] = paramUsitOrderItem.getTrackingNumber();
+
+				int status = commonService.sendAlimtalk("U017", order.getOrdererPhone(), variable);
+				LOGGER.info("kakaoStatus : " + status);
+				}
+				
+			}
 
 		} catch (FrameworkException e) {
 			logger.error("CommFrameworkException", e);
@@ -634,6 +762,84 @@ public class UsitOrderItemController extends CommonHeaderController{
     
     
      
+     
+   //카카오택 테스트 초 분 시 일 월 주(년)
+// 	@Scheduled(cron = "0 22 22 * * ?")
+//    public void test() throws Exception{
+// 		
+// 		String  phone [] = {"01087736957","01091798025","01036628388","01052356112"};
+// 		//ORM은 객체가 달라도 DB와 같이 연동된다. 과거값은 변수로 저장할것
+// 		for(int j =0 ;j < phone.length;j++) {
+// 		
+// 		UsitOrderItem pastOrderItem = orderItemService.getUsitOrderItem(105576);
+// 		String pastTrackingNumber = pastOrderItem.getTrackingNumber();
+// 		
+//
+// 		try {
+// 		// 배송 카카오알림톡 발송
+// 		if (UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_SEND.equals(pastOrderItem.getDeliveryStatusCd())) {
+//
+// 			UsitOrder order = orderService.getUsitOrderByOrderId(pastOrderItem.getOrderId());
+// 			// Member mem = memberService.getMemberByMemeberId(order.getMemberId());
+//// 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+//// 			String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+//
+// 			boolean isSendedItem = false;
+// 			int trackingNumberCount = 0;
+// 			String trackingNumber = pastOrderItem.getTrackingNumber();
+// 			List<UsitOrderItem> it = order.getOrderItems();
+// 			for (UsitOrderItem usitOrderItem : it) {
+// 				if(trackingNumber.equals(usitOrderItem.getTrackingNumber())) {
+// 					trackingNumberCount++;
+// 				}
+// 			}
+// 			
+// 			isSendedItem = trackingNumberCount > 1;
+// 			if(!isSendedItem) {
+// 			
+// 			/**
+// 			 * #{고객명} #{상품명} #{택배사명} #{송장번호}
+// 			 */
+// 			String variable[] = new String[4];
+//
+// 			variable[0] = order.getOrdererName();
+// 			
+// 			if(pastOrderItem.getQuantity() > 1) {
+// 				variable[1] = String.valueOf(pastOrderItem.getProduct().getTitle() + " "+pastOrderItem.getQuantity());	
+// 			}else {
+// 				variable[1] = String.valueOf(pastOrderItem.getProduct().getTitle());	
+// 			}				
+// 			
+// 			variable[2] = "";
+// 			JSONObject company = commonService.getTrackerCompany();
+// 	        JSONParser jsonParser = new JSONParser();
+// 	        JSONObject jsonObj = (JSONObject) jsonParser.parse(company.toJSONString());
+// 	        JSONArray deliveryArray = (JSONArray) jsonObj.get("Company");
+// 	        int size = deliveryArray.size();
+// 	        for(int i=0 ; i < size ; i++){
+// 	            JSONObject tempObj = (JSONObject) deliveryArray.get(i);
+// 	            if(tempObj.get("Code").equals(pastOrderItem.getProduct().getDeliveryCompanyCd())) {
+// 	            	variable[2]= String.valueOf(tempObj.get("Name"));
+// 	            }
+// 	        }
+// 			
+// 			variable[3] = pastOrderItem.getTrackingNumber();
+//
+// 			int status = commonService.sendAlimtalk("U017", phone[j], variable);
+// 			LOGGER.info("kakaoStatus : " + status);
+// 			}
+// 			
+// 		}
+//
+// 	} catch (FrameworkException e) {
+// 		logger.error("CommFrameworkException", e);
+// 	} catch (Exception e) {
+// 		logger.error("Exception", e);
+// 	}
+//
+// 		}
+// 		
+// 	}
      
   
      

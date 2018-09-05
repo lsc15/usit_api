@@ -1,5 +1,6 @@
 package com.usit.service.impl;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -16,10 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.util.UsitCodeConstants;
+import com.usit.domain.ApprovalProduct;
+import com.usit.domain.ApprovalProductOption;
 import com.usit.domain.Member;
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
 import com.usit.domain.SellMember;
+import com.usit.repository.ApprovalProductOptionRepository;
+import com.usit.repository.ApprovalProductRepository;
 import com.usit.repository.ProductOptionRepository;
 import com.usit.repository.ProductRepository;
 import com.usit.repository.SellMemberRepository;
@@ -45,6 +50,13 @@ public class ProductServiceImpl implements ProductService{
 	ProductOptionRepository productOptionRepository;
 	
 	@Autowired
+	ApprovalProductRepository approvalProductRepository;
+	
+	@Autowired
+	ApprovalProductOptionRepository approvalProductOptionRepository;
+	
+	
+	@Autowired
 	SellMemberRepository sellMemberRepository;
 	
 	
@@ -65,9 +77,9 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 	
-	public Page<Product> readAllByCategoryCdAndProductStatusCdNot(PageRequest pageRequest,String categoryCd,String productStatusCd) {
+	public Page<Product> readAllByCategoryCdAndProductStatusCd(PageRequest pageRequest,String categoryCd,String productStatusCd) {
 
-		return productRepository.findAllByCategoryCdAndProductStatusCdNot(pageRequest,categoryCd,productStatusCd);
+		return productRepository.findAllByCategoryCdAndProductStatusCd(pageRequest,categoryCd,productStatusCd);
 		
 	}
 	
@@ -210,9 +222,58 @@ public class ProductServiceImpl implements ProductService{
 //	}
 
 	
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		return passwordEncoder.matches(rawPassword, encodedPassword); 
+	
+	
+	
+	
+	
+	public Page<ApprovalProduct> findAllByApprovalStatusCd(PageRequest pageRequest,String approvalProductStatusCd) {
+	
+		return approvalProductRepository.findAllByApprovalStatusCd(pageRequest,approvalProductStatusCd);
+	}
+	
+	
+	public ApprovalProduct findApprovalProduct(int approvalProductId) {
+		
+		return approvalProductRepository.findOne(approvalProductId);
+	}
+	
+	
+		
+	//수정상품등록
+	public ApprovalProduct createApprovalProduct(ApprovalProduct approvalProduct) {
+		return approvalProductRepository.save(approvalProduct);
+	}
+		
+		
+		
+	// 수정상품 확인
+	public void disableApprovalProduct(ApprovalProduct approvalProduct) {
+		List<ApprovalProduct> list = approvalProductRepository.findByProductId(approvalProduct.getProductId());
+
+		for (ApprovalProduct approval : list) {
+			approval.setApprovalStatusCd(UsitCodeConstants.APPROVAL_STATUS_CD_DENY);
 		}
+
+	}
+		
+	// 수정상품옵션 확인
+	public void disableApprovalProductOption(ApprovalProductOption approvalProductOption) {
+		List<ApprovalProductOption> optionList = approvalProductOptionRepository.findByProductId(approvalProductOption.getProductId());
+		for (ApprovalProductOption approvalOption : optionList) {
+			approvalOption.setApprovalStatusCd(UsitCodeConstants.APPROVAL_STATUS_CD_DENY);
+		}
+
+	}
+
+	// 수정상품상세등록
+	public ApprovalProductOption createApprovalProductOption(ApprovalProductOption approvalProductOption) {
+		return approvalProductOptionRepository.save(approvalProductOption);
+	}
+
+	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+		return passwordEncoder.matches(rawPassword, encodedPassword);
+	}
 
 	
 }

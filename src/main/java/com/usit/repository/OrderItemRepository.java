@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import com.usit.domain.UsitOrderItem;
 
 @Repository
@@ -17,7 +16,7 @@ public interface OrderItemRepository extends JpaRepository<UsitOrderItem, Intege
     
     public List<UsitOrderItem> findByDeliveryStatusCdIn(List<String> deliveryStatusCd);
     
-//    public List<UsitOrderItem> findByDeliveryStatusCdInAndTheragenSendYn(List<String> deliveryStatusCd,String theragenSendYn);
+    public Page<UsitOrderItem> findByMemberIdAndDeliveryStatusCdIn(Pageable page,int memberId, List<String> deliveryStatusCds);
     
     public List<UsitOrderItem> findByReturnStatusCd(String returnStatusCd);
     

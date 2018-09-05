@@ -10,9 +10,9 @@ public interface CalculationService {
 
 	Calculation createCalculation(Calculation calculation);
 	
-	Page<Calculation> readAll(Pageable pageable,String periodCondition,String startDate,String endDate,String keywordCondition,String keyword);
+	Page<Calculation> readAll(Pageable pageable,String periodCondition,String startDate,String endDate);
 	
-	Page<Calculation> readAllByToken(Pageable pageable,String startDate,String endDate,Integer sellMemberId);
+	Page<Calculation> readAllByToken(Pageable pageable,String periodCondition,String startDate,String endDate,Integer sellMemberId);
 	
 	Calculation modifyCalculation(Calculation calculation);
 	

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -92,12 +93,56 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 	@PersistenceContext
 	EntityManager entityManager;
 
+	
+	
     @Override
     public UsitOrderItem getUsitOrderItem(int orderItemId) throws Exception {
-    	UsitOrderItem my23OrderItem = orderItemRepository.findOne(orderItemId);
-        return my23OrderItem;
+    	UsitOrderItem usitOrderItem = orderItemRepository.findOne(orderItemId);
+        return usitOrderItem;
     }
 
+    
+    
+    @Override
+    public Page<UsitOrderItem> getUsitOrderItemByMemberIdAndDeliveryStatusCdIn(int memberId,List<String> deliveryStatusCds, Pageable pageRequest) throws Exception {
+    	Page<UsitOrderItem> list = orderItemRepository.findByMemberIdAndDeliveryStatusCdIn(pageRequest,memberId,deliveryStatusCds);
+        return list;
+    }
+    
+    
+    
+    
+    @Override
+    public Map<String,Object> getCountByMemberIdAndDeliveryStatusCdIn(int memberId,List<String> deliveryStatusCds) throws Exception{
+
+
+    	Map<String,Object> response = new HashMap<String, Object>();
+
+    	
+        Query countQuery = entityManager.createQuery("" +
+                "SELECT deliveryStatusCd as state, count(deliveryStatusCd) as cnt " +
+                "FROM UsitOrderItem " +
+                "WHERE memberId = :memberId " +
+                "and deliveryStatusCd in (:deliveryStatusCds) " +
+                "group by deliveryStatusCd ")
+                .setParameter("memberId", memberId)
+                .setParameter("deliveryStatusCds", deliveryStatusCds);
+
+        List <?> list = countQuery.getResultList();
+
+        Iterator<?> it = list.iterator();
+        while (it.hasNext()) {
+            Object[] n = (Object[]) it.next();
+            response.put((String)n[0], (Long)n[1]);
+        }
+        
+        
+
+         return response;
+    }
+    
+    
+    
     
     
     @Override
