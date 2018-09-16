@@ -2,7 +2,12 @@ package com.usit.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import javax.persistence.*;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
 import lombok.Data;
@@ -26,26 +31,40 @@ public class Calculation implements Serializable {
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="purchase_confirm_date")
-	private LocalDateTime purchaseConfirmDate;
+	private String purchaseConfirmDate;
 	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="calculation_due_date")
-	private LocalDateTime calculationDueDate;
+	private String calculationDueDate;
 	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name="calculation_date")
-	private LocalDateTime calculationDate;
+	private String calculationDate;
 	
 	
-	@Column(name="order_item_id")
-	private Integer orderItemId;
+//	@Column(name="order_item_id")
+//	private Integer orderItemId;
 	
 	@Column(name="sell_member_id")
 	private Integer sellMemberId;
 	
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@Fetch(FetchMode.SELECT)
+//	@JoinColumn(name = "sell_member_id", insertable = false, updatable = false)
+//	private SellMember sellMember;
+	
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "sell_member_id", insertable = false, updatable = false)
+	private SellMember sellMember;
+	
+	
 	@Column(name="delay_reason")
 	private String delayReason;
 	
+	@OneToOne(fetch = FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@JoinColumn(name = "order_item_id", insertable = false, updatable = false)
+	private UsitOrderItem orderItem;
 	
 	@Column(name="reg_id")
 	private Integer regId;

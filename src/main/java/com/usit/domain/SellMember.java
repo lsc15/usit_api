@@ -113,6 +113,12 @@ public class SellMember implements Serializable {
     private String memberTypeCd;
     
     
+    @Column(name="account_number")
+    private String accountNumber;
+    
+    @Column(name="bank_cd")
+    private String bankCd;
+    
     @Column(name="mod_id")
     private Integer modId;
 

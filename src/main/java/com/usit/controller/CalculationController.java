@@ -3,16 +3,21 @@ package com.usit.controller;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +36,11 @@ import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Calculation;
 import com.usit.domain.Member;
 import com.usit.domain.SellMember;
+import com.usit.domain.UsitOrderItem;
 import com.usit.domain.WithdrawRequest;
 import com.usit.service.CalculationService;
 import com.usit.service.MemberService;
+import com.usit.service.OrderItemService;
 import com.usit.service.SellMemberService;
 import com.usit.service.WithDrawRequestService;
 
@@ -50,6 +57,12 @@ public class CalculationController extends CommonHeaderController{
     
     @Autowired
     SellMemberService sellMemberService;
+    
+    @Autowired
+    private OrderItemService orderItemService;
+    
+    @Autowired
+    private Environment env;
     
     private static Logger LOGGER = LoggerFactory.getLogger(CalculationController.class);
 
@@ -203,5 +216,31 @@ public class CalculationController extends CommonHeaderController{
 		
 		 return mav;
 	}
+    
+    
+    
+    
+    
+    // 정산테이블 배치 초 분 시 일 월 주(년)
+// 	@Scheduled(cron = "0 10 21 * * ?")
+     public void updateReturnDeliveryStatus() throws Exception{
+     	if("real".equals(env.getProperty("running.system"))) {
+     	logger.info("@@일일정산 시작");
+     	List<UsitOrderItem> culationList = orderItemService.getCaculationByDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_COMPLETE);
+     	  
+     	for (Iterator<UsitOrderItem> iterator = culationList.iterator(); iterator.hasNext();) {
+ 			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+ 			Calculation cal = new Calculation();
+ 			// 정산데이타 입력
+ 			
+ 			
+ 			
+ 			
+ 			logger.info("@@save ");
+ 			
+ 		}
+     	logger.info("@@일일정산 완료건: "+ culationList.size());
+     	}
+     }
     
 }

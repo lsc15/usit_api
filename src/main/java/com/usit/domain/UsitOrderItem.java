@@ -107,6 +107,11 @@ public class UsitOrderItem implements Serializable {
     @Column(name="payment_date")
     private LocalDateTime paymentDate;
     
+    
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Column(name="delivery_complete_date")
+    private LocalDateTime deliveryCompleteDate;
+    
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="order_confirm_date")
     private LocalDateTime orderConfirmDate;

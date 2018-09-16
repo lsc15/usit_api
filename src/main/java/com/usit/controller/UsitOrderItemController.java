@@ -696,7 +696,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 //   @Scheduled(cron = "0 0 12,17,22 * * ?")
 //   @Scheduled(cron = "0 55 9 * * ?")
 //   @Scheduled(cron = "0 45 20 * * ?")
-//	@Scheduled(cron = "0 0 3,9,13 * * ?")
+	@Scheduled(cron = "0 0 3,9,13 * * ?")
     public void updateDeliveryStatus() throws Exception{
     	if("real".equals(env.getProperty("running.system"))) {
 	   logger.info("@@배송상태동기화 시작");
@@ -712,6 +712,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 				if("1203".equals(usitOrderItem.getDeliveryStatusCd())){
 					logger.info("@@equals 1203: ");
 					usitOrderItem.setDeliveryStatusCd("1204");
+					usitOrderItem.setDeliveryCompleteDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
 				}else if("1206".equals(usitOrderItem.getDeliveryStatusCd())){
 					logger.info("@@equals 1206: ");
 					usitOrderItem.setDeliveryStatusCd("1207");
@@ -737,7 +738,7 @@ public class UsitOrderItemController extends CommonHeaderController{
     
     
  // 택배사 반송상태 동기화 초 분 시 일 월 주(년)
-// 	@Scheduled(cron = "0 10 3,9,13 * * ?")
+ 	@Scheduled(cron = "0 10 3,9,13 * * ?")
      public void updateReturnDeliveryStatus() throws Exception{
      	if("real".equals(env.getProperty("running.system"))) {
      	logger.info("@@반송상태동기화 시작");

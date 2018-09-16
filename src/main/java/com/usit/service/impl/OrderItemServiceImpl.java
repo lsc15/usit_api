@@ -3,6 +3,7 @@ package com.usit.service.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.service.CommonHeaderService;
 import com.usit.app.spring.util.AES256Util;
+import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
@@ -181,6 +183,19 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
         return list;
     }
     
+    
+    @Override
+    public List<UsitOrderItem> getCaculationByDeliveryStatusCd(String deliveryStatusCd) throws Exception {
+		int year = Integer.parseInt(DateUtil.getCurrYyyy());
+		int month = Integer.parseInt(DateUtil.getCurrMm());
+		int day = Integer.parseInt(DateUtil.getCurrDd());
+		LocalDateTime s = LocalDateTime.of(year, month, day, 00, 00, 00);
+		s = s.minusDays(UsitCodeConstants.PURCHASE_COMPLETE_DATE);
+		LocalDateTime e = LocalDateTime.of(year, month, day, 23, 59, 59);
+		e = e.minusDays(UsitCodeConstants.PURCHASE_COMPLETE_DATE);
+    	List<UsitOrderItem> list = orderItemRepository.findByDeliveryStatusCdAndDeliveryCompleteDateBetween(deliveryStatusCd,s,e);
+        return list;
+    }
     
     
     

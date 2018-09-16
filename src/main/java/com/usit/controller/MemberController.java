@@ -30,9 +30,11 @@ import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
+import com.usit.domain.SellMember;
 import com.usit.domain.VerifyToken;
 import com.usit.service.CommonService;
 import com.usit.service.MemberService;
+import com.usit.service.SellMemberService;
 import com.usit.util.MailUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,9 @@ public class MemberController extends CommonHeaderController{
 
 	@Autowired
 	MemberService memberService;
+	
+	@Autowired
+	SellMemberService sellMemberService;
 	
 	@Autowired
 	CommonService commonService;
@@ -160,6 +165,17 @@ public class MemberController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
+        
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+     	
+     	SellMember seller = sellMemberService.getMemberByMemeberId(sessionVO.getMemberId());
+        
+     	if(!UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(seller.getMemberTypeCd())) {
+     		LOGGER.warn("권한이 없습니다.");
+			throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
+     	}
         
 		Page<Member> page = memberService.readAll(pageRequest);
 		

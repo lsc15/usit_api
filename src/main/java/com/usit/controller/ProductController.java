@@ -402,13 +402,25 @@ public class ProductController extends CommonHeaderController{
 	 */
 	@GetMapping
 	public ModelAndView getProducts(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
-			@RequestParam("productStatusCd") String productStatusCd) {
+			@RequestParam("productStatusCd") String productStatusCd, @RequestParam(name = "searchType",required = false, defaultValue = "") String searchType) {
 		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "productId"));
 		ModelAndView mav = new ModelAndView("jsonView");
 
 		String resultCode = "0000";
 		String resultMsg = "";
-		Page<Product> page = productService.readAll(pageRequest, productStatusCd);
+		
+		Page<Product> page = null;
+		if("".equals(searchType)) {
+			page = productService.readAll(pageRequest, productStatusCd);
+		}else if(UsitCodeConstants.SEARCH_TYPE_POPULAR.equals(searchType)) {
+			page = productService.readAllPopular(pageRequest, productStatusCd);
+		}else if(UsitCodeConstants.SEARCH_TYPE_NEW.equals(searchType)) {
+			page = productService.readAllNew(pageRequest, productStatusCd);
+		}else {
+			LOGGER.warn("잘못된 요청입니다.");
+			throw new FrameworkException("-1001", "잘못된 요청입니다."); // 오류 리턴 예시
+		}
+		
 
 		mav.addObject("result_code", resultCode);
 		mav.addObject("result_msg", resultMsg);
@@ -464,7 +476,7 @@ public class ProductController extends CommonHeaderController{
         
         
         
-		Page<Product> page = productService.readAllByRegIdAndProductStatusCdNot(pageRequest,sessionVO.getMemberId(),productStatusCdDelete);
+		Page<Product> page = productService.readAllBySellMemberIdAndProductStatusCdNot(pageRequest,sessionVO.getMemberId(),productStatusCdDelete);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

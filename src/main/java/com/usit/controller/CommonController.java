@@ -204,5 +204,30 @@ public class CommonController extends CommonHeaderController{
 		
 		 return mav;
 	}
+    
+    
+    /**
+     * 영업메일 발송 호출
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/codes/mails")
+	public ModelAndView sendMail(@PathVariable("trackingNumber") String trackingNumber,@RequestParam("deliveryCompanyCd") String deliveryCompanyCd) throws Exception {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        JSONObject result = commonService.checkTracker(trackingNumber,deliveryCompanyCd);
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", result);
+		
+		 return mav;
+	}
 
 }

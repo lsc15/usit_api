@@ -33,6 +33,13 @@ public class Product implements Serializable {
 	@Column(name="product_id")
 	private Integer productId;
 
+
+	@Column(name="new_yn")
+	private String newYn;
+	
+	@Column(name="popular_yn")
+	private String popularYn;
+	
 	@Column(name="search_use_yn")
 	private String searchUseYn;
 	

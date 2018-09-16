@@ -1,10 +1,7 @@
 package com.usit.service.impl;
 
-import java.util.Iterator;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +16,6 @@ import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.ApprovalProduct;
 import com.usit.domain.ApprovalProductOption;
-import com.usit.domain.Member;
 import com.usit.domain.Product;
 import com.usit.domain.ProductOption;
 import com.usit.domain.SellMember;
@@ -77,6 +73,18 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 	
+	public Page<Product> readAllNew(PageRequest pageRequest,String productStatusCd) {
+		
+		return productRepository.findAllByProductStatusCdAndNewYn(pageRequest,productStatusCd,"Y");
+
+	}
+	
+	public Page<Product> readAllPopular(PageRequest pageRequest,String productStatusCd) {
+		
+		return productRepository.findAllByProductStatusCdAndPopularYn(pageRequest,productStatusCd,"Y");
+
+	}
+	
 	public Page<Product> readAllByCategoryCdAndProductStatusCd(PageRequest pageRequest,String categoryCd,String productStatusCd) {
 
 		return productRepository.findAllByCategoryCdAndProductStatusCd(pageRequest,categoryCd,productStatusCd);
@@ -84,15 +92,15 @@ public class ProductServiceImpl implements ProductService{
 	}
 	
 	
-	public Page<Product> readAllByRegIdAndProductStatusCdNot(PageRequest pageRequest,int regId,String productDelete) {
+	public Page<Product> readAllBySellMemberIdAndProductStatusCdNot(PageRequest pageRequest,int sellMemberId,String productDelete) {
 
 		
-		SellMember sellMember =  sellMemberRepository.getOne(regId);
+		SellMember sellMember =  sellMemberRepository.getOne(sellMemberId);
 		
 		if(sellMember.getMemberTypeCd().equals(UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER)) {
 		return productRepository.findAllByProductStatusCdNot(pageRequest,productDelete);
 		}else {
-		return productRepository.findAllByRegIdAndProductStatusCdNot(pageRequest,regId,productDelete);
+		return productRepository.findAllBySellMemberIdAndProductStatusCdNot(pageRequest,sellMemberId,productDelete);
 		}
 	
 	}
@@ -132,6 +140,8 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setDetailContent(product.getDetailContent());
 			updateProduct.setDetailImgUseYn(product.getDetailImgUseYn());
 			updateProduct.setSearchUseYn(product.getSearchUseYn());
+			updateProduct.setNewYn(product.getNewYn());
+			updateProduct.setPopularYn(product.getPopularYn());
 			updateProduct.setTags(product.getTags());
 			updateProduct.setSellMemberId(product.getSellMemberId());
 			updateProduct.setProductStatusCd(product.getProductStatusCd());

@@ -15,9 +15,13 @@ public interface ProductService {
 
 	Page<Product> readAll(PageRequest pageRequest,String productStatusCd);
 	
+	Page<Product> readAllNew(PageRequest pageRequest,String productStatusCd);
+	
+	Page<Product> readAllPopular(PageRequest pageRequest,String productStatusCd);
+	
 	Page<Product> readAllByCategoryCdAndProductStatusCd(PageRequest pageRequest,String categoryCd,String productStatusCd);
 	
-	Page<Product> readAllByRegIdAndProductStatusCdNot(PageRequest pageRequest,int RegId,String productDelete);
+	Page<Product> readAllBySellMemberIdAndProductStatusCdNot(PageRequest pageRequest,int sellMemberId,String productDelete);
 	
 	void deleteProduct(int productId);
 	

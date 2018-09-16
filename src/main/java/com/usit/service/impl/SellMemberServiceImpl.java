@@ -17,11 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.exception.FrameworkException;
-import com.usit.domain.Member;
-import com.usit.domain.Product;
 import com.usit.domain.SellMember;
-import com.usit.domain.VerifyToken;
-import com.usit.repository.MemberRepository;
 import com.usit.repository.SellMemberRepository;
 import com.usit.repository.VerifyTokenRepository;
 import com.usit.service.SellMemberService;
@@ -57,6 +53,11 @@ public class SellMemberServiceImpl implements SellMemberService {
 	}
 
 
+	
+	public Page<SellMember> readAll(PageRequest pageRequest) {
+		return sellMemberRepository.findAll(pageRequest);
+
+	}
 	
 	
 	public SellMember getMemberByMemeberId(Integer memberId) {
@@ -104,6 +105,8 @@ public class SellMemberServiceImpl implements SellMemberService {
 		updateMember.setReleaseAddressDetail(sellMember.getReleaseAddressDetail());
 		updateMember.setReleasePostcode(sellMember.getReleasePostcode());
 		updateMember.setReleasePhone(sellMember.getReleasePhone());
+		updateMember.setBankCd(sellMember.getBankCd());
+		updateMember.setAccountNumber(sellMember.getAccountNumber());
 		updateMember.setModId(sellMember.getModId());
 		return sellMemberRepository.save(updateMember);
 	}

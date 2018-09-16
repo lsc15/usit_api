@@ -17,9 +17,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	
 	public Page<Product> findAllByProductStatusCdNot(Pageable pageRequest,String productDelete);
 	
-	public Page<Product> findAllByRegIdAndProductStatusCdNot(Pageable pageRequest,int regId,String productDelete);
+	public Page<Product> findAllBySellMemberIdAndProductStatusCdNot(Pageable pageRequest,int sellMemberId,String productDelete);
 	
 	public Page<Product> findAllByProductStatusCd(Pageable pageRequest,String productStatusCd);
+	
+	public Page<Product> findAllByProductStatusCdAndNewYn(Pageable pageRequest,String productStatusCd,String newYn);
+	
+	public Page<Product> findAllByProductStatusCdAndPopularYn(Pageable pageRequest,String productStatusCd,String popularYn);
 	
 //	public Page<Product> findAllByTempYn(Pageable pageRequest,String tempYn);
 	

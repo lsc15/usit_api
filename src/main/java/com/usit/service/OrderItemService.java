@@ -25,6 +25,8 @@ public interface OrderItemService {
     public UsitOrderItem setOrderItemTracker(UsitOrderItem orderItem) throws Exception;
     public UsitOrderItem setOrderItemReturnTracker(UsitOrderItem orderItem) throws Exception;
 //    public UsitOrderItem setOrderItemSendTheragen(UsitOrderItem orderItem) throws Exception;
+    
+    public List<UsitOrderItem> getCaculationByDeliveryStatusCd(String DeliveryStatusCd) throws Exception;
     public Map<String,Object> setOrderItemReturnSweetTracker(Map<String, String> paramData) throws Exception;
     public JSONObject updateOrderItemStatus(UsitOrderItem orderItem,String returnReasonCd,String returnReasonText) throws Exception;
     

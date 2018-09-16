@@ -3,6 +3,7 @@ package com.usit.controller;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,12 +26,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
+import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
 import com.usit.domain.SellMember;
 import com.usit.domain.WithdrawRequest;
+import com.usit.service.CommonService;
 import com.usit.service.MemberService;
 import com.usit.service.SellMemberService;
 import com.usit.service.WithDrawRequestService;
@@ -47,6 +50,9 @@ public class WithdrawRequestController extends CommonHeaderController{
     WithDrawRequestService withdrawRequestService;
     
     @Autowired
+    private CommonService commonService;
+    
+    @Autowired
     SellMemberService sellMemberService;
     
     @Autowired
@@ -60,13 +66,10 @@ public class WithdrawRequestController extends CommonHeaderController{
      * @param request
      * @param params
      * @return 
-     * @throws GeneralSecurityException 
-     * @throws NoSuchAlgorithmException 
-     * @throws UnsupportedEncodingException 
      * @throws Exception
      */
     @PostMapping
-	public ModelAndView saveWithDrawRequest(@RequestBody WithdrawRequest withdrawRequest) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+	public ModelAndView saveWithDrawRequest(@RequestBody WithdrawRequest withdrawRequest) throws Exception {
 
    		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -93,6 +96,35 @@ public class WithdrawRequestController extends CommonHeaderController{
         
      	WithdrawRequest withdrawRequst = new WithdrawRequest();
      	withdrawRequst = withdrawRequestService.createWithdrawRequest(withdrawRequest);
+     	
+     	
+     	
+    	/**
+    	  * 
+   	  	  * #{고객명},#{출금신청포인트},#{포인트잔액},#{포인트입금예상일},#{포인트입금예상일}
+		  *
+		  */
+     	
+     	String variable [] = new String [5];
+     	variable[0] = withdrawRequst.getOwnerName();
+     	variable[1] = String.valueOf(withdrawRequst.getAmount());
+     	variable[2] = String.valueOf(member.getTotalPoint());
+
+     	
+     	
+		Date date = DateUtil.getDateFormat(DateUtil.FMT_DATE_YMD,DateUtil.getCurrDate());
+		String diffDay = "";
+		//일월화수목금토
+		if(DateUtil.getWeekday(date) < 4) {
+			diffDay = DateUtil.doDiffOfDate(DateUtil.getDateStringFormat( DateUtil.FMT_DATE_YMD,date),DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD,DateUtil.getWeekFridayDate(date)));
+		}else {
+			diffDay = DateUtil.doDiffOfDate(DateUtil.getDateStringFormat( DateUtil.FMT_DATE_YMD,date),DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD,DateUtil.getWeekNextFridayDate(date)));
+		}
+     	variable[3] = diffDay;
+     	variable[4] = diffDay;
+   	  
+     	int status = commonService.sendAlimtalk("U024",member.getMobile(),variable);
+     	logger.info("kakaoStatus : "+status);
 		
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -100,6 +132,8 @@ public class WithdrawRequestController extends CommonHeaderController{
 		
 		 return mav;
 	}
+    
+    
     
     
     

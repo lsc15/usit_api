@@ -1,8 +1,6 @@
 package com.usit.service.impl;
 
-import java.time.LocalDateTime;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -14,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Calculation;
 import com.usit.repository.CalculationRepository;
@@ -59,27 +56,27 @@ public class CalculationServiceImpl implements CalculationService {
 	public Page<Calculation> readAll(Pageable pageRequest, String periodCondition, String startDate, String endDate) {
 		
 		
-		int syear = Integer.parseInt(startDate.substring(0, 4));
-		int smonth = Integer.parseInt(startDate.substring(4, 6));
-		int sday = Integer.parseInt(startDate.substring(6, 8));
-		int eyear = Integer.parseInt(endDate.substring(0, 4));
-		int emonth = Integer.parseInt(endDate.substring(4, 6));
-		int eday = Integer.parseInt(endDate.substring(6, 8));
-		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 00);
-		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
+//		int syear = Integer.parseInt(startDate.substring(0, 4));
+//		int smonth = Integer.parseInt(startDate.substring(4, 6));
+//		int sday = Integer.parseInt(startDate.substring(6, 8));
+//		int eyear = Integer.parseInt(endDate.substring(0, 4));
+//		int emonth = Integer.parseInt(endDate.substring(4, 6));
+//		int eday = Integer.parseInt(endDate.substring(6, 8));
+//		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 00);
+//		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
 		
 		Page<Calculation> page = null;
 	    //구매확정일
 		if(UsitCodeConstants.PERIOD_CONDITION_PURCHASE.equals(periodCondition)) {
-			page = calculationRepository.findAllByPurchaseConfirmDateBetween(pageRequest, s, e);
+			page = calculationRepository.findAllByPurchaseConfirmDateBetween(pageRequest, startDate, endDate);
 		//구매예정일	
 		}else if(UsitCodeConstants.PERIOD_CONDITION_DUE_DATE.equals(periodCondition)) {
-			page = calculationRepository.findAllByCalculationDueDateBetween(pageRequest, s, e);
+			page = calculationRepository.findAllByCalculationDueDateBetween(pageRequest, startDate, endDate);
 			
 		//정산완료일
 		}else if(UsitCodeConstants.PERIOD_CONDITION_COMPLETE_DATE.equals(periodCondition)) {
 		
-			page = calculationRepository.findAllByCalculationDateBetween(pageRequest, s, e);
+			page = calculationRepository.findAllByCalculationDateBetween(pageRequest, startDate, endDate);
 		}
 		
 		
@@ -89,27 +86,27 @@ public class CalculationServiceImpl implements CalculationService {
 
 	public Page<Calculation> readAllByToken(Pageable pageRequest, String periodCondition, String startDate, String endDate, Integer sellMemberId) {
 
-		int syear = Integer.parseInt(startDate.substring(0, 4));
-		int smonth = Integer.parseInt(startDate.substring(4, 6));
-		int sday = Integer.parseInt(startDate.substring(6, 8));
-		int eyear = Integer.parseInt(endDate.substring(0, 4));
-		int emonth = Integer.parseInt(endDate.substring(4, 6));
-		int eday = Integer.parseInt(endDate.substring(6, 8));
-		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 00);
-		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
+//		int syear = Integer.parseInt(startDate.substring(0, 4));
+//		int smonth = Integer.parseInt(startDate.substring(4, 6));
+//		int sday = Integer.parseInt(startDate.substring(6, 8));
+//		int eyear = Integer.parseInt(endDate.substring(0, 4));
+//		int emonth = Integer.parseInt(endDate.substring(4, 6));
+//		int eday = Integer.parseInt(endDate.substring(6, 8));
+//		LocalDateTime s = LocalDateTime.of(syear, smonth, sday, 00, 00, 00);
+//		LocalDateTime e = LocalDateTime.of(eyear, emonth, eday, 23, 59, 59);
 		
 		Page<Calculation> page = null;
 	    //구매확정일
 		if(UsitCodeConstants.PERIOD_CONDITION_PURCHASE.equals(periodCondition)) {
-			page = calculationRepository.findAllBySellMemberIdAndPurchaseConfirmDateBetween(pageRequest, sellMemberId, s, e);
-		//구매예정일	
+			page = calculationRepository.findAllBySellMemberIdAndPurchaseConfirmDateBetween(pageRequest, sellMemberId, startDate, endDate);
+		//정산예정일	
 		}else if(UsitCodeConstants.PERIOD_CONDITION_DUE_DATE.equals(periodCondition)) {
-			page = calculationRepository.findAllBySellMemberIdAndCalculationDueDateBetween(pageRequest, sellMemberId, s, e);
+			page = calculationRepository.findAllBySellMemberIdAndCalculationDueDateBetween(pageRequest, sellMemberId, startDate, endDate);
 			
 		//정산완료일
 		}else if(UsitCodeConstants.PERIOD_CONDITION_COMPLETE_DATE.equals(periodCondition)) {
 		
-			page = calculationRepository.findAllBySellMemberIdAndCalculationDateBetween(pageRequest, sellMemberId, s, e);
+			page = calculationRepository.findAllBySellMemberIdAndCalculationDateBetween(pageRequest, sellMemberId, startDate, endDate);
 		}
 		
 		

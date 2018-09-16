@@ -1,6 +1,7 @@
 package com.usit.repository;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public interface OrderItemRepository extends JpaRepository<UsitOrderItem, Intege
     public List<UsitOrderItem> findByMemberIdAndReturnStatusCd(int memeberId, String returnStatusCd);
 
     
+    public List<UsitOrderItem> findByDeliveryStatusCdAndDeliveryCompleteDateBetween(String DeliveryStatusCd, LocalDateTime startDate,LocalDateTime endDate);
 //    public List<UsitOrderItem> findByInspectionResultUrlNotNull();
     
 }

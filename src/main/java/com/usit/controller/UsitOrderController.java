@@ -701,7 +701,11 @@ public class UsitOrderController extends CommonHeaderController{
         	  variable[0] = order.getOrdererName();
         	  variable[1] = productName;
         	  variable[2] = company;
-//        	  카카오알림톡 발송 #{고객명},#{상품명},#{판매회사명}
+        	  /**
+        	   * 
+			   * #{고객명} #{상품명} #{택배사명} #{송장번호}
+			   *
+			   */
         	  int status = commonService.sendAlimtalk("U014",order.getOrdererPhone(),variable);
         	  logger.info("kakaoStatus : "+status);
         	  

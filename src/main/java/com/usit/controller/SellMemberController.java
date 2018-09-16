@@ -91,6 +91,26 @@ public class SellMemberController extends CommonHeaderController{
 	
 	
 	
+	@GetMapping
+	public ModelAndView getUsers(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
+
+		
+		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "sellMemberId"));
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+		Page<SellMember> page = sellMemberService.readAll(pageRequest);
+		
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", page);
+		return mav;
+	}
+	
+	
+	
 	@PutMapping("/{userId}")
 	public ModelAndView modifyUser(@RequestBody SellMember sellMember) {
 		

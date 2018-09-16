@@ -7,6 +7,9 @@ public class UsitCodeConstants {
     public static final String TYPE_USER = "USER";
     public static final String TYPE_SELLER = "SELLER";
     
+    public static final String SEARCH_TYPE_NEW = "new";
+    public static final String SEARCH_TYPE_POPULAR = "popular";
+    
     /*주문상태 코드*/
     public static final String ORDER_STATUS_CD_PAYMENT_COMPLETE = "1102";
     public static final String ORDER_STATUS_CD_PAYMENT_CANCEL = "1104";
@@ -14,6 +17,7 @@ public class UsitCodeConstants {
     public static final String DELIVERY_STATUS_CD_PAYMENT_COMPLETE = "1201";
     public static final String DELIVERY_STATUS_CD_DELIVERY_STANDBY = "1202";
     public static final String DELIVERY_STATUS_CD_DELIVERY_SEND = "1203";
+    public static final String DELIVERY_STATUS_CD_DELIVERY_COMPLETE = "1204";
     public static final String DELIVERY_STATUS_CD_DELIVERY_CACEL = "1211";
     
     public static final String PERIOD_CONDITION_PAYMENT_DATE ="paymentDate";
@@ -80,6 +84,9 @@ public class UsitCodeConstants {
     public static final String PERIOD_CONDITION_DUE_DATE ="calculationDueDate";
     public static final String PERIOD_CONDITION_COMPLETE_DATE ="calculationDate";
     
+    
+    /* 배송완료 후 구매확정일 차감일 */
+    public static final int PURCHASE_COMPLETE_DATE = 7;
     
     /* 생성자 방지 */
     private UsitCodeConstants(){ 
