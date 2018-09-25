@@ -1,6 +1,7 @@
 package com.usit.util;
 
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
@@ -9,6 +10,9 @@ import javax.mail.internet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
 
 import java.util.Random;
 
@@ -266,6 +270,69 @@ public class MailUtil {
     }
     
     
+    
+    
+    
+  //홍보 메일
+    public void sendPromotionMail(String mail,String title, String content) throws Exception {
+    	
+    	to = mail;
+
+    		body =
+    		    	String.join(
+    		        	    System.getProperty("line.separator"),
+    		        	    content
+    		        	);
+
+    	
+    	
+    	
+    // Create a Properties object to contain connection configuration information.
+    	Properties props = System.getProperties();
+    	props.put("mail.transport.protocol", "smtp");
+    	props.put("mail.smtp.port", PORT); 
+    	props.put("mail.smtp.starttls.enable", "true");
+    	props.put("mail.smtp.auth", "true");
+
+    // Create a Session object to represent a mail session with the specified properties. 
+    	Session session = Session.getDefaultInstance(props);
+
+    // Create a message with the specified information. 
+    MimeMessage msg = new MimeMessage(session);
+    msg.setFrom(new InternetAddress(FROM,FROMNAME));
+    msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+    msg.setSubject(title);
+    msg.setContent(body,"text/html; charset=euc-kr");
+ // Add a configuration set header. Comment or delete the 
+ // next line if you are not using a configuration set
+//        msg.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
+            
+ // Create a transport.
+    Transport transport = session.getTransport();
+                    
+        // Send the message.
+        try
+        {
+            LOGGER.info("Sending...");
+            
+            // Connect to Amazon SES using the SMTP username and password you specified above.
+            transport.connect(HOST, SMTP_USERNAME, SMTP_PASSWORD);
+        	
+            // Send the email.
+            transport.sendMessage(msg, msg.getAllRecipients());
+            LOGGER.info("Email sent!");
+        }
+        catch (Exception ex) {
+            LOGGER.error("The email was not sent.");
+            LOGGER.error("Error message: " + ex.getMessage());
+        }
+        finally
+        {
+            // Close and terminate the connection.
+            transport.close();
+        }
+    }
+    
           
     		//이메일 인증에 사용할 토큰값 생성
         public String getKey(int size, boolean lowerCheck) {
@@ -292,5 +359,82 @@ public class MailUtil {
             return sb.toString();
         }
 
+        
+        
+        //엑셀파일 읽기
+        public  ArrayList<String> readExcel(File mailAddress){
+    		
+    		
+   		 Workbook workbook = null;
+   		    Sheet sheet = null;
+//   		    Cell cell = null;
+   		    ArrayList<String> address = new ArrayList<String>();
+
+   		    try
+   		    {
+   		        // 엑셀파일을 인식
+   		        workbook = Workbook.getWorkbook( new File(mailAddress.getAbsolutePath()));
+
+   		        // 엑셀파일에 포함된 sheet의 배열을 리턴한다.
+   		        //workbook.getSheets();
+
+   		        if( workbook != null)
+   		        {
+   		            // 엑셀파일에서 첫번째 Sheet를 인식
+   		            sheet = workbook.getSheet(0);
+
+   		            if( sheet != null)
+   		            {
+   		                // 셀인식 Cell a1 = sheet.getCell( 컬럼 Index, 열 Index);
+   		                // 셀 내용 String stringa1 = a1.getContents();
+
+   		                // 기록물철의 경우 실제 데이터가 시작되는 Row지정
+   		                int nRowStartIndex = 1;
+   		                // 기록물철의 경우 실제 데이터가 끝 Row지정
+   		                int nRowEndIndex   = sheet.getColumn(0).length - 1;
+
+   		                // 기록물철의 경우 실제 데이터가 시작되는 Column지정
+//   		                int nColumnStartIndex = 0;
+   		                // 기록물철의 경우 실제 데이터가 끝나는 Column지정
+//   		                int nColumnEndIndex = sheet.getRow(1).length - 1;
+
+   		                String szValue = "";
+
+   		                for( int nRow = nRowStartIndex; nRow <= nRowEndIndex; nRow++ )
+   		                {
+//   		                    for( int nColumn = nColumnStartIndex; nColumn <= nColumnEndIndex ; nColumn++)
+//   		                    {
+   		                        szValue = sheet.getCell( 0, nRow).getContents();
+   		                        address.add(szValue);
+//   		                        System.out.print( szValue);
+//   		                        System.out.print( "\t" );
+//   		                    }
+//   		                    System.out.println();
+   		                }
+   		            }
+   		            else
+   		            {
+   		                System.out.println( "Sheet is null!!" );
+   		            }
+   		        }
+   		        else
+   		        {
+   		            System.out.println( "WorkBook is null!!" );
+   		        }
+   		    }
+   		    catch( Exception e)
+   		    {
+   		        e.printStackTrace();
+   		    }
+   		    finally
+   		    {
+   		        if( workbook != null)
+   		        {
+   		            workbook.close();
+   		        }
+   		    }
+			return address;
+   		
+   	}
     
 }

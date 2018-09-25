@@ -17,7 +17,7 @@ public class CrawlingUtil {
      * @param endNum
      * @return
      */
-	private static Logger logger = LoggerFactory.getLogger(MailUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(CrawlingUtil.class);
     public Document getDocument(String resource) {
 
 		 

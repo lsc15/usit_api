@@ -23,6 +23,7 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -37,11 +38,11 @@ import com.google.api.client.util.SecurityUtils;
 //@Configuration
 //@EnableAutoConfiguration
 //@ComponentScan
+@EnableAsync
 @SpringBootApplication
 @EntityScan(basePackageClasses = {UsitApiApplication.class, Jsr310JpaConverters.class}) // LocalDateTime을 mySql의 datetime 타입으로 전환해주는 class파일
 @EnableScheduling
 @PropertySource("classpath:config.properties")
-
 public class UsitApiApplication extends SpringBootServletInitializer{
 
     public static void main(String[] args) throws IOException {

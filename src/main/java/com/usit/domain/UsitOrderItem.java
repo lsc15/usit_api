@@ -94,6 +94,9 @@ public class UsitOrderItem implements Serializable {
     @Column(name="reg_id")
     private Integer regId;
 
+    @Column(name="delivery_company_cd")
+    private String deliveryCompanyCd;
+    
     @Column(name="delivery_status_cd")
     private String deliveryStatusCd;
 

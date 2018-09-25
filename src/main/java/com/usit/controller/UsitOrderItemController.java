@@ -356,7 +356,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 //				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 //				String departureDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
 
-				boolean isSendedItem = false;
+				boolean isSentItem = false;
 				int trackingNumberCount = 0;
 				String trackingNumber = paramUsitOrderItem.getTrackingNumber();
 				List<UsitOrderItem> it = order.getOrderItems();
@@ -366,8 +366,8 @@ public class UsitOrderItemController extends CommonHeaderController{
 					}
 				}
 				
-				isSendedItem = trackingNumberCount > 1;
-				if(!isSendedItem) {
+				isSentItem = trackingNumberCount > 1;
+				if(!isSentItem) {
 				
 				/**
 				 * #{고객명} #{상품명} #{택배사명} #{송장번호}
@@ -390,7 +390,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 		        int size = deliveryArray.size();
 		        for(int i=0 ; i < size ; i++){
 		            JSONObject tempObj = (JSONObject) deliveryArray.get(i);
-		            if(tempObj.get("Code").equals(paramUsitOrderItem.getProduct().getDeliveryCompanyCd())) {
+		            if(tempObj.get("Code").equals(paramUsitOrderItem.getDeliveryCompanyCd())) {
 		            	variable[2]= String.valueOf(tempObj.get("Name"));
 		            }
 		        }
@@ -707,7 +707,7 @@ public class UsitOrderItemController extends CommonHeaderController{
     	  
     	for (Iterator<UsitOrderItem> iterator = checkList.iterator(); iterator.hasNext();) {
     		UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
-			JSONObject result = commonService.checkTracker(usitOrderItem.getTrackingNumber(),usitOrderItem.getProduct().getDeliveryCompanyCd());
+			JSONObject result = commonService.checkTracker(usitOrderItem.getTrackingNumber(),usitOrderItem.getDeliveryCompanyCd());
 			if("Y".equals(result.get("completeYN"))) {
 				if("1203".equals(usitOrderItem.getDeliveryStatusCd())){
 					logger.info("@@equals 1203: ");
@@ -746,7 +746,7 @@ public class UsitOrderItemController extends CommonHeaderController{
      	  
      	for (Iterator<UsitOrderItem> iterator = returnCheckList.iterator(); iterator.hasNext();) {
  			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
- 			JSONObject result = commonService.checkTracker(usitOrderItem.getReturnTrackingNumber(), usitOrderItem.getProduct().getDeliveryCompanyCd());
+ 			JSONObject result = commonService.checkTracker(usitOrderItem.getReturnTrackingNumber(), usitOrderItem.getDeliveryCompanyCd());
  			if("Y".equals(result.get("completeYN"))) {
  					usitOrderItem.setReturnStatusCd("1403");
  					
@@ -819,7 +819,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 // 	        int size = deliveryArray.size();
 // 	        for(int i=0 ; i < size ; i++){
 // 	            JSONObject tempObj = (JSONObject) deliveryArray.get(i);
-// 	            if(tempObj.get("Code").equals(pastOrderItem.getProduct().getDeliveryCompanyCd())) {
+// 	            if(tempObj.get("Code").equals(pastOrderItem.getDeliveryCompanyCd())) {
 // 	            	variable[2]= String.valueOf(tempObj.get("Name"));
 // 	            }
 // 	        }

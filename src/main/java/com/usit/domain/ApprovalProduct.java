@@ -10,6 +10,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
 
@@ -134,6 +135,11 @@ public class ApprovalProduct implements Serializable {
 	@JoinColumn(name = "category_cd", insertable = false, updatable = false)
 	private Category category;
 	
+	
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+	@JoinColumn(name = "sell_member_id", insertable = false, updatable = false)
+	private SellMember sellMember;
 	
 	@Column(name="approval_status_cd")
 	private String approvalStatusCd;

@@ -20,7 +20,7 @@ public class InstagramUtil {
      * @param endNum
      * @return
      */
-	private static Logger logger = LoggerFactory.getLogger(MailUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(InstagramUtil.class);
     public boolean getInstagramFeed(String resource) {
 
 		 
