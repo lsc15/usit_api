@@ -5,9 +5,12 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usit.util.TimeUtil;
 import lombok.Data;
@@ -26,6 +29,10 @@ public class Calculation implements Serializable {
 	@Column(name="calculation_id")
 	private Integer calculationId;
 
+	
+	@Column(name="type_cd")
+	private String typeCd;
+	
 	@Column(name="status_cd")
 	private String statusCd;
 
@@ -41,9 +48,11 @@ public class Calculation implements Serializable {
 	@Column(name="calculation_date")
 	private String calculationDate;
 	
+	@Column(name="amount")
+	private int amount;
 	
-//	@Column(name="order_item_id")
-//	private Integer orderItemId;
+	@Column(name="order_item_id")
+	private Integer orderItemId;
 	
 	@Column(name="sell_member_id")
 	private Integer sellMemberId;
@@ -53,6 +62,11 @@ public class Calculation implements Serializable {
 //	@JoinColumn(name = "sell_member_id", insertable = false, updatable = false)
 //	private SellMember sellMember;
 	
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "order_item_id", insertable = false, updatable = false)
+	private UsitOrderItem orderItem;
+	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "sell_member_id", insertable = false, updatable = false)
 	private SellMember sellMember;
@@ -60,11 +74,6 @@ public class Calculation implements Serializable {
 	
 	@Column(name="delay_reason")
 	private String delayReason;
-	
-	@OneToOne(fetch = FetchType.EAGER)
-	@Fetch(FetchMode.SELECT)
-	@JoinColumn(name = "order_item_id", insertable = false, updatable = false)
-	private UsitOrderItem orderItem;
 	
 	@Column(name="reg_id")
 	private Integer regId;

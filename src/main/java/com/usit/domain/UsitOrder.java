@@ -37,7 +37,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="usit_order")
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderId")
+//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderId")
 @NamedQuery(name="UsitOrder.findAll", query="SELECT m FROM UsitOrder m")
 public class UsitOrder implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -132,7 +132,7 @@ public class UsitOrder implements Serializable {
 //    @JoinColumn(name = "order_id", insertable = false, updatable = false)
 //    private List<UsitOrderItem> orderItems;
     
-    
+    @JsonIgnore
     @OneToMany(mappedBy="order",fetch = FetchType.EAGER)
 //    @Fetch(FetchMode.SELECT)
 //    @JoinColumn(name = "order_id", insertable = false, updatable = false)

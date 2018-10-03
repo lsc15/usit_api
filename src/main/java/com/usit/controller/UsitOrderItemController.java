@@ -695,7 +695,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 //    @Scheduled(cron = "5 * * * * ?")
 //   @Scheduled(cron = "0 0 12,17,22 * * ?")
 //   @Scheduled(cron = "0 55 9 * * ?")
-//   @Scheduled(cron = "0 45 20 * * ?")
+//   @Scheduled(cron = "0 20 0 * * ?")
 	@Scheduled(cron = "0 0 3,9,13 * * ?")
     public void updateDeliveryStatus() throws Exception{
     	if("real".equals(env.getProperty("running.system"))) {

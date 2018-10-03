@@ -201,7 +201,7 @@ public class CommentController extends CommonHeaderController{
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
-		boolean result = commentService.getCheckReview(productId, sessionVO.getMemberId());
+		boolean result = commentService.getCheckReview(productId,UsitCodeConstants.COMMENT_STATUS_CD_REVIEW, sessionVO.getMemberId());
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);

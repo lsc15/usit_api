@@ -22,7 +22,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
 			);
 	public Page<Comment> findByCommentTypeCdAndChildCntGreaterThanEqualAndRegDateGreaterThanEqualAndRegDateLessThanEqualAndParentCommentIdIsNull(Pageable pageRequest,String commentTypeCd,int ChildCnt,LocalDateTime startDate,LocalDateTime endDate
 			);
-	public long countByProductIdAndMemberId(int productId,Integer memberId);
+	public long countByProductIdAndCommentTypeCdAndMemberId(int productId,String commentTypeCd,Integer memberId);
 
 	
 }

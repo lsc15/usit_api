@@ -38,7 +38,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="usit_order_item")
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderItemId")//entity간 조인시 json단에서 무한재귀현상을 막아주는 어노테이션
+//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderItemId")//entity간 조인시 json단에서 무한재귀현상을 막아주는 어노테이션
 @NamedQuery(name="UsitOrderItem.findAll", query="SELECT m FROM UsitOrderItem m")
 public class UsitOrderItem implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -207,7 +207,7 @@ public class UsitOrderItem implements Serializable {
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private UsitOrder order;
     
-
+    
     @PrePersist
     protected void onCreate() {
         regDate = TimeUtil.getZonedDateTimeNow("Asia/Seoul");

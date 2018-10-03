@@ -30,10 +30,12 @@ import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Member;
+import com.usit.domain.PointHistory;
 import com.usit.domain.SellMember;
 import com.usit.domain.VerifyToken;
 import com.usit.service.CommonService;
 import com.usit.service.MemberService;
+import com.usit.service.PointHistoryService;
 import com.usit.service.SellMemberService;
 import com.usit.util.MailUtil;
 
@@ -54,6 +56,9 @@ public class MemberController extends CommonHeaderController{
 	
 	@Autowired
 	CommonService commonService;
+	
+	@Autowired
+	PointHistoryService pointHistoryService;
 
 	@Autowired
 	AuthenticationManager authenticationManager;
@@ -74,9 +79,18 @@ public class MemberController extends CommonHeaderController{
          * 기본 50% 커미션
          */
         member.setCommissionPct(50);
+        
+        
 		Member result = memberService.createMember(member);
 		 
 		 
+		//가입 이벤트
+		PointHistory point = new PointHistory();
+		point.setAddPoint(10000);
+		point.setBalancePoint(10000);
+		point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_EVENT);
+		point.setMemberId(result.getMemberId());
+		pointHistoryService.addPoint(point);
 		 
 		mav.addObject("result_code", resultCode);
 	    mav.addObject("result_msg", resultMsg);

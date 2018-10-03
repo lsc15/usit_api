@@ -41,6 +41,9 @@ public class Product implements Serializable {
 	@Column(name="popular_yn")
 	private String popularYn;
 	
+	@Column(name="lowest_yn")
+	private String lowestYn;
+	
 	@Column(name="search_use_yn")
 	private String searchUseYn;
 	
@@ -61,6 +64,9 @@ public class Product implements Serializable {
 	
 	@Column(name="detail_img_use_yn")
 	private String detailImgUseYn;
+
+	@Column(name="badge_type_cd")
+	private String badgeTypeCd;
 	
 	@Column(name="additional_imgs")
 	private String additionalImgs;
@@ -92,6 +98,9 @@ public class Product implements Serializable {
 	
 	private String tags;
 
+	@Column(name="inquiry_phone")
+	private String inquiryPhone;
+	
 	@Column(name="sell_member_id")
 	private Integer sellMemberId;
 

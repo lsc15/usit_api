@@ -443,7 +443,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     }
     		
     	
-    //ORM transation 문제로jdbcTemplagte 사용
+    //ORM transaction 문제로jdbcTemplagte 사용
     @Transactional(propagation = Propagation.REQUIRED)
     public UsitOrderItem setOrderItemTracker(UsitOrderItem orderItem) throws Exception{
 
@@ -457,7 +457,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 //        My23OrderItem my23OrderItem = orderItemRepository.save(asIsOrderItem);
 
         
-        jdbcTemplate.update("UPDATE usit_order_item SET delivery_status_cd = ? WHERE order_item_id = ?", orderItem.getDeliveryStatusCd(), orderItem.getOrderItemId());
+        jdbcTemplate.update("UPDATE usit_order_item SET delivery_status_cd = ?, delivery_complete_date = ? WHERE order_item_id = ?", orderItem.getDeliveryStatusCd(),orderItem.getDeliveryCompleteDate() ,orderItem.getOrderItemId());
         
         return asIsOrderItem;
     }

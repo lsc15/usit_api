@@ -416,7 +416,10 @@ public class ProductController extends CommonHeaderController{
 			page = productService.readAllPopular(pageRequest, productStatusCd);
 		}else if(UsitCodeConstants.SEARCH_TYPE_NEW.equals(searchType)) {
 			page = productService.readAllNew(pageRequest, productStatusCd);
-		}else {
+		}else if(UsitCodeConstants.SEARCH_TYPE_LOWEST.equals(searchType)) {
+			page = productService.readAllLowest(pageRequest, productStatusCd);
+		}
+		else {
 			LOGGER.warn("잘못된 요청입니다.");
 			throw new FrameworkException("-1001", "잘못된 요청입니다."); // 오류 리턴 예시
 		}
@@ -436,7 +439,7 @@ public class ProductController extends CommonHeaderController{
 	 * @return
 	 */
 	@GetMapping("/category/{categoryCd}")
-	public ModelAndView getProducts(@PathVariable String categoryCd, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
+	public ModelAndView getProductsByCategory(@PathVariable String categoryCd, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
 		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "productId"));
 		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -452,7 +455,56 @@ public class ProductController extends CommonHeaderController{
 		
 		 return mav;
 	}
+	
 
+	/**
+	 * @title badge별 상품조회
+	 * @param curPage
+	 * @param perPage
+	 * @return
+	 */
+	@GetMapping("/badge/{badgeTypeCd}")
+	public ModelAndView getProductsBadge(@PathVariable String badgeTypeCd, @RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
+		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "productId"));
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        String temp = UsitCodeConstants.PRODUCT_STATUS_CD_ENROLL;
+        //useYn = Y
+		Page<Product> page = productService.readAllByBadgeTypeCdAndProductStatusCd(pageRequest,badgeTypeCd,temp);
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", page);
+		
+		 return mav;
+	}
+
+	
+	/**
+	 * @title 고가 상품조회
+	 * @param curPage
+	 * @param perPage
+	 * @return
+	 */
+	@GetMapping("/affluence")
+	public ModelAndView getProductsAffluence(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage) {
+		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "price"));
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        String temp = UsitCodeConstants.PRODUCT_STATUS_CD_ENROLL;
+        //useYn = Y
+		Page<Product> page = productService.readAllByPrice(pageRequest,temp);
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", page);
+		
+		 return mav;
+	}
 
 	
 	

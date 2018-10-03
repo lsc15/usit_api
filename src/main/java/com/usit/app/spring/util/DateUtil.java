@@ -253,6 +253,17 @@ public final class DateUtil{
     
     
     /**
+     * 현재일기준 주의 수요일 일자 구하기.
+     */
+//    Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+    public static Calendar getWeekWednesdayDate(Date date) {
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(date);
+		cal.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+		return cal; 
+    }
+    
+    /**
      * 현재일기준 주의 금요일 일자 구하기.
      */
 //    Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
@@ -340,4 +351,32 @@ public final class DateUtil{
     	return dateFormat.format(cal.getTime());
     }
 
+    
+    /**
+	 * 해당월의 첫주 시작 수요일을 구한다.
+ 	 * 
+ 	 * @return int
+	 * @throws Exception
+	 * @since 1.0
+	 */
+	public static Date getCalFirstWeekWedDayOfMonthTsst( Date date ) throws Exception
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		// 해당년의 시작일(1월 1일)을 셋팅하기
+		Calendar firstCal = Calendar.getInstance();
+		firstCal.set( cal.get( Calendar.YEAR ), cal.get( Calendar.MONTH ), 1 );
+//		getDateFormat(FMT_DATE_YMD,getCurrDate("YYYYMM")+"01");
+//		firstCal.setTime(getDateFormat(FMT_DATE_YMD,getCurrDate("YYYYMM")+"01"));
+		// 기준이 되는 목요일을 구하자.
+		firstCal = getWeekWednesdayDate( firstCal.getTime() );
+		
+		// 기준이 되는 목요일이 전월이라면 7일을 더하자.
+		if( cal.get( Calendar.MONTH ) != firstCal.get( Calendar.MONTH ) ) {
+			firstCal.add( Calendar.DATE, 7 );
+		}
+
+		return firstCal.getTime();
+	}
+    
 }

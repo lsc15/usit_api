@@ -9,15 +9,22 @@ public class UsitCodeConstants {
     
     public static final String SEARCH_TYPE_NEW = "new";
     public static final String SEARCH_TYPE_POPULAR = "popular";
+    public static final String SEARCH_TYPE_LOWEST = "lowest";
+    
+    /*코멘트상태 코드*/
+    public static final String COMMENT_STATUS_CD_REVIEW = "1001";
+    public static final String COMMENT_STATUS_CD_QNA = "1002";
     
     /*주문상태 코드*/
     public static final String ORDER_STATUS_CD_PAYMENT_COMPLETE = "1102";
     public static final String ORDER_STATUS_CD_PAYMENT_CANCEL = "1104";
+    
     /*배송상태 코드*/
     public static final String DELIVERY_STATUS_CD_PAYMENT_COMPLETE = "1201";
     public static final String DELIVERY_STATUS_CD_DELIVERY_STANDBY = "1202";
     public static final String DELIVERY_STATUS_CD_DELIVERY_SEND = "1203";
     public static final String DELIVERY_STATUS_CD_DELIVERY_COMPLETE = "1204";
+    public static final String DELIVERY_STATUS_CD_DELIVERY_CHANGE_COMPLETE = "1207";
     public static final String DELIVERY_STATUS_CD_DELIVERY_CACEL = "1211";
     
     public static final String PERIOD_CONDITION_PAYMENT_DATE ="paymentDate";
@@ -55,6 +62,7 @@ public class UsitCodeConstants {
     public static final String POINT_TYPE_CD_WITHDRAW_CANCEL ="1508";
     
     public static final String POINT_TYPE_CD_INFLUENCER = "1510";
+    public static final String POINT_TYPE_CD_EVENT = "1511";
 
     
     /*판매자 상태 코드*/
@@ -70,8 +78,11 @@ public class UsitCodeConstants {
     
     /* 카카오알림톡 요청유형 */
     public static final String KAKAO_WELCOME ="U013";
-    
-    
+
+    /* 정산 코드 유형 */
+    public static final String CACULATION_STATUS_CD_STANDBY ="2601";
+    public static final String CACULATION_STATUS_CD_COMPLETE ="2602";
+    public static final String CACULATION_STATUS_CD_DENY ="2603";
     
     /* 수정심사 요청유형 */
     public static final String APPROVAL_STATUS_CD_APPROVAL ="2701";
@@ -83,6 +94,10 @@ public class UsitCodeConstants {
     public static final String PERIOD_CONDITION_PURCHASE ="purchaseConfirmDate";
     public static final String PERIOD_CONDITION_DUE_DATE ="calculationDueDate";
     public static final String PERIOD_CONDITION_COMPLETE_DATE ="calculationDate";
+    
+    /* 정산 유형 */
+    public static final String CACULATION_TYEP_CD_PURCHASE ="2801";
+    public static final String CACULATION_TYEP_CD_DELIVERY ="2802";
     
     
     /* 배송완료 후 구매확정일 차감일 */

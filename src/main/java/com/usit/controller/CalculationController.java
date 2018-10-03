@@ -3,6 +3,7 @@ package com.usit.controller;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,7 +18,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
+import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
@@ -43,6 +49,7 @@ import com.usit.service.MemberService;
 import com.usit.service.OrderItemService;
 import com.usit.service.SellMemberService;
 import com.usit.service.WithDrawRequestService;
+import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -91,7 +98,7 @@ public class CalculationController extends CommonHeaderController{
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
         
         
-     	calculation = calculationService.createCalculation(calculation);
+     	int data = calculationService.createCalculation(calculation);
 		
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
@@ -113,7 +120,7 @@ public class CalculationController extends CommonHeaderController{
      * @throws Exception
      */
     @GetMapping()
-	public ModelAndView getCalculation(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
+	public ResponseEntity<JSONObject> getCalculation(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
 			   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
 //    	@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
@@ -121,8 +128,12 @@ public class CalculationController extends CommonHeaderController{
 //		   @RequestParam(value="keywordCondition", defaultValue = "") String keywordCondition,@RequestParam(value="keyword", defaultValue = "") String keyword
     	
     	PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "calculationId"));
-   		ModelAndView mav = new ModelAndView("jsonView");
+//   		ModelAndView mav = new ModelAndView("jsonView");
 		
+   		JSONObject jo = new JSONObject();
+		
+		
+   		
 		String resultCode = "0000";
         String resultMsg = "";
         
@@ -139,11 +150,16 @@ public class CalculationController extends CommonHeaderController{
         
      	Page<Calculation> page = calculationService.readAll(pageRequest,periodCondition,startDate,endDate);
 		
-		mav.addObject("result_code", resultCode);
-        mav.addObject("result_msg", resultMsg);
-        mav.addObject("data", page);
+//		mav.addObject("result_code", resultCode);
+//        mav.addObject("result_msg", resultMsg);
+//        mav.addObject("data", page);
+     	jo.put("result_code", "0000");
+		jo.put("result_msg", "정상 처리되었습니다.");
+		jo.put("data", page);
+     	ResponseEntity<JSONObject> response = new ResponseEntity<JSONObject>(jo, HttpStatus.OK);
+     	
 		
-		 return mav;
+		 return response;
 	}
     
     
@@ -222,21 +238,67 @@ public class CalculationController extends CommonHeaderController{
     
     
     // 정산테이블 배치 초 분 시 일 월 주(년)
-// 	@Scheduled(cron = "0 10 21 * * ?")
+ 	 @Scheduled(cron = "0 10 21 * * ?")
+ 	 @Transactional(propagation=Propagation.REQUIRES_NEW)
      public void updateReturnDeliveryStatus() throws Exception{
      	if("real".equals(env.getProperty("running.system"))) {
      	logger.info("@@일일정산 시작");
      	List<UsitOrderItem> culationList = orderItemService.getCaculationByDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_COMPLETE);
-     	  
+     	
      	for (Iterator<UsitOrderItem> iterator = culationList.iterator(); iterator.hasNext();) {
  			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
  			Calculation cal = new Calculation();
+ 			Calculation deliveryCal = new Calculation();
  			// 정산데이타 입력
+ 			/**
+ 			 * 오늘의 주차를가져오고 1주차 수요일 보다 작거나 같으면 1주차 수요일 크면 3주차 수요일 그보다 크면 다음달 1주차 수요일의 일자를 예정일로 가져온다
+ 			 */
+ 			
+ 			Date current = DateUtil.getDateFormat(DateUtil.FMT_DATE_YMD,DateUtil.getCurrDate());
+ 			Date dueDate = DateUtil.getDateFormat(DateUtil.FMT_DATE_YMD,DateUtil.getCurrDate("YYYYMM")+"01");
+ 			Date first = DateUtil.getCalFirstWeekWedDayOfMonthTsst(dueDate);
+ 			Date third = DateUtil.getAddDateFormat(first, 14);
+ 			Date temp = DateUtil.getAddMonthFormat(dueDate, 1);
+ 			Date nextFirst = DateUtil.getCalFirstWeekWedDayOfMonthTsst(temp);
+
+ 			String calculationDueDate;
+ 			
+ 			int resultFirst = first.compareTo(current);
+ 			int resultThird = third.compareTo(current);
+ 			
+ 			if(resultFirst >= 0) {
+ 				calculationDueDate = DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD, first);
+ 			}else if (resultThird >= 0) {
+ 				calculationDueDate = DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD, third);
+ 			}else {
+ 				calculationDueDate = DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD, nextFirst);
+ 			}
+ 			
+ 			cal.setCalculationDueDate(calculationDueDate);
+ 			cal.setTypeCd(UsitCodeConstants.CACULATION_TYEP_CD_PURCHASE);
+ 			cal.setPurchaseConfirmDate(DateUtil.getCurrDate());
+ 			cal.setOrderItemId(usitOrderItem.getOrderItemId());
+ 			cal.setAmount(usitOrderItem.getAmount());
+ 			cal.setRegId(0);
+ 			cal.setRegDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+ 			cal.setSellMemberId(usitOrderItem.getSellMemberId());
+ 			cal.setStatusCd(UsitCodeConstants.CACULATION_STATUS_CD_STANDBY);
+ 			int result = calculationService.createCalculation(cal);
+ 			logger.info("@@save purchase : " +result);
  			
  			
+ 			deliveryCal.setCalculationDueDate(calculationDueDate);
+ 			deliveryCal.setTypeCd(UsitCodeConstants.CACULATION_TYEP_CD_DELIVERY);
+ 			deliveryCal.setPurchaseConfirmDate(DateUtil.getCurrDate());
+ 			deliveryCal.setOrderItemId(usitOrderItem.getOrderItemId());
+ 			deliveryCal.setAmount(usitOrderItem.getOrder().getDeliveryAmount());
+ 			deliveryCal.setRegId(0);
+ 			deliveryCal.setRegDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+ 			deliveryCal.setSellMemberId(usitOrderItem.getSellMemberId());
+ 			deliveryCal.setStatusCd(UsitCodeConstants.CACULATION_STATUS_CD_STANDBY);
+ 			result = calculationService.createCalculation(deliveryCal);
+ 			logger.info("@@save delivery : "+result);
  			
- 			
- 			logger.info("@@save ");
  			
  		}
      	logger.info("@@일일정산 완료건: "+ culationList.size());

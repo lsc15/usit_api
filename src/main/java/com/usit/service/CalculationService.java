@@ -8,7 +8,7 @@ import com.usit.domain.Calculation;
 
 public interface CalculationService {
 
-	Calculation createCalculation(Calculation calculation);
+	int createCalculation(Calculation calculation);
 	
 	Page<Calculation> readAll(Pageable pageable,String periodCondition,String startDate,String endDate);
 	

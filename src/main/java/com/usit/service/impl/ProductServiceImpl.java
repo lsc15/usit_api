@@ -73,6 +73,13 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 	
+	public Page<Product> readAllByPrice(PageRequest pageRequest,String productStatusCd) {
+		
+		return productRepository.findByProductStatusCdOrderByPriceDesc(pageRequest,productStatusCd);
+
+	}
+	
+	
 	public Page<Product> readAllNew(PageRequest pageRequest,String productStatusCd) {
 		
 		return productRepository.findAllByProductStatusCdAndNewYn(pageRequest,productStatusCd,"Y");
@@ -85,9 +92,24 @@ public class ProductServiceImpl implements ProductService{
 
 	}
 	
+	public Page<Product> readAllLowest(PageRequest pageRequest,String productStatusCd) {
+		
+		return productRepository.findAllByProductStatusCdAndLowestYn(pageRequest,productStatusCd,"Y");
+
+	}
+	
+	
+	
 	public Page<Product> readAllByCategoryCdAndProductStatusCd(PageRequest pageRequest,String categoryCd,String productStatusCd) {
 
 		return productRepository.findAllByCategoryCdAndProductStatusCd(pageRequest,categoryCd,productStatusCd);
+		
+	}
+	
+	
+	public Page<Product> readAllByBadgeTypeCdAndProductStatusCd(PageRequest pageRequest,String badgeTypeCd,String productStatusCd) {
+
+		return productRepository.findAllByBadgeTypeCdAndProductStatusCd(pageRequest,badgeTypeCd,productStatusCd);
 		
 	}
 	
@@ -139,10 +161,13 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setDetailImgs(product.getDetailImgs());
 			updateProduct.setDetailContent(product.getDetailContent());
 			updateProduct.setDetailImgUseYn(product.getDetailImgUseYn());
+			updateProduct.setBadgeTypeCd(product.getBadgeTypeCd());
 			updateProduct.setSearchUseYn(product.getSearchUseYn());
 			updateProduct.setNewYn(product.getNewYn());
 			updateProduct.setPopularYn(product.getPopularYn());
+			updateProduct.setLowestYn(product.getLowestYn());
 			updateProduct.setTags(product.getTags());
+			updateProduct.setInquiryPhone(product.getInquiryPhone());
 			updateProduct.setSellMemberId(product.getSellMemberId());
 			updateProduct.setProductStatusCd(product.getProductStatusCd());
 			updateProduct.setDeliveryCompanyCd(product.getDeliveryCompanyCd());

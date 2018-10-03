@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.repository.OrderRepository;
 import com.usit.app.spring.exception.FrameworkException;
+import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Comment;
 import com.usit.domain.Member;
 import com.usit.domain.UsitOrder;
@@ -118,11 +119,11 @@ public class CommentServiceImpl implements CommentService{
 		return commentRepository.findOne(commentId);
 	}
 	
-	public boolean getCheckReview(int productId,int memberId) {
+	public boolean getCheckReview(int productId,String commentTypeCd,int memberId) {
 
 		boolean result = false;
 		//review count
-		long reviewCount = commentRepository.countByProductIdAndMemberId(productId,memberId);
+		long reviewCount = commentRepository.countByProductIdAndCommentTypeCdAndMemberId(productId,commentTypeCd,memberId);
 		
 		//order product count
 		long productCount = 0 ;
@@ -133,7 +134,8 @@ public class CommentServiceImpl implements CommentService{
 			for (Iterator<UsitOrderItem> iterator = orderItems.iterator(); iterator.hasNext();) {
 				UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
 				//배송완료인것
-				if(usitOrderItem.getProductId() == productId && ("1204".equals(usitOrderItem.getDeliveryStatusCd()) ||"1207".equals(usitOrderItem.getDeliveryStatusCd()))   ) {
+				if(usitOrderItem.getProductId() == productId && (UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_COMPLETE.equals(usitOrderItem.getDeliveryStatusCd()) 
+						|| UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CHANGE_COMPLETE.equals(usitOrderItem.getDeliveryStatusCd()))   ) {
 					productCount++;
 				}
 				

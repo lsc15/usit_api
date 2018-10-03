@@ -1,6 +1,8 @@
 package com.usit.service.impl;
 
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -9,9 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.Calculation;
 import com.usit.repository.CalculationRepository;
@@ -45,12 +51,24 @@ public class CalculationServiceImpl implements CalculationService {
 	@Autowired
 	PointHistoryService pointHistoryService;
 
+	
+	@Autowired
+    JdbcTemplate jdbcTemplate;
+	
 	@PersistenceContext
 	EntityManager entityManager;
 
-	public Calculation createCalculation(Calculation calculation) {
+	
+    //ORM transaction 문제로jdbcTemplagte 사용
+    @Transactional(propagation = Propagation.REQUIRED)
+	public int createCalculation(Calculation calculation) {
 
-		return calculationRepository.save(calculation);
+		return jdbcTemplate.update("INSERT INTO calculation "
+				+ "(type_cd, status_cd, purchase_confirm_date, calculation_due_date, amount, order_item_id, sell_member_id , reg_id, reg_date )"
+				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+				calculation.getTypeCd(), calculation.getStatusCd(), calculation.getPurchaseConfirmDate(), calculation.getCalculationDueDate(), calculation.getAmount(), calculation.getOrderItemId(),
+				calculation.getSellMemberId(), calculation.getRegId(), calculation.getRegDate());
+      
 	}
 
 	public Page<Calculation> readAll(Pageable pageRequest, String periodCondition, String startDate, String endDate) {

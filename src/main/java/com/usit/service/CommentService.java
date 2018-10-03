@@ -15,7 +15,7 @@ public interface CommentService {
 	
 	Page<Comment> getCommentListAllAdmin(Pageable pageRequest,String commentTypeCd,String replyYn,String startDate,String endDate);
 	
-	boolean getCheckReview(int productId,int memberId);
+	boolean getCheckReview(int productId,String commentTypeCd,int memberId);
 
 	Comment createComment(Comment comment);
 

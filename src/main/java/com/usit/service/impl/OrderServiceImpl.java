@@ -259,6 +259,13 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 orderItem.setOrderId(rsltOrder.getOrderId());
                 orderItem.setSellMemberId(orderItem.getProduct().getSellMemberId());
                 orderItem.setDeliveryCompanyCd(orderItem.getProduct().getDeliveryCompanyCd());
+                
+                if(orderItem.getStoreKey() != null) {
+                	AES256Util aes = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+                	Member infMember = memberRepository.findByMemberUid(aes.decrypt(orderItem.getStoreKey()));
+                	orderItem.setInfCommissionPct(infMember.getCommissionPct());
+                }
+                
                 rsltOrderItems.add(orderItemRepository.save(orderItem));
             }
         }
