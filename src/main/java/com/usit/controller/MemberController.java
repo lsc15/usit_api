@@ -129,40 +129,40 @@ public class MemberController extends CommonHeaderController{
 	
 	 
 	//인증메일 발송
-	@PostMapping("/send-verify-email")
-	public ModelAndView sendVerifyEmail(@RequestBody VerifyToken token) {
-
-		ModelAndView mav = new ModelAndView("jsonView");
-		
-		String resultCode = "0000";
-        String resultMsg = "";
-		
-        
-//        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
-
-//     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-		
-		
-		MailUtil mu = new MailUtil();
-		String key = mu.getKey(15, false);
-		token.setToken(key);
-		token.setType("email");
-//		token.setRegId(sessionVO.getMemberId());
-
-		VerifyToken vf = memberService.createToken(token);
-		try {
-			mu.mail(token.getEmail(), key);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		mav.addObject("result_code", resultCode);
-	    mav.addObject("result_msg", resultMsg);
-	    mav.addObject("data", vf);
-			
-		return mav;
-	}
+//	@PostMapping("/send-verify-email")
+//	public ModelAndView sendVerifyEmail(@RequestBody VerifyToken token) {
+//
+//		ModelAndView mav = new ModelAndView("jsonView");
+//		
+//		String resultCode = "0000";
+//        String resultMsg = "";
+//		
+//        
+////        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+//
+////     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+//		
+//		
+//		MailUtil mu = new MailUtil();
+//		String key = mu.getKey(15, false);
+//		token.setToken(key);
+//		token.setType("email");
+////		token.setRegId(sessionVO.getMemberId());
+//
+//		VerifyToken vf = memberService.createToken(token);
+//		try {
+//			mu.mail(token.getEmail(), key);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		mav.addObject("result_code", resultCode);
+//	    mav.addObject("result_msg", resultMsg);
+//	    mav.addObject("data", vf);
+//			
+//		return mav;
+//	}
 	
 	
 	

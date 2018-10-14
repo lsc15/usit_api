@@ -106,7 +106,6 @@ public class ContentController extends CommonHeaderController{
         String resultMsg = "";
         Content content = new Content();
 
-        System.out.println(request.getParameter("title"));
         
 
         String contentTypeCd = paramData.get("contentTypeCd");

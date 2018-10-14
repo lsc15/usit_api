@@ -11,9 +11,14 @@ import javax.persistence.Query;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.usit.domain.Category;
+import com.usit.domain.Inquiry;
+import com.usit.domain.Member;
+import com.usit.domain.Unsubscribe;
 import com.usit.domain.UsitCode;
 import com.usit.app.util.messenger.alimtalk.AlimTalkSender;
 import com.usit.domain.AlimtalkMessage;
@@ -22,6 +27,7 @@ import com.usit.app.spring.service.CommonHeaderService;
 import com.usit.app.util.sweettracker.TrackerSender;
 import com.usit.domain.VerifyToken;
 import com.usit.repository.CategoryRepository;
+import com.usit.repository.UnsubscribeRepository;
 import com.usit.repository.UsitCodeRepository;
 import com.usit.repository.VerifyTokenRepository;
 import com.usit.service.CommonService;
@@ -48,6 +54,10 @@ public class CommonServiceImpl extends CommonHeaderService implements CommonServ
     
     @Autowired
     private CategoryRepository categoryRepository;
+    
+    @Autowired
+    private UnsubscribeRepository unsubscribeRepository;
+    
     
     @Autowired
     private EntityManager em;
@@ -292,6 +302,18 @@ public int sendAlimtalk(String templateCd,String mobile,String [] variable) thro
 
 	return alimTalkSender.send(paramMap,kakao);
 
+}
+
+
+
+@Override
+public List<Unsubscribe> getUnsubscribeMails() {
+	return unsubscribeRepository.findAll();
+}
+
+
+public Unsubscribe createUnsubscribe(Unsubscribe unsubscribe) {
+	return unsubscribeRepository.save(unsubscribe);
 }
 
 

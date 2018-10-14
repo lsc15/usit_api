@@ -4,6 +4,6 @@ import java.util.ArrayList;
 
 public interface AsyncService {
 
-	void sendPromotionEmails(ArrayList<String> address,String title,String content) throws InterruptedException, Exception;
+	void sendPromotionEmails(String from, String fromName, ArrayList<String> address, String title, String content);
 	
 }

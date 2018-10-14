@@ -3,6 +3,7 @@ package com.usit.service;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ public interface OrderService {
     public UsitOrderTransaction saveOrderTransaction(UsitOrderTransaction order) throws Exception;
     public UsitOrder saveOrder(UsitOrder order) throws Exception;
     public void saveOrderConfirm(Map<String, String> paramData) throws Exception;
+    public void saveOrderConfirm(JSONObject result,Integer orderId) throws Exception;
+    
 //    public void saveOrderSelfConfirm(UsitOrder order) throws Exception;
     public JSONObject updateOrderStatus(UsitOrder order,String returnReasonCd,String returnReasonText) throws Exception;
 

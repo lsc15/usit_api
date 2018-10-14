@@ -10,7 +10,6 @@ import javax.mail.internet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 
@@ -52,7 +51,7 @@ public class MailUtil {
     
     String body = "";
 
-    public void mail(String mail,String token) throws Exception {
+    public void mail(String SMTP_USERNAME,String SMTP_PASSWORD,String mail,String token) throws Exception {
     	
     	
    
@@ -139,7 +138,7 @@ public class MailUtil {
     
     
     //비밀번호찾기 메일
-    public void sendPassMail(String mail,String pass) throws Exception {
+    public void sendPassMail(String SMTP_USERNAME, String SMTP_PASSWORD,String mail,String pass) throws Exception {
     	
     	to = mail;
 
@@ -204,7 +203,7 @@ public class MailUtil {
     
     
     
-    public void anonymousSendMail(String mail,int orderId,String ordererPhone) throws Exception {
+    public void anonymousSendMail(String SMTP_USERNAME, String SMTP_PASSWORD, String mail,int orderId,String ordererPhone) throws Exception {
     	
     	
     	to = mail;
@@ -274,8 +273,7 @@ public class MailUtil {
     
     
   //홍보 메일
-    public void sendPromotionMail(String mail,String title, String content) throws Exception {
-    	
+    public void sendPromotionMail(String from, String fromName, String SMTP_USERNAME,String SMTP_PASSWORD, String mail,String title, String content) throws Exception {
     	to = mail;
 
     		body =
@@ -297,12 +295,13 @@ public class MailUtil {
     // Create a Session object to represent a mail session with the specified properties. 
     	Session session = Session.getDefaultInstance(props);
 
+    String unsubscribe ="<br><br><p>수신거부 <a href=\"http://www.usit.co.kr/unsubscribe/"+to+"\" target=\"_blank\" \">Unsubscribe</a></p>";
     // Create a message with the specified information. 
     MimeMessage msg = new MimeMessage(session);
-    msg.setFrom(new InternetAddress(FROM,FROMNAME));
+    msg.setFrom(new InternetAddress(from,fromName));
     msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
     msg.setSubject(title);
-    msg.setContent(body,"text/html; charset=euc-kr");
+    msg.setContent(body+unsubscribe,"text/html; charset=euc-kr");
  // Add a configuration set header. Comment or delete the 
  // next line if you are not using a configuration set
 //        msg.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
@@ -313,7 +312,7 @@ public class MailUtil {
         // Send the message.
         try
         {
-            LOGGER.info("Sending...");
+            LOGGER.info(to +" Sending...");
             
             // Connect to Amazon SES using the SMTP username and password you specified above.
             transport.connect(HOST, SMTP_USERNAME, SMTP_PASSWORD);
@@ -414,12 +413,12 @@ public class MailUtil {
    		            }
    		            else
    		            {
-   		                System.out.println( "Sheet is null!!" );
+   		            	LOGGER.info( "Sheet is null!!" );
    		            }
    		        }
    		        else
    		        {
-   		            System.out.println( "WorkBook is null!!" );
+   		        	LOGGER.info( "WorkBook is null!!" );
    		        }
    		    }
    		    catch( Exception e)

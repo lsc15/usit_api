@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,8 @@ import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.app.util.messenger.alimtalk.NpaySender;
+import com.usit.domain.AlimtalkMessage;
 import com.usit.domain.DeliveryCharge;
 import com.usit.domain.SellMember;
 import com.usit.domain.UsitOrder;
@@ -54,6 +57,12 @@ public class UsitOrderController extends CommonHeaderController{
     
     @Autowired
     private CommonService commonService;
+    
+    @Autowired
+    private NpaySender npaySender;
+    
+    @Autowired
+    private Environment env;
     
     @Autowired
 	SellMemberService sellMemberService;
@@ -479,7 +488,7 @@ public class UsitOrderController extends CommonHeaderController{
 
     /**
      * getMerchantUid
-     *
+     * front 에서 결제가 성공했는지 주기적으로 확인 후 결제완료 페이지노출
      * @param request
      * @param merchantUid
      * @return
@@ -731,6 +740,103 @@ public class UsitOrderController extends CommonHeaderController{
   }
 
 
+  
+  
+  
+  /**
+  * 주문 결제 완료 최종 요청(Npay)
+  * @param request
+  * @param curPage
+  * @param perPage
+  * @return
+  * @throws Exception
+  */
+ @SuppressWarnings("unchecked")
+@RequestMapping(value="/orders/npay-confirm", method=RequestMethod.POST)
+ public void saveOrderNpayConfirm(HttpServletRequest request,@RequestParam("orderId") Integer orderId, @RequestParam("paymentId") String paymentId) throws Exception{
+
+
+
+     ModelAndView mav = new ModelAndView("jsonView");
+//     Map<String, String> paramData = (Map<String, String>)params.getRequestBodyToObject();
+     String resultCode = "0000";
+     String resultMsg = "";
+
+     try {
+
+
+         logger.debug("{ordererPhone}", orderId);
+         logger.debug("{paymentId}", paymentId);
+
+         npaySender.setUrl(env.getProperty(""));
+         npaySender.setUserId(env.getProperty(""));
+         npaySender.setUserPwd(env.getProperty(""));
+         
+         Map<String, String> paramMap = new HashMap<String, String>();
+
+
+
+     	paramMap.put("paymentId", paymentId);
+
+     	JSONObject result = npaySender.send(paramMap);
+     	
+     	orderService.saveOrderConfirm(result, orderId);
+         
+     	if("Success".equals(result.get("code"))) {
+       	  
+       	
+     		UsitOrder order = orderService.getUsitOrderByOrderId(orderId);
+       	  
+       	  
+     		String productName = null;
+       	  
+     		String company;
+       	  
+     		int sellerId = 0;
+       	  
+       	  
+     		
+     		List<UsitOrderItem> item = order.getOrderItems();
+       	  
+     		for (Iterator<UsitOrderItem> iterator = item.iterator(); iterator.hasNext();) {
+     			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+     			sellerId = usitOrderItem.getProduct().getSellMemberId();
+     			productName = usitOrderItem.getProduct().getTitle();
+     		}
+
+     		SellMember seller = sellMemberService.getMemberByMemeberId(sellerId);  
+       	  
+     		if(item.size() > 1) {
+     			productName = productName+ " 외"+(item.size() - 1)+"건" ;
+     		}
+       	  
+     		company = seller.getCompanyNm();
+
+     		String variable [] = new String [3];
+     		variable[0] = order.getOrdererName();
+     		variable[1] = productName;
+     		variable[2] = company;
+
+     		
+     		/**
+			   * #{고객명} #{상품명} #{택배사명} #{송장번호}
+			   *
+			   */
+     		int status = commonService.sendAlimtalk("U014",order.getOrdererPhone(),variable);
+     		logger.info("kakaoStatus : "+status);
+     	}
+     }catch(FrameworkException e){
+    	 logger.error("CommFrameworkException", e);
+    	 resultCode = e.getMsgKey();
+    	 resultMsg = e.getMsg();
+     }catch(Exception e){
+    	 logger.error("Exception", e);
+    	 resultCode = "-9999";
+    	 resultMsg = "처리중 오류가 발생하였습니다.";
+     }
+     mav.addObject("result_code", resultCode);
+     mav.addObject("result_msg", resultMsg);
+ }
   
   
   

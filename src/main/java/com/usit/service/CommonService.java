@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.usit.domain.Category;
+import com.usit.domain.Inquiry;
+import com.usit.domain.Unsubscribe;
 import com.usit.domain.UsitCode;
 import com.usit.domain.VerifyToken;
 
@@ -24,6 +28,9 @@ public interface CommonService {
     public JSONObject checkTracker(String trackingNumber, String deliveryCompanyCd) throws Exception;
     public JSONObject checkSweetTrackerReturnAcceptDay() throws Exception;
     public JSONObject orderSweetTrackerReturn(Map<String, String> params) throws Exception;
+    
+    public List<Unsubscribe> getUnsubscribeMails();
+    public Unsubscribe createUnsubscribe(Unsubscribe unsubscribe);
     
     
     

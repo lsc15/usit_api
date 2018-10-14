@@ -24,10 +24,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -91,6 +93,9 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     
     @Autowired
     private ShareHistoryRepository shareHistoryRepository;
+    
+    @Autowired
+    private Environment env;
     
     @Autowired
     private EntityManager em;
@@ -358,7 +363,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     			
     			MailUtil mu = new MailUtil();
     			try {
-    				mu.anonymousSendMail(updateOrder.getOrdererEmail(), updateOrder.getOrderId(), updateOrder.getOrdererPhone());
+    				mu.anonymousSendMail(env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), updateOrder.getOrdererEmail(), updateOrder.getOrderId(), updateOrder.getOrdererPhone());
     			} catch (Exception e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -525,6 +530,248 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
 
 
+    
+    
+    
+    
+    @Override
+    public void saveOrderConfirm(JSONObject result, Integer orderId) throws Exception{
+
+
+        if("Success".equals(result.get("code"))) {
+            int addPoint = 0;
+            
+            JSONObject tmp = (JSONObject) result.get("body");
+//            JSONObject detail = (JSONObject) tmp.get("detail");
+            
+            UsitOrder updateOrder = orderRepository.findOne(orderId);
+
+            updateOrder.setImpUid(String.valueOf(tmp.get("paymentId")));
+            updateOrder.setOrderStatusCd(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_COMPLETE);
+
+            orderRepository.save(updateOrder);
+
+
+
+            List<UsitOrderItem> orderItems =  updateOrder.getOrderItems();
+
+            //제고관리
+            if(orderItems!=null) {
+              int size = orderItems.size();
+              boolean isOrderItemUpdate = false;
+              if(UsitCodeConstants.ORDER_STATUS_CD_PAYMENT_COMPLETE.equals(updateOrder.getOrderStatusCd())) {
+            	  isOrderItemUpdate = true;
+              }
+              
+              for (int i = 0; i < size; i++) {
+            	  
+            	  if(isOrderItemUpdate) {
+            		  orderItems.get(i).setPaymentDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+
+            		  orderItems.get(i).setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_PAYMENT_COMPLETE);
+            	  }
+            	  //orderItem의 결제상태변경 (1299에서 1201)
+            	  orderItemRepository.save(orderItems);
+            	  
+            	  
+                      if(orderItems.get(i).getProductOptionId() == null) {
+                    	  //상품의 제고수량 갱신
+                    	 Product product = productRepository.findOne(orderItems.get(i).getProductId());
+                    	 if("Y".equals(product.getInventoryUseYn()) && product.getInventory() != 0 ) {
+                    		 product.setInventory(product.getInventory()-orderItems.get(i).getQuantity());	 
+                    	 }
+                    	 productRepository.save(product);
+                      }else {
+                    	  //상품옵션의 제고수량 갱신
+                    	 ProductOption productOption = productOptionRepository.getOne(orderItems.get(i).getProductOptionId());
+                    	 productOption.setInventory(productOption.getInventory() - orderItems.get(i).getQuantity());
+                    	 productOptionRepository.save(productOption);
+                      }
+              }
+          }
+            
+            
+            //카트삭제
+//            if(orderItems!=null) {
+//                int size = orderItems.size();
+//                for (int i = 0; i < size; i++) {
+//                        if(orderItems.get(i).getCartItemId() == null) {
+//                            continue;
+//                        }
+//                    cartItemRepository.delete(orderItems.get(i).getCartItemId());
+//
+//                }
+//            }
+
+
+            
+          //비회원구매 메일발송
+    		if(updateOrder.getMemberId() == null) {
+    			
+    			MailUtil mu = new MailUtil();
+    			try {
+    				mu.anonymousSendMail(env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), updateOrder.getOrdererEmail(), updateOrder.getOrderId(), updateOrder.getOrdererPhone());
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			
+    		}
+
+
+            //인플루언서 포인트증가
+            if(orderItems!=null) {
+                int size = orderItems.size();
+
+                for (int i = 0; i < size; i++) {
+                	int orderItemPrice;
+                	//인플루언서 포인트확인
+                	if(orderItems.get(i).getStoreKey() != null) {
+                	
+                	if(orderItems.get(i).getAmount() != 0) {
+                		orderItemPrice = orderItems.get(i).getAmount();
+                	}else {
+                		orderItemPrice = 0;
+                	}
+//                    int quantity = orderItems.get(i).getQuantity();
+//                    int optionAddPrice = 0;
+                        //상품옵션의 가격 유짓은 orderItem에 옵션값을 포함한다고 이웅희가 2018.07.18에 말함
+//                        List<ProductOption> productOption=orderItems.get(i).getProduct().getProductOptions();
+//                        if(productOption!=null) {
+//                        for (int j = 0; j < productOption.size(); j++) {
+//                            optionAddPrice+=productOption.get(j).getAddPrice();
+//                        }
+//                        }
+                    
+                  //storeKey 인플루언서 구하기
+                    AES256Util aes256Util = null;
+            		String uId = null;
+            		try {
+            			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+            		} catch (UnsupportedEncodingException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+            		
+            		try {
+            			uId = aes256Util.decrypt(orderItems.get(i).getStoreKey());
+            		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+            			// TODO Auto-generated catch block
+            			e.printStackTrace();
+            		}
+                 	
+                    
+            		
+            		Member influencer = memberRepository.findByMemberUid(uId);
+            		
+            		Integer memberId = influencer.getMemberId();
+                        
+            		double productRate = orderItems.get(i).getProduct().getCommissionPct();
+
+            		double influencerRate = influencer.getCommissionPct();
+                    
+//            		addPoint += calculatePoint(orderItemPrice * quantity, productRate , influencerRate);
+            		addPoint += calculatePoint(orderItemPrice, productRate , influencerRate);
+                    
+                    
+                    //쿠폰적용
+//                    if(orderItems.get(i).getUsedCouponId() != null) {
+//                    
+//                    	
+//                    	Coupon coupon = couponRepository.findOne(orderItems.get(i).getUsedCouponId());
+//                    	if("Y".equals(coupon.getUseYn()) || !orderItems.get(i).getMemberId().equals(coupon.getMemberId())) {
+//                    		logger.error("결제 실패 :"+ "사용할 수 없는 쿠폰입니다.");
+//                            throw new FrameworkException("-1001", "사용할 수 없는 쿠폰입니다."); // 오류 리턴 예시
+//                    	}
+//                    	
+//                    	coupon.setUsedDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+//                    	coupon.setUseYn("Y");
+//                    	couponRepository.save(coupon);
+//                    }
+                    
+                      
+                        
+                        
+                        if(addPoint != 0) {
+                        	//포인트적용
+                            Member member = memberRepository.findOne(memberId);
+                            int present = member.getTotalPoint() + addPoint;
+                            member.setTotalPoint(present);
+                            memberRepository.save(member);
+                        	
+                            //포인트증감이력 저장
+                            PointHistory point = new PointHistory();
+                            point.setAddPoint(addPoint);
+                            point.setRegId(updateOrder.getMemberId());
+                            point.setBalancePoint(present);
+                            point.setAddPct((addPoint / orderItemPrice ) * 100);
+                            
+                            //상품구매코드
+                            if(orderItems.get(i).getStoreKey() != null) {
+                            	point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_SELL);	
+                            }
+                            
+                            
+                            
+                            point.setOrderItemId(orderItems.get(i).getOrderItemId());
+                            point.setMemberId(memberId);
+                            pointHistoryRepository.save(point);
+                            
+                            
+                            
+                            
+                    		
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    		String today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+                    		int productId = orderItems.get(i).getProductId();
+                    		
+                    		
+                    		
+                    		ShareHistory existShare = shareHistoryRepository.findByDateAndMemberIdAndProductId(today,memberId,productId);
+                            
+                            
+                            
+                            
+                			try {
+                	        if(existShare != null) {
+                	    		
+                	        	existShare.setPurchaseCnt(existShare.getPurchaseCnt() + 1);
+                	        	existShare.setPurchaseAmount(existShare.getPurchaseAmount() + orderItems.get(i).getAmount());
+                	            existShare.setPoint(existShare.getPoint() + addPoint);
+                	    		shareHistoryRepository.save(existShare);
+                	        
+                	        }else{
+                	        	ShareHistory share = new ShareHistory();
+                	    	    share.setMemberId(memberId);
+                	    	    share.setPurchaseAmount(orderItems.get(i).getAmount());
+                	    	    share.setPoint(addPoint);
+                	    	    share.setStoreKey(orderItems.get(i).getStoreKey());
+                	    	    share.setProductId(orderItems.get(i).getProductId());
+                	    		share.setDate(today);
+                	    		share.setPurchaseCnt(1);
+                	    		shareHistoryRepository.save(share);
+                	        }
+                			}catch (Exception e) {
+                				logger.warn("공유 히스토리 저장 실패.");
+                				throw new FrameworkException("-1001", "공유 히스토리 저장에 실패하였습니다."); // 오류 리턴 예시
+                			}
+                            
+                            
+                            
+                            }
+                        
+                
+                	}
+                }
+
+            }
+
+        }else {
+            logger.error("결제 status = paid 가 아닙니다.");
+
+        }
+    
+    }
 
     
     
@@ -838,6 +1085,15 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
 
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 

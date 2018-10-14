@@ -79,6 +79,10 @@ public class UsitOrder implements Serializable {
     @Column(name="delivery_amount")
     private int deliveryAmount;
 
+    
+    @Column(name="payment_agent_cd")
+    private String paymentAgentCd;
+    
     @Column(name="payment_method_cd")
     private String paymentMethodCd;
 
