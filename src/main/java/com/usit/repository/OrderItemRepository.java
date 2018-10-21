@@ -35,4 +35,6 @@ public interface OrderItemRepository extends JpaRepository<UsitOrderItem, Intege
     public List<UsitOrderItem> findByDeliveryStatusCdAndDeliveryCompleteDateBetween(String DeliveryStatusCd, LocalDateTime startDate,LocalDateTime endDate);
 //    public List<UsitOrderItem> findByInspectionResultUrlNotNull();
     
+    public List<UsitOrderItem> findByOrderIdAndDeliveryFeeId(int orderId, int deliveryFeeId);
+    
 }

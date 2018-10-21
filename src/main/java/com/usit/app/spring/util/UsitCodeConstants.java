@@ -25,7 +25,7 @@ public class UsitCodeConstants {
     public static final String DELIVERY_STATUS_CD_DELIVERY_SEND = "1203";
     public static final String DELIVERY_STATUS_CD_DELIVERY_COMPLETE = "1204";
     public static final String DELIVERY_STATUS_CD_DELIVERY_CHANGE_COMPLETE = "1207";
-    public static final String DELIVERY_STATUS_CD_DELIVERY_CACEL = "1211";
+    public static final String DELIVERY_STATUS_CD_DELIVERY_CANCEL = "1211";
     
     public static final String PERIOD_CONDITION_PAYMENT_DATE ="paymentDate";
     public static final String PERIOD_CONDITION_ORDER_CONFIRM_DATE = "orderConfirmDate";

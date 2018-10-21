@@ -46,12 +46,14 @@ import com.usit.app.spring.service.CommonHeaderService;
 import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.UsitCodeConstants;
+import com.usit.domain.DeliveryFee;
 import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.SellMember;
 import com.usit.domain.ShareHistory;
 import com.usit.domain.UsitOrder;
+import com.usit.repository.DeliveryFeeRepository;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
@@ -88,6 +90,9 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     @Autowired
     private ShareHistoryRepository shareHistoryRepository;
+    
+    @Autowired
+    private DeliveryFeeRepository deliveryFeeRepository;
 	
 	@Autowired
     JdbcTemplate jdbcTemplate;
@@ -542,7 +547,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     		List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
     		for (Iterator iterator = updateItems.iterator(); iterator.hasNext();) {
 				UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
-				if(orderItem.getOrderItemId() != usitOrderItem.getOrderItemId() && !usitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL)) {
+				if(orderItem.getOrderItemId() != usitOrderItem.getOrderItemId() && !usitOrderItem.getDeliveryStatusCd().equals(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CANCEL)) {
 					isLast = true;
 				}
 			}
@@ -554,13 +559,21 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     		
     		
     		if(updateOrderItem!=null) {
-    			payment += updateOrder.getDeliveryAmount();
+    			DeliveryFee deliveryFee = deliveryFeeRepository.getOne(updateOrderItem.getDeliveryFeeId());
+    			
+    			if(deliveryFee.getOrderItemTotalAmount() - updateOrderItem.getAmount() == 0) {
+    				payment += deliveryFee.getAmount();
+    			}
+    			
+//    			payment += updateOrder.getDeliveryAmount();
+    			
+    			
     			payment += updateOrderItem.getAmount();
     			UsitOrderItem store = new UsitOrderItem();
     			store=updateOrderItem;
     			store.setReturnReasonCd(updateOrderItem.getReturnReasonCd());
     			store.setReturnReasonText(updateOrderItem.getReturnReasonText());
-    			store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
+    			store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CANCEL);
     			store.setReturnReasonCd(returnReasonCd);
     			store.setReturnReasonText(returnReasonText);
     			orderItemRepository.save(store);
@@ -583,16 +596,53 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
             //포인트차감
             int addPoint = 0;
             if(updateOrderItem!=null) {
-                	
-                	//인플루언서 포인트확인
-                	if(updateOrderItem.getStoreKey() != null) {
-
-//                    int quantity = usitOrderItem.getQuantity();
-                    int orderItemPrice;
-                    if(payment != 0 ) {
-                    	orderItemPrice = updateOrderItem.getAmount();
-                    }else {
-                    	orderItemPrice = 0;
+            	
+            	/**
+            	 * 1. deliveryfee amount 가 0인경우 무료배송의 경우
+            	 * 2. 아이템의 orderItemTotalAmount - orderItem.amount 
+            	 * 3. 아이템중 deliveryFeeId로 조회해서 나온 product중 가장 높은 delivery price cut을 deliveryFee freecondition에 설정
+            	 * 4. amount에는 product delivery price Max값 설정
+            	 */
+            	//배송비 재정산
+            	if(updateOrderItem.getDeliveryFeeId() != null) {
+            	
+            		DeliveryFee deliveryfee = deliveryFeeRepository.getOne(updateOrderItem.getDeliveryFeeId());
+            		deliveryfee.setOrderItemTotalAmount(deliveryfee.getOrderItemTotalAmount() - updateOrderItem.getAmount());
+            		
+            		if(deliveryfee.getAmount() == 0) {
+            			int MaxDeliveryPrice = 0;
+            			int MaxDeliveryPriceCut = 0;
+            			
+            			List<UsitOrderItem> orderItems = orderItemRepository.findByOrderIdAndDeliveryFeeId(updateOrderItem.getOrderId(), updateOrderItem.getDeliveryFeeId());
+            			for (UsitOrderItem usitOrderItem : orderItems) {
+            				if(usitOrderItem.getOrderItemId() !=  updateOrderItem.getOrderItemId() && MaxDeliveryPriceCut < usitOrderItem.getProduct().getDeliveryPriceCut() ) {
+            					MaxDeliveryPriceCut = usitOrderItem.getProduct().getDeliveryPriceCut(); 
+            				}
+            				if(usitOrderItem.getOrderItemId() !=  updateOrderItem.getOrderItemId() && MaxDeliveryPrice < usitOrderItem.getProduct().getDeliveryPrice())  {
+            					MaxDeliveryPrice = usitOrderItem.getProduct().getDeliveryPrice(); 
+            				}
+            				
+						}
+            			
+            			deliveryfee.setFreeCondition(MaxDeliveryPriceCut);
+            			deliveryfee.setAmount(MaxDeliveryPrice);
+            		}
+            		deliveryFeeRepository.save(deliveryfee);
+            	
+            	}
+            	
+            	
+            	
+            	
+                
+            	//인플루언서 포인트확인
+            	if(updateOrderItem.getStoreKey() != null) {
+            		//int quantity = usitOrderItem.getQuantity();
+            		int orderItemPrice;
+            		if(payment != 0 ) {
+            			orderItemPrice = updateOrderItem.getAmount();
+            		}else {
+            			orderItemPrice = 0;
                     }
                    
                     

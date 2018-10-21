@@ -23,6 +23,8 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.usit.util.TimeUtil;
@@ -136,7 +138,9 @@ public class UsitOrder implements Serializable {
 //    @JoinColumn(name = "order_id", insertable = false, updatable = false)
 //    private List<UsitOrderItem> orderItems;
     
-    @JsonIgnore
+//    @JsonIgnore
+//    @JsonManagedReference
+    @JsonIgnoreProperties("order")
     @OneToMany(mappedBy="order",fetch = FetchType.EAGER)
 //    @Fetch(FetchMode.SELECT)
 //    @JoinColumn(name = "order_id", insertable = false, updatable = false)

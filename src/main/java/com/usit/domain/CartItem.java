@@ -28,26 +28,32 @@ public class CartItem implements Serializable {
 	@Column(name="member_id")
 	private Integer memberId;
 
-	@Column(name="mod_date")
-	private LocalDateTime modDate;
-
-	@Column(name="mod_id")
-	private Integer modId;
-
+	
 	@Column(name="product_id")
 	private Integer productId;
 
 	@Column(name="product_option_id", nullable=true)
 	private Integer productOptionId;
 
+	@Column(name="sell_member_id")
+	private Integer sellMemberId;
+	
+	@Column(name="store_key")
+	private String storeKey;
+	
 	private int quantity;
 
 	@Column(name="reg_date")
 	private LocalDateTime regDate;
 
+	@Column(name="mod_date")
+	private LocalDateTime modDate;
+	
 	@Column(name="reg_id")
 	private Integer regId;
 	
+	@Column(name="mod_id")
+	private Integer modId;
 	
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)

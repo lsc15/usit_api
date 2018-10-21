@@ -763,7 +763,11 @@ public class UsitOrderItemController extends CommonHeaderController{
     
     
      
-     
+
+ 	
+ 	
+ 	
+ 	
    //카카오택 테스트 초 분 시 일 월 주(년)
 // 	@Scheduled(cron = "0 22 22 * * ?")
 //    public void test() throws Exception{
