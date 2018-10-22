@@ -570,7 +570,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     			
     			payment += updateOrderItem.getAmount();
     			UsitOrderItem store = new UsitOrderItem();
-    			store=updateOrderItem;
+    			store = updateOrderItem;
     			store.setReturnReasonCd(updateOrderItem.getReturnReasonCd());
     			store.setReturnReasonText(updateOrderItem.getReturnReasonText());
     			store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CANCEL);
@@ -600,7 +600,7 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
             	/**
             	 * 1. deliveryfee amount 가 0인경우 무료배송의 경우
             	 * 2. 아이템의 orderItemTotalAmount - orderItem.amount 
-            	 * 3. 아이템중 deliveryFeeId로 조회해서 나온 product중 가장 높은 delivery price cut을 deliveryFee freecondition에 설정
+            	 * 3. 아이템중 deliveryFeeId로 조회해서 나온 product중 가장 높은 delivery price cut을 deliveryFee free condition에 설정
             	 * 4. amount에는 product delivery price Max값 설정
             	 */
             	//배송비 재정산
