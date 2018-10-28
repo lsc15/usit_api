@@ -80,7 +80,7 @@ public class MemberController extends CommonHeaderController{
          */
         member.setCommissionPct(50);
         
-        
+        member.setWithdrawablePoint(10000);
 		Member result = memberService.createMember(member);
 		 
 		 
