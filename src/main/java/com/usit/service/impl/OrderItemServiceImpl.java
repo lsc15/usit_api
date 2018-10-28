@@ -529,6 +529,58 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
     
     
     
+    @Override
+    public JSONObject confirmOrderItemCancel(UsitOrderItem orderItem) throws Exception{
+
+    	UsitOrderItem updateOrderItem = orderItemRepository.findOne(orderItem.getOrderItemId());
+           
+    	JSONObject result = new JSONObject();
+    	result.put("delivery_price",0);
+    	result.put("amount",updateOrderItem.getAmount());
+
+            if(updateOrderItem!=null) {
+            	
+            	/**
+            	 * 1. deliveryfee amount 가 0인경우 무료배송의 경우
+            	 * 2. 아이템의 orderItemTotalAmount - orderItem.amount 
+            	 * 3. 아이템중 deliveryFeeId로 조회해서 나온 product중 가장 높은 delivery price cut을 deliveryFee free condition에 설정
+            	 * 4. amount에는 product delivery price Max값 설정
+            	 */
+            	//배송비 재정산
+            	if(updateOrderItem.getDeliveryFeeId() != null) {
+            	
+            		DeliveryFee deliveryfee = deliveryFeeRepository.getOne(updateOrderItem.getDeliveryFeeId());
+            		int itemTotalAmount = deliveryfee.getOrderItemTotalAmount() - updateOrderItem.getAmount();
+//            		deliveryfee.setOrderItemTotalAmount(deliveryfee.getOrderItemTotalAmount() - updateOrderItem.getAmount());
+            		
+            		if(deliveryfee.getAmount() == 0) {
+            			int MaxDeliveryPrice = 0;
+            			int MaxDeliveryPriceCut = 0;
+            			
+            			List<UsitOrderItem> orderItems = orderItemRepository.findByOrderIdAndDeliveryFeeId(updateOrderItem.getOrderId(), updateOrderItem.getDeliveryFeeId());
+            			for (UsitOrderItem usitOrderItem : orderItems) {
+            				if(usitOrderItem.getOrderItemId() !=  updateOrderItem.getOrderItemId() && MaxDeliveryPriceCut < usitOrderItem.getProduct().getDeliveryPriceCut() ) {
+            					MaxDeliveryPriceCut = usitOrderItem.getProduct().getDeliveryPriceCut(); 
+            				}
+            				if(usitOrderItem.getOrderItemId() !=  updateOrderItem.getOrderItemId() && MaxDeliveryPrice < usitOrderItem.getProduct().getDeliveryPrice())  {
+            					MaxDeliveryPrice = usitOrderItem.getProduct().getDeliveryPrice(); 
+            				}
+            				
+						}
+            			if(MaxDeliveryPriceCut <= itemTotalAmount) {
+            				MaxDeliveryPrice = 0;
+            			}
+            			result.put("delivery_price",deliveryfee.getAmount() - MaxDeliveryPrice );
+            		}
+            	}
+            	
+            }
+            return result;
+    }
+    
+    
+    
+    
     
     @Override
     public JSONObject updateOrderItemStatus(UsitOrderItem orderItem,String returnReasonCd,String returnReasonText) throws Exception{
@@ -623,6 +675,9 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
             				}
             				
 						}
+            			if(MaxDeliveryPriceCut <= deliveryfee.getOrderItemTotalAmount()) {
+            				MaxDeliveryPrice = 0;
+            			}
             			
             			deliveryfee.setFreeCondition(MaxDeliveryPriceCut);
             			deliveryfee.setAmount(MaxDeliveryPrice);
