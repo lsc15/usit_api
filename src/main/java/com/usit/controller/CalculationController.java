@@ -149,7 +149,7 @@ public class CalculationController extends CommonHeaderController{
      	}
      	
      	Page<Calculation> page;
-     	//판매자아이디 분기1
+     	//판매자아이디 분기
      	if(sellMemberId != null && sellMemberId != 0 ) {
      		page = calculationService.readAllByToken(pageRequest,periodCondition,startDate,endDate,sellMemberId);
      	}else {
