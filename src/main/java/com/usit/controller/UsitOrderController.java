@@ -30,6 +30,7 @@ import com.usit.app.spring.ui.dto.ComUiDTO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.app.util.messenger.alimtalk.NpaySender;
+import com.usit.app.util.naverpay.NpayOrder;
 import com.usit.domain.AlimtalkMessage;
 import com.usit.domain.DeliveryCharge;
 import com.usit.domain.SellMember;
@@ -650,6 +651,71 @@ public class UsitOrderController extends CommonHeaderController{
 
        return mav;
    }
+   
+   
+   
+   
+   /**
+    * 네이버 페이 주문요청
+    * @param request
+    * @param curPage
+    * @param perPage
+    * @return
+    * @throws Exception
+    */
+   @RequestMapping(value="/orders/npay-request", method=RequestMethod.POST)
+   public ModelAndView saveNpayOrder(HttpServletRequest request, @RequestParam("backUrl") String backUrl ,@RequestBody UsitOrderTransaction params) throws Exception{
+
+       ModelAndView mav = new ModelAndView("jsonView");
+
+       Map<String, String> resultData = new HashMap<String, String>();
+       String resultCode = "0000";
+       String resultMsg = "";
+
+       UsitOrderTransaction savedOrderTransaction = new UsitOrderTransaction();
+
+       
+       String url = env.getProperty("naver.npay.dev.url");
+       String merchantId = env.getProperty("naver.npay.merchant.id");
+       String shopId = null;
+       String certiKey = env.getProperty("naver.npay.certikey");
+       
+       try {
+
+//           logger.debug("{}", params.getUsitOrder().toString());
+           logger.debug("{}", params.getUsitOrderItems().toString());
+          //보류
+           savedOrderTransaction = orderService.saveOrderTransaction(params);
+           NpayOrder no = new NpayOrder();
+           String orderKey = no.sendNpay(url,merchantId,certiKey,backUrl,params);
+           String [] result = orderKey.split(":");
+           
+           if(result[0] != null && UsitCodeConstants.TEST_SUCCESS.equals(result[0])) {
+        	   
+        	   orderKey = result[1];
+        	   shopId = result[2];
+           }
+           
+           resultData.put("certKey", orderKey);
+           resultData.put("shopId", shopId);
+
+       }catch(FrameworkException e){
+           logger.error("CommFrameworkException", e);
+           resultCode = e.getMsgKey();
+           resultMsg = e.getMsg();
+       }catch(Exception e){
+           logger.error("Exception", e);
+           resultCode = "-9999";
+           resultMsg = "처리중 오류가 발생하였습니다.";
+       }
+
+       mav.addObject("result_code", resultCode);
+       mav.addObject("result_msg", resultMsg);
+//       mav.addObject("data", savedOrderTransaction);
+       mav.addObject("data", resultData);
+
+       return mav;
+   }
 
 
 
@@ -751,7 +817,7 @@ public class UsitOrderController extends CommonHeaderController{
   * @return
   * @throws Exception
   */
- @SuppressWarnings("unchecked")
+@Deprecated
 @RequestMapping(value="/orders/npay-confirm", method=RequestMethod.POST)
  public void saveOrderNpayConfirm(HttpServletRequest request,@RequestParam("orderId") Integer orderId, @RequestParam("paymentId") String paymentId) throws Exception{
 

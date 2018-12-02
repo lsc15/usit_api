@@ -3,6 +3,8 @@ package com.usit.repository;
 
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	
 //	public Page<Product> findAllByTempYn(Pageable pageRequest,String tempYn);
 	
-//	public List<Coupon> findByMemberId(int memberId);
+	public List<Product> findByProductIdIn(List<Integer> productIds);
 	
 //	@Query("select t from Coupon t where couponNumber=:couponNumber and useYn=:useYn")
 //	public Coupon findFirstByCouponNumberAndUseYnSQL(@Param("couponNumber") String couponId, @Param("useYn") String useYn);

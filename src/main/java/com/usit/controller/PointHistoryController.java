@@ -2,6 +2,7 @@ package com.usit.controller;
 
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.usit.domain.UsitOrderItem;
 import com.usit.service.MemberService;
 import com.usit.service.PointHistoryService;
 import com.usit.service.ShareHistoryService;
+import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -162,6 +164,49 @@ public class PointHistoryController extends CommonHeaderController{
 		}
 		}
 	}
+	
+	
+	
+//	@Scheduled(cron = "0 0 3,9,13 * * ?")
+//    public void updateDeliveryStatus() throws Exception{
+//    	if("real".equals(env.getProperty("running.system"))) {
+//	   logger.info("@@배송상태동기화 시작");
+//	   List<String> orderItemStatusCd = new ArrayList<String>();
+//	   orderItemStatusCd.add("1203");
+//	   orderItemStatusCd.add("1206");
+//	   List<UsitOrderItem> checkList = pointHistoryService.getPointListByMemberId(page, member)(orderItemStatusCd);
+//    	  
+//    	for (Iterator<UsitOrderItem> iterator = checkList.iterator(); iterator.hasNext();) {
+//    		UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+//			JSONObject result = commonService.checkTracker(usitOrderItem.getTrackingNumber(),usitOrderItem.getDeliveryCompanyCd());
+//			if("Y".equals(result.get("completeYN"))) {
+//				if("1203".equals(usitOrderItem.getDeliveryStatusCd())){
+//					logger.info("@@equals 1203: ");
+//					usitOrderItem.setDeliveryStatusCd("1204");
+//					usitOrderItem.setDeliveryCompleteDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+//				}else if("1206".equals(usitOrderItem.getDeliveryStatusCd())){
+//					logger.info("@@equals 1206: ");
+//					usitOrderItem.setDeliveryStatusCd("1207");
+//				}else {
+//					//추후변경분
+//				}
+//				logger.info("@@배송상태동기화 배송번호: "+ usitOrderItem.getTrackingNumber());
+//				orderItemService.setOrderItemTracker(usitOrderItem);
+//				logger.info("@@save ");
+//				logger.info("@@status: " + usitOrderItem.getDeliveryStatusCd());
+//				Thread.sleep(1000);
+//			}
+//		}
+//    	
+//    
+//    	}
+//    }
+	
+	
+	
+	
+	
+	
 	
 
 
