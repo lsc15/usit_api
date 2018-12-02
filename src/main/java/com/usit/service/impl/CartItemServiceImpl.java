@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,9 +43,9 @@ public class CartItemServiceImpl implements CartItemService{
 
 
 	
-	public List<CartItem> getCartItemsList(int memberId) {
+	public Page<CartItem> getCartItemsList(Pageable pageRequest,int memberId) {
 		
-		return cartItemRepository.findByMemberIdOrderByCartItemIdDesc(memberId);
+		return cartItemRepository.findByMemberIdOrderByCartItemIdDesc(pageRequest,memberId);
 
 	}
 	
@@ -67,6 +68,8 @@ public class CartItemServiceImpl implements CartItemService{
 			updateCartItem.setProductId(cartItem.getProductId());
 			updateCartItem.setProductOptionId(cartItem.getProductOptionId());
 			updateCartItem.setQuantity(cartItem.getQuantity());
+			updateCartItem.setSellMemberId(cartItem.getSellMemberId());
+			updateCartItem.setStoreKey(cartItem.getStoreKey());
 			updateCartItem.setModId(memberId);
 		
 		return cartItemRepository.save(updateCartItem);
@@ -87,8 +90,6 @@ public class CartItemServiceImpl implements CartItemService{
 			}else{
 				cartItemRepository.delete(cartItemId);;
 			}
-			
-			
 		}
 	
 

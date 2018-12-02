@@ -21,8 +21,11 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -38,7 +41,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="usit_order_item")
-//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderItemId")//entity간 조인시 json단에서 무한재귀현상을 막아주는 어노테이션
+//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="orderItemId")//entity간 조인시 json단에서 무한재귀현상을 막아주는 어노테이션 이지만 주문정보가 조인되지 않는 문제가 발생하여 주석제거
 @NamedQuery(name="UsitOrderItem.findAll", query="SELECT m FROM UsitOrderItem m")
 public class UsitOrderItem implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -105,6 +108,9 @@ public class UsitOrderItem implements Serializable {
 
     @Column(name="cart_item_id")
     private Integer cartItemId;
+    
+    @Column(name="delivery_fee_id")
+    private Integer deliveryFeeId;
     
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name="payment_date")
@@ -202,10 +208,17 @@ public class UsitOrderItem implements Serializable {
     
     
 //    @JsonIgnore 주문취소시 잘못된 order가 넘어와서 사용했지만 json을 완전 무시하면 셀러오더아이템 조회시 주문이 조인안되는 문제발생해서 아래 json프로퍼티사용
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+//    @JsonBackReference
+    @JsonIgnoreProperties("orderItems")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private UsitOrder order;
+    
+    
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "delivery_fee_id", insertable = false, updatable = false)
+    private DeliveryFee deliveryFee;
     
     
     @PrePersist

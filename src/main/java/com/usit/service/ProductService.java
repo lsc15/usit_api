@@ -1,6 +1,8 @@
 package com.usit.service;
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -13,6 +15,9 @@ public interface ProductService {
 
 	Product getProduct(int productId);
 
+	
+	List<Product> readZzimProducts(List<Integer> productIds);
+	
 	Page<Product> readAll(PageRequest pageRequest,String productStatusCd);
 	
 	Page<Product> readAllByPrice(PageRequest pageRequest,String productStatusCd);

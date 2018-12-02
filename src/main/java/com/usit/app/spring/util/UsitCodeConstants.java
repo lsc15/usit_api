@@ -1,9 +1,14 @@
 package com.usit.app.spring.util;
 
 public class UsitCodeConstants {
+	
+	public static final String USIT_PRODUCT_URL_PREFIX = "https://usit.co.kr/product/";
+	
     public static final String POSTING_SNS_INSTAGRAM = "2000";
     public static final String USIT_AES256_KEY = "38teamtueseday$$";
+    public static final String TEST_SUCCESS = "SUCCESS";
     public static final String TEST_ERROR = "FAIL";
+    
     public static final String TYPE_USER = "USER";
     public static final String TYPE_SELLER = "SELLER";
     
@@ -25,7 +30,7 @@ public class UsitCodeConstants {
     public static final String DELIVERY_STATUS_CD_DELIVERY_SEND = "1203";
     public static final String DELIVERY_STATUS_CD_DELIVERY_COMPLETE = "1204";
     public static final String DELIVERY_STATUS_CD_DELIVERY_CHANGE_COMPLETE = "1207";
-    public static final String DELIVERY_STATUS_CD_DELIVERY_CACEL = "1211";
+    public static final String DELIVERY_STATUS_CD_DELIVERY_CANCEL = "1211";
     
     public static final String PERIOD_CONDITION_PAYMENT_DATE ="paymentDate";
     public static final String PERIOD_CONDITION_ORDER_CONFIRM_DATE = "orderConfirmDate";
@@ -100,8 +105,16 @@ public class UsitCodeConstants {
     public static final String CACULATION_TYEP_CD_DELIVERY ="2802";
     
     
+    /* 네이버 페이 옵션명 */
+    public static final String NAVER_PAY_SUPPLEMENTSEARCH = "supplementSearch";
+    public static final String NAVER_PAY_OPTIONSEARCH = "optionSearch";
+    
     /* 배송완료 후 구매확정일 차감일 */
     public static final int PURCHASE_COMPLETE_DATE = 7;
+    
+
+    
+    
     
     /* 생성자 방지 */
     private UsitCodeConstants(){ 

@@ -1,7 +1,9 @@
 package com.usit.service;
 
 import java.util.List;
+import java.util.Map;
 
+import com.usit.domain.PointHistory;
 import com.usit.domain.ShareHistory;
 
 public interface ShareHistoryService {
@@ -17,6 +19,9 @@ public interface ShareHistoryService {
 	
 	ShareHistory updateShareHistory(int productId,Integer shareId);
 	
+	
+	// 추천인 이벤트
+	List<PointHistory> getEventMemberForAddPoint(String today);
 //	ShareHistory updateShareHistory(ShareHistory shareHistory,Integer shareHistoryId);
 
 

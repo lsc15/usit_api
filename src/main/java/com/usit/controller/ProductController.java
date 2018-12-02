@@ -1,15 +1,33 @@
 package com.usit.controller;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.jdom2.input.SAXBuilder;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +36,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.w3c.dom.Document;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
@@ -27,6 +47,9 @@ import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.app.util.naverpay.NpayOrder;
+import com.usit.app.util.naverpay.NpayZzim;
+import com.usit.app.util.naverpay.NpayZzim.ItemStack;
 import com.usit.domain.ApprovalProduct;
 import com.usit.domain.ApprovalProductOption;
 import com.usit.domain.Member;
@@ -56,6 +79,9 @@ public class ProductController extends CommonHeaderController{
 	
 	@Autowired
 	ShareHistoryService shareHistoryService;
+	
+	@Autowired
+    private Environment env;
 
 	
 	
@@ -536,5 +562,221 @@ public class ProductController extends CommonHeaderController{
 		
 		 return mav;
 	}
+	
+	
+	
+	
+	/**
+	 * @return 
+	 * @title 네이버페이 상품정보 연동
+	 * 네이버페이는 비주기적으로 상품 정보를 업데이트하기 위해, 가맹점 사이트에 HTTP로 상품 정보 요청을 보낸다.
+	 * @return xml
+	 * @throws IOException 
+	 * @throws Exception 
+	 */
+	@GetMapping("/productInfo")
+	public void getNpayProducts(HttpServletRequest request,HttpServletResponse response) throws IOException {
+//		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        String query = request.getQueryString();
+        String pair [] = query.split("&");
+        System.out.println("getQueryString:"+query);
+        boolean supplementSearch = false;
+        boolean optionSearch = false;
+        int index = 0;
+        ArrayList<Integer> requestList = new ArrayList<Integer>();
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
+        
+        
+        // option 확인 상품갯수 산정
+        for (String string : pair) {
+
+        	if(string.contains(UsitCodeConstants.NAVER_PAY_SUPPLEMENTSEARCH)) {
+        		if("true".equals(string.split("=")[1])) {
+        			supplementSearch = true;
+        		}
+        		
+        	}
+        	if(string.contains(UsitCodeConstants.NAVER_PAY_OPTIONSEARCH)) {
+        		if("true".equals(string.split("=")[1])) {
+        			optionSearch = true;
+        		}
+        		
+        	}
+        	if(string.indexOf('[') != -1) {
+        		int present = Integer.parseInt(string.substring(string.indexOf('[')+1,string.indexOf(']')));	
+        	
+        	if(index < present ) {
+        		index = present;
+        	}
+        	}
+			
+		}
+        index++;
+        
+        int pairSize = pair.length;
+        //int배열만큼 상품리스트를 만들고 hashMap을 통해 optionMansgeCode전달 예정
+        for (int i = 0; i < index; i++) {
+        	if(pair[i].startsWith("product["+i+"][id]")) {
+        		
+        		requestList.add(Integer.parseInt(pair[i].split("=")[1]));
+        		
+        		
+        		for(int j = 0; j < pairSize; j++) {
+        			if(pair[j].startsWith("product["+i+"][optionManageCodes]")) {
+                		map.put(Integer.parseInt(pair[i].split("=")[1]), pair[j].split("=")[1]);
+                	}
+        		}
+
+        	}
+        	
+        	
+		
+		}
+        
+        
+        
+        //product[0][id]=XXX&product[0][optionManageCodes]=X_X,X_X& product[0][supplementIds]=XXX&supplementSearch=true&optionSearch=true
+        /**
+         * product[0][id]=XXX&
+         * product[0][optionManageCodes]=X_X,X_X&
+         * product[0][supplementIds]=XXX&
+         * supplementSearch=true&
+         * optionSearch=true 
+         */
+        
+        
+//		Page<Product> page = productService.readAllBySellMemberIdAndProductStatusCdNot(pageRequest,sessionVO.getMemberId(),productStatusCdDelete);
+
+        ArrayList<Product> productList = new ArrayList<Product>();
+        
+        for (Integer reqProduct : requestList) {
+        	
+        	Product product = productService.getProduct(reqProduct);
+        	productList.add(product);
+        	
+			
+		}
+        
+        NpayOrder no = new NpayOrder();
+        String xmlData = null;
+        try {
+        	xmlData = no.generateNpayProduct(productList,map,supplementSearch,optionSearch);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+//		mav.addObject("result_code", resultCode);
+//        mav.addObject("result_msg", resultMsg);
+//        mav.addObject("data", xmlData);
+//         SAXBuilder builder = new SAXBuilder();
+         
+        response.setContentType("application/xml;charset=utf-8");
+//        response.setContentType("application/html;charset=utf-8");
+//        response.setHeader("Cache-Control", "no-cache");
+
+//        response.getOutputStream().print(xmlData);
+        ServletOutputStream out = null;
+		try {
+			out = response.getOutputStream();
+			out.write(xmlData.getBytes("UTF-8"));
+	        out.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			out.close();
+		}
+        
+        
+//        ResponseEntity<String> responCseXml = new ResponseEntity<String>(xmlData, HttpStatus.OK);
+//		return responseXml;
+	}
+	
+	
+//	@PostMapping()
+//	public ResponseEntity<> postInquiry() {
+//
+//		
+//		JSONObject jo = new JSONObject();
+//		
+//		jo.put("result_code", "0000");
+//		jo.put("result_msg", "정상 처리되었습니다.");
+//		jo.put("data", "12");
+//		
+//		ResponseEntity<JSONObject> response = new ResponseEntity<JSONObject>(jo, HttpStatus.OK);
+//		r
+//		return response;
+//	}
+	
+	
+	
+	
+	@GetMapping("/zzim")
+	public ModelAndView naverZzimProduct(@RequestParam("productId") String productId) {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        
+        List<Integer> productIds = new ArrayList<Integer>();
+        StringTokenizer stk = new StringTokenizer(productId, ",");
+      
+        while(stk.hasMoreTokens()) {
+        	productIds.add(Integer.parseInt(stk.nextToken()));
+        }
+        
+		List<Product> data = productService.readZzimProducts(productIds);
+		
+		
+		String merchantId = env.getProperty("naver.npay.merchant.id");
+	    String certiKey = env.getProperty("naver.npay.certikey");
+	    String url = env.getProperty("naver.npay.zzim.dev.url");
+		
+		// 주문상품 내역으로 items 데이터를 생성한다.
+				
+	    List<ItemStack> items = new ArrayList<ItemStack>();
+	    
+
+	    for (Product product : data) {
+	    	int price =0;
+	    	if("Y".equals(product.getDiscountYn())) {
+	    		price = product.getDiscountedPrice();
+	    	}else {
+	    		price = product.getPrice();
+	    	}
+	    	items.add(new ItemStack(String.valueOf(product.getProductId()), product.getTitle(), price, product.getTitleImg(),	UsitCodeConstants.USIT_PRODUCT_URL_PREFIX  + String.valueOf(product.getProductId())));
+	    }
+				
+	    NpayZzim send;
+		
+	    String[] prodSeqs = null;
+		
+	    try {
+		
+	    	send = new NpayZzim(url);
+			
+	    	prodSeqs = send.sendZzimToNC(merchantId, certiKey, items.toArray(new ItemStack[0]));
+			
+	    } catch (IOException e) {
+		
+	    	// TODO Auto-generated catch block
+	    	e.printStackTrace();
+	    }
+		
+	    // 여기서 얻은prodSeqs로 zzim popup을 띄운다.
+		
+	    System.out.println(Arrays.toString(prodSeqs));
+		
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", prodSeqs);
+        return mav;
+	}
+	
 
 }

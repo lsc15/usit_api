@@ -121,6 +121,11 @@ public class Product implements Serializable {
 	@Column(name="product_status_cd")
 	private String productStatusCd;
 	
+	
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "tax_cd", insertable = false, updatable = false)
+    private UsitCode taxStatus;
+	
 	@Column(name="delivery_company_cd")
 	private String deliveryCompanyCd;
 	

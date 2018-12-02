@@ -29,6 +29,7 @@ public interface OrderItemService {
     public List<UsitOrderItem> getCaculationByDeliveryStatusCd(String DeliveryStatusCd) throws Exception;
     public Map<String,Object> setOrderItemReturnSweetTracker(Map<String, String> paramData) throws Exception;
     public JSONObject updateOrderItemStatus(UsitOrderItem orderItem,String returnReasonCd,String returnReasonText) throws Exception;
+    public JSONObject confirmOrderItemCancel(UsitOrderItem orderItem) throws Exception;
     
     
     

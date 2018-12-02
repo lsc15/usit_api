@@ -66,6 +66,14 @@ public class ProductServiceImpl implements ProductService{
 		return productRepository.findOne(productId);
 
 	}
+	
+	
+	public List<Product> readZzimProducts(List<Integer> productIds) {
+		
+		
+		return productRepository.findByProductIdIn(productIds);
+
+	}
 
 	public Page<Product> readAll(PageRequest pageRequest,String productStatusCd) {
 		

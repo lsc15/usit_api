@@ -14,6 +14,6 @@ public interface ShareHistoryRepository extends JpaRepository<ShareHistory, Inte
 	public ShareHistory findByDateAndMemberIdAndProductId(String today, Integer memberId,int productId);
 	
 	public List<ShareHistory> findByMemberId(Integer memberId);
-
+	
 	
 }

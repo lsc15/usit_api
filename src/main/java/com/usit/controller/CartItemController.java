@@ -6,6 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +17,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import com.usit.app.spring.security.domain.SignedMember;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.CartItem;
+import com.usit.domain.Member;
 import com.usit.service.CartItemService;
 
 import lombok.RequiredArgsConstructor;
@@ -109,18 +115,19 @@ public class CartItemController extends CommonHeaderController{
 
 	
 	@GetMapping("/member/{memberId}")
-	public ModelAndView getCartItems(@PathVariable Integer memberId) {
+	public ModelAndView getCartItems(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage, @PathVariable Integer memberId) {
 
+		PageRequest pageRequest = new PageRequest(curPage, perPage, new Sort(Direction.DESC, "cartItemId"));
 		ModelAndView mav = new ModelAndView("jsonView");
 		
 		String resultCode = "0000";
         String resultMsg = "";
         
-		List<CartItem> list = cartItemService.getCartItemsList(memberId);
+        Page<CartItem> page = cartItemService.getCartItemsList(pageRequest,memberId);
 
 		mav.addObject("result_code", resultCode);
         mav.addObject("result_msg", resultMsg);
-        mav.addObject("data", list);
+        mav.addObject("data", page);
 		
 		 return mav;
 	}

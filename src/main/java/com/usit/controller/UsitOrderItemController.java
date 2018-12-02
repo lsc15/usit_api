@@ -579,6 +579,55 @@ public class UsitOrderItemController extends CommonHeaderController{
    
    
    
+   
+   /**
+    * 주문 취소 사전금액계산
+    * 아이템단위 취소시 사전 호출
+    * @param request
+    * @param curPage
+    * @param perPage
+    * @return
+    * @return
+    * @throws Exception
+    */
+   @RequestMapping(value="/order-items/pre-costing/cancel", method=RequestMethod.POST)
+   public ModelAndView preCostingOrder(@RequestBody UsitOrderItem orderItem) throws Exception{
+
+
+
+
+           ModelAndView mav = new ModelAndView("jsonView");
+           String resultCode = "0000";
+           String resultMsg = "";
+
+
+           JSONObject result = null;
+
+           try {
+
+                result = orderItemService.confirmOrderItemCancel(orderItem);
+           }catch(FrameworkException e){
+               logger.error("CommFrameworkException", e);
+               resultCode = e.getMsgKey();
+               resultMsg = e.getMsg();
+           }catch(Exception e){
+               logger.error("Exception", e);
+               resultCode = "-9999";
+               resultMsg = "처리중 오류가 발생하였습니다.";
+           }
+
+           mav.addObject("result_code", resultCode);
+           mav.addObject("result_msg", resultMsg);
+           mav.addObject("data", result);
+
+
+         return mav;
+
+
+
+   }
+   
+   
    /**
     * 주문 취소 완료 콜백 (이니시스)
     * 아이템단위 취소를 위한 메소드
@@ -763,7 +812,11 @@ public class UsitOrderItemController extends CommonHeaderController{
     
     
      
-     
+
+ 	
+ 	
+ 	
+ 	
    //카카오택 테스트 초 분 시 일 월 주(년)
 // 	@Scheduled(cron = "0 22 22 * * ?")
 //    public void test() throws Exception{

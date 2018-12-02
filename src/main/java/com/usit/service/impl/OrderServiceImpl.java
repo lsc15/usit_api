@@ -41,6 +41,7 @@ import com.usit.app.spring.service.CommonHeaderService;
 import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.DeliveryCharge;
+import com.usit.domain.DeliveryFee;
 import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
 import com.usit.domain.Product;
@@ -52,6 +53,7 @@ import com.usit.domain.ProductOption;
 import com.usit.domain.ShareHistory;
 import com.usit.repository.CartItemRepository;
 import com.usit.repository.DeliveryChargeRepository;
+import com.usit.repository.DeliveryFeeRepository;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
@@ -74,7 +76,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     private OrderItemRepository orderItemRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private DeliveryFeeRepository deliveryFeeRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -93,6 +95,9 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     
     @Autowired
     private ShareHistoryRepository shareHistoryRepository;
+    
+    @Autowired
+    private CartItemRepository cartItemRepository;
     
     @Autowired
     private Environment env;
@@ -254,16 +259,31 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
 
         UsitOrder pOrder = order.getUsitOrder();
         List<UsitOrderItem> pOrderItems = order.getUsitOrderItems();
+        List<DeliveryFee> pDeliveryFees = order.getDeliveryFees();
 
         UsitOrderTransaction rsltOrderTransaction = new UsitOrderTransaction();
         UsitOrder rsltOrder = orderRepository.save(pOrder);
         List<UsitOrderItem> rsltOrderItems = new ArrayList<UsitOrderItem>();
+        List<DeliveryFee> rsltDeliveryFees = new ArrayList<DeliveryFee>();
 
+        
+        for(DeliveryFee deliveryFee : pDeliveryFees) {
+            rsltDeliveryFees.add(deliveryFeeRepository.save(deliveryFee));
+        }
+        
+        
         if(rsltOrder.getOrderId() > 0) {
             for(UsitOrderItem orderItem : pOrderItems) {
                 orderItem.setOrderId(rsltOrder.getOrderId());
                 orderItem.setSellMemberId(orderItem.getProduct().getSellMemberId());
                 orderItem.setDeliveryCompanyCd(orderItem.getProduct().getDeliveryCompanyCd());
+                
+                for (DeliveryFee deliveryFee : rsltDeliveryFees) {
+					if(orderItem.getSellMemberId() == deliveryFee.getSellMemberId()) {
+						orderItem.setDeliveryFeeId(deliveryFee.getDeliveryFeeId());
+					}
+				}
+                
                 
                 if(orderItem.getStoreKey() != null) {
                 	AES256Util aes = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
@@ -273,10 +293,18 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
                 
                 rsltOrderItems.add(orderItemRepository.save(orderItem));
             }
+            
+            
+            
+            
+            
+            
+            
         }
 
         rsltOrderTransaction.setUsitOrder(rsltOrder);
         rsltOrderTransaction.setUsitOrderItems(rsltOrderItems);
+        rsltOrderTransaction.setDeliveryFees(rsltDeliveryFees);
         return rsltOrderTransaction;
     }
 
@@ -345,16 +373,16 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             
             
             //카트삭제
-//            if(orderItems!=null) {
-//                int size = orderItems.size();
-//                for (int i = 0; i < size; i++) {
-//                        if(orderItems.get(i).getCartItemId() == null) {
-//                            continue;
-//                        }
-//                    cartItemRepository.delete(orderItems.get(i).getCartItemId());
-//
-//                }
-//            }
+            if(orderItems!=null) {
+                int size = orderItems.size();
+                for (int i = 0; i < size; i++) {
+                        if(orderItems.get(i).getCartItemId() == null) {
+                            continue;
+                        }
+                    cartItemRepository.delete(orderItems.get(i).getCartItemId());
+
+                }
+            }
 
 
             
@@ -592,16 +620,16 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             
             
             //카트삭제
-//            if(orderItems!=null) {
-//                int size = orderItems.size();
-//                for (int i = 0; i < size; i++) {
-//                        if(orderItems.get(i).getCartItemId() == null) {
-//                            continue;
-//                        }
-//                    cartItemRepository.delete(orderItems.get(i).getCartItemId());
-//
-//                }
-//            }
+            if(orderItems!=null) {
+                int size = orderItems.size();
+                for (int i = 0; i < size; i++) {
+                        if(orderItems.get(i).getCartItemId() == null) {
+                            continue;
+                        }
+                    cartItemRepository.delete(orderItems.get(i).getCartItemId());
+
+                }
+            }
 
 
             
@@ -910,7 +938,7 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
     				store=updateItems.get(i);
     				store.setReturnReasonCd(orderItems.get(i).getReturnReasonCd());
     				store.setReturnReasonText(orderItems.get(i).getReturnReasonText());
-    				store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CACEL);
+    				store.setDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_CANCEL);
     				store.setReturnReasonCd(returnReasonCd);
     				store.setReturnReasonText(returnReasonText);
                     orderItemRepository.save(store);

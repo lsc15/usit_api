@@ -6,8 +6,15 @@ public class UsitOrderTransaction {
 
     private UsitOrder usitOrder;
     private List<UsitOrderItem> usitOrderItems;
+    private List<DeliveryFee> deliveryFees;
 
-    public UsitOrder getUsitOrder() {
+    public List<DeliveryFee> getDeliveryFees() {
+		return deliveryFees;
+	}
+	public void setDeliveryFees(List<DeliveryFee> deliveryFees) {
+		this.deliveryFees = deliveryFees;
+	}
+	public UsitOrder getUsitOrder() {
         return usitOrder;
     }
     public void setUsitOrder(UsitOrder usitOrder) {

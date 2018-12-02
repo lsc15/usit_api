@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.service.CommonHeaderService;
@@ -16,6 +17,7 @@ import com.usit.domain.UsitOrderItem;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.PointHistoryRepository;
 import com.usit.service.PointHistoryService;
+import com.usit.util.TimeUtil;
 
 @Service
 @Transactional
@@ -28,6 +30,9 @@ public class PointHistoryServiceImpl extends CommonHeaderService implements Poin
 	
 	@Autowired
 	private MemberRepository memberRepository;
+	
+	@Autowired
+    JdbcTemplate jdbcTemplate;
 
 	
 	public PointHistory addPoint(PointHistory point) {
@@ -38,6 +43,20 @@ public class PointHistoryServiceImpl extends CommonHeaderService implements Poin
 	    memberRepository.save(member);
 		
 		return returnPoint;
+	}
+	
+	
+	//이벤트
+	public void addPointEvent(PointHistory point) {
+		
+		//이력작성
+		
+		jdbcTemplate.update("INSERT INTO point_history (member_id,  point_type_cd,  add_point, balance_point, reg_date) VALUES (?, ?, ?, ?, ?)", point.getMemberId(), point.getPointTypeCd(), point.getAddPoint(), point.getBalancePoint(), TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
+		
+		
+		//사용자보유량 증가
+		jdbcTemplate.update("UPDATE member SET total_point = ?, mod_date = ? WHERE member_id = ?", point.getBalancePoint(), TimeUtil.getZonedDateTimeNow("Asia/Seoul"), point.getMemberId());
+		
 	}
 	
 	public Page<PointHistory> getPointListByMemberId(PageRequest page,int memberId){

@@ -4,7 +4,15 @@ package com.usit.service.impl;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.UsitCodeConstants;
+import com.usit.domain.PointHistory;
 import com.usit.domain.ShareHistory;
+import com.usit.domain.UsitOrder;
 import com.usit.repository.MemberRepository;
 import com.usit.repository.ShareHistoryRepository;
 import com.usit.service.ShareHistoryService;
@@ -37,6 +47,8 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 	@Autowired
 	MemberRepository memberRepository;
 
+	@PersistenceContext
+	EntityManager entityManager;
 
 	
 	public ShareHistory getShareHistory(int productId,String storeKey) {
@@ -73,11 +85,37 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 	
 	
 	
-public List<ShareHistory> getShareHistoryByMemberId(Integer memberId) {
-		
-		return shareHistoryRepository.findByMemberId(memberId);
 
+	public List<ShareHistory> getShareHistoryByMemberId(Integer memberId) {
+		return shareHistoryRepository.findByMemberId(memberId);
 	}
+	
+	
+	
+	// 추천인 이벤트
+	@Override
+    public List<PointHistory> getEventMemberForAddPoint(String today) {
+
+
+
+    	
+    	
+    	TypedQuery<PointHistory> countQuery = entityManager.createQuery(
+				"SELECT distinct p FROM PointHistory p " +
+				"WHERE p.pointTypeCd = 1511 AND p.memberId in " +
+				"(SELECT DISTINCT memberId " + 
+				"FROM ShareHistory " + 
+				"WHERE date = :date AND purchaseCnt > 0 ) group by memberId having count(memberId) < 2 ", PointHistory.class
+        		 ).setParameter("date", today);
+
+        List<PointHistory> list = countQuery.getResultList();
+
+        LOGGER.info("resultList.size():{}", list.size());
+        
+        
+
+         return list;
+    }
 	
 
 	
