@@ -138,8 +138,17 @@ public class CalculationServiceImpl implements CalculationService {
 		Calculation update = calculationRepository.findOne(calculation.getCalculationId());
 
 		update.setStatusCd(calculation.getStatusCd());
+		
+		if(UsitCodeConstants.CACULATION_STATUS_CD_COMPLETE.equals(calculation.getStatusCd())) {
+			update.setCalculationDate(DateUtil.getCurrDate());
+		}else {
+			update.setCalculationDate("");
+		}
+		
 		update.setDelayReason(calculation.getDelayReason());
 
+		
+		
 		return calculationRepository.save(update);
 	}
 

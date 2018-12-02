@@ -121,7 +121,7 @@ public class CalculationController extends CommonHeaderController{
      */
     @GetMapping()
 	public ResponseEntity<JSONObject> getCalculation(@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
-			   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+			   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,@RequestParam(name = "sellMemberId", required = false) Integer sellMemberId) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
 //    	@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,
 //		   @RequestParam("periodCondition") String periodCondition,@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,
@@ -147,8 +147,16 @@ public class CalculationController extends CommonHeaderController{
      		LOGGER.warn("권한이 없습니다.");
 			throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
      	}
-        
-     	Page<Calculation> page = calculationService.readAll(pageRequest,periodCondition,startDate,endDate);
+     	
+     	Page<Calculation> page;
+     	//판매자아이디 분기1
+     	if(sellMemberId != null && sellMemberId != 0 ) {
+     		page = calculationService.readAllByToken(pageRequest,periodCondition,startDate,endDate,sellMemberId);
+     	}else {
+     		page = calculationService.readAll(pageRequest,periodCondition,startDate,endDate);
+     	}
+     	
+     	
 		
 //		mav.addObject("result_code", resultCode);
 //        mav.addObject("result_msg", resultMsg);
