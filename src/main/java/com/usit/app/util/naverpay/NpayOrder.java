@@ -608,12 +608,51 @@ public class NpayOrder {
 		product.addContent(imageUrl);
 		
 	
-		if(orderItem.getProductOptionId() == null) {
-		Element single = new Element(PRODUCT_SINGLE);
-			Element quantity = new Element(PRODUCT_SINGLE_QUANTITY);
-			quantity.setText(String.valueOf(orderItem.getQuantity()));
-		single.addContent(quantity);
-		product.addContent(single);
+			if(orderItem.getProductOptionId() == null) {
+			Element single = new Element(PRODUCT_SINGLE);
+				Element quantity = new Element(PRODUCT_SINGLE_QUANTITY);
+				quantity.setText(String.valueOf(orderItem.getQuantity()));
+			single.addContent(quantity);
+			
+			Element shippingPoilcy = new Element(SHIPPINGPOLICY);
+			Element gruopId = new Element(SHIPPINGPOLICY_GRUOPID);
+			gruopId.setText(String.valueOf(orderItem.getDeliveryFeeId()));
+			Element method = new Element(SHIPPINGPOLICY_METHOD);
+			method.setText(SHIPPINGPOLICY_METHOD_DELIVERY);
+			
+			Element feeType = new Element(SHIPPINGPOLICY_FEETYPE);
+			Element feePayType = new Element(SHIPPINGPOLICY_FEEPAYTYPE);
+			Element feePrice = new Element(SHIPPINGPOLICY_FEEPRICE);
+			
+			DeliveryFee orderDeliveryFee = null;
+			
+			for (DeliveryFee deliveryFee : orderTran.getDeliveryFees()) {
+				if(deliveryFee.getDeliveryFeeId().equals(orderItem.getDeliveryFeeId())) {
+					orderDeliveryFee = deliveryFee;
+				}
+				
+			}
+			
+			if(orderDeliveryFee.getAmount() == 0) {
+			feeType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+			feePayType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+			feePrice.setText("0");
+	
+			}else {
+			feeType.setText(SHIPPINGPOLICY_FEETYPE_CHARGE);
+			feePayType.setText(SHIPPINGPOLICY_FEEPAYTYPE_PREPAYED);
+			feePrice.setText(String.valueOf(orderDeliveryFee.getAmount()));
+			}
+			shippingPoilcy.addContent(gruopId);
+			shippingPoilcy.addContent(method);
+			shippingPoilcy.addContent(feeType);
+			shippingPoilcy.addContent(feePayType);
+			shippingPoilcy.addContent(feePrice);
+		
+		product.addContent(single);		
+		product.addContent(shippingPoilcy);
+
+		
 		}else {
 			
 		Element option = new Element(OPTION);
@@ -811,10 +850,10 @@ public class NpayOrder {
 
 			
 				Element returnShippingFee = new Element(PRODUCT_RETURN_SHIPPING_FEE);
-				returnShippingFee.setText(String.valueOf(products.getDeliveryPrice()));
+				returnShippingFee.setText(String.valueOf(products.getReturnDeliveryPrice()));
 			product.addContent(returnShippingFee);
 				Element exchangeShippingFee = new Element(PRODUCT_EXCHANGE_SHIPPING_FEE);
-				exchangeShippingFee.setText(String.valueOf(products.getDeliveryPrice()*2));
+				exchangeShippingFee.setText(String.valueOf(products.getReturnDeliveryPrice()*2));
 			product.addContent(exchangeShippingFee);
 			
 				Element returnInfo = new Element(PRODUCT_RETURN_INFO);
@@ -985,8 +1024,6 @@ public class NpayOrder {
 //								combinationOptionsName.setText(poList.get(i).getOptionName1());
 								Element combinationOptionsId = new Element(OPTION_SELECTEDITEM_VALUE_ID);
 								combinationOptionsId.setText(String.valueOf(poList.get(i).getProductOptionId()));
-						
-							
 							combinationOptions.addContent(combinationOptionsId);
 							combinationOptions.addContent(combinationOptionsName);
 						combination.addContent(combinationOptions);
@@ -1078,6 +1115,11 @@ public class NpayOrder {
 					Element method = new Element(SHIPPINGPOLICY_METHOD);
 					method.setText(SHIPPINGPOLICY_METHOD_DELIVERY);
 	
+					
+					
+					
+					
+					
 					Element feeType = new Element(SHIPPINGPOLICY_FEETYPE);
 					feeType.setText(SHIPPINGPOLICY_FEETYPE_CONDITIONAL_FREE);
 					
@@ -1088,11 +1130,27 @@ public class NpayOrder {
 					feePrice.setText(String.valueOf(products.getDeliveryPrice()));
 					
 					
+					
+//					if(products.getDeliveryPrice() == 0) {
+//						feeType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+//						feePayType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+//						feePrice.setText("0");
+//
+//						}else {
+//						feeType.setText(SHIPPINGPOLICY_FEETYPE_CHARGE);
+//						feePayType.setText(SHIPPINGPOLICY_FEEPAYTYPE_PREPAYED);
+//						feePrice.setText(String.valueOf(orderDeliveryFee.getAmount()));
+//						}
+					
+					
+					
 					Element conditionalFree = new Element(SHIPPINGPOLICY_CONDITIONALFREE);
 					
 						Element basePrice = new Element(SHIPPINGPOLICY_CONDITIONALFREE_BASEPRICE);
 						basePrice.setText(String.valueOf(products.getDeliveryPriceCut()));
 					conditionalFree.addContent(basePrice);
+					
+					
 				shippingPoilcy.addContent(method);
 				shippingPoilcy.addContent(feeType);
 				shippingPoilcy.addContent(feePayType);

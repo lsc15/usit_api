@@ -149,7 +149,7 @@ public class CalculationController extends CommonHeaderController{
      	}
      	
      	Page<Calculation> page;
-     	//판매자아이디 분기
+     	//판매자아이디 분기.
      	if(sellMemberId != null && sellMemberId != 0 ) {
      		page = calculationService.readAllByToken(pageRequest,periodCondition,startDate,endDate,sellMemberId);
      	}else {
@@ -248,12 +248,12 @@ public class CalculationController extends CommonHeaderController{
     // 정산테이블 배치 초 분 시 일 월 주(년)
  	 @Scheduled(cron = "0 10 21 * * ?")
  	 @Transactional(propagation=Propagation.REQUIRES_NEW)
-     public void updateReturnDeliveryStatus() throws Exception{
+     public void calculate() throws Exception{
      	if("real".equals(env.getProperty("running.system"))) {
      	logger.info("@@일일정산 시작");
-     	List<UsitOrderItem> culationList = orderItemService.getCaculationByDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_COMPLETE);
+     	List<UsitOrderItem> calculationList = orderItemService.getCaculationByDeliveryStatusCd(UsitCodeConstants.DELIVERY_STATUS_CD_DELIVERY_COMPLETE);
      	
-     	for (Iterator<UsitOrderItem> iterator = culationList.iterator(); iterator.hasNext();) {
+     	for (Iterator<UsitOrderItem> iterator = calculationList.iterator(); iterator.hasNext();) {
  			UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
  			Calculation cal = new Calculation();
  			Calculation deliveryCal = new Calculation();
@@ -309,7 +309,7 @@ public class CalculationController extends CommonHeaderController{
  			
  			
  		}
-     	logger.info("@@일일정산 완료건: "+ culationList.size());
+     	logger.info("@@일일정산 완료건: "+ calculationList.size());
      	}
      }
     

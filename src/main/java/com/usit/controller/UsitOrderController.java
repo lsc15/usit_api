@@ -696,7 +696,7 @@ public class UsitOrderController extends CommonHeaderController{
         	   shopId = result[2];
            }
            
-           resultData.put("certKey", orderKey);
+           resultData.put("certiKey", orderKey);
            resultData.put("shopId", shopId);
 
        }catch(FrameworkException e){
