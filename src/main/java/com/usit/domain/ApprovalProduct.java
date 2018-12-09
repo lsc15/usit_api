@@ -57,6 +57,9 @@ public class ApprovalProduct implements Serializable {
 	
 	@Column(name="detail_img_use_yn")
 	private String detailImgUseYn;
+
+	@Column(name="badge_type_cd")
+	private String badgeTypeCd;
 	
 	@Column(name="additional_imgs")
 	private String additionalImgs;
@@ -88,6 +91,9 @@ public class ApprovalProduct implements Serializable {
 	
 	private String tags;
 
+	@Column(name="inquiry_phone")
+	private String inquiryPhone;
+	
 	@Column(name="sell_member_id")
 	private Integer sellMemberId;
 
@@ -108,6 +114,11 @@ public class ApprovalProduct implements Serializable {
 	@Column(name="product_status_cd")
 	private String productStatusCd;
 	
+	
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "tax_cd", insertable = false, updatable = false)
+    private UsitCode taxStatus;
+	
 	@Column(name="delivery_company_cd")
 	private String deliveryCompanyCd;
 	
@@ -122,6 +133,34 @@ public class ApprovalProduct implements Serializable {
 	
 	@Column(name="commission_pct")
 	private int commissionPct;
+	
+	
+	@Column(name="release_address")
+    private String releaseAddress;
+    
+    @Column(name="release_address_detail")
+    private String releaseAddressDetail;
+    
+    @Column(name="release_postcode")
+    private String releasePostcode;
+    
+    @Column(name="release_phone")
+    private String releasePhone;
+    
+    @Column(name="return_address")
+    private String returnAddress;
+    
+    @Column(name="return_address_detail")
+    private String returnAddressDetail;
+    
+    @Column(name="return_postcode")
+    private String returnPostcode;
+    
+    @Column(name="return_phone")
+    private String returnPhone;
+    
+    @Column(name="sold_cnt")
+    private int soldCnt;
 	
 	
 	@OneToMany(fetch = FetchType.EAGER)

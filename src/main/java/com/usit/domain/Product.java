@@ -145,6 +145,34 @@ public class Product implements Serializable {
 	private int commissionPct;
 	
 	
+	@Column(name="release_address")
+    private String releaseAddress;
+    
+    @Column(name="release_address_detail")
+    private String releaseAddressDetail;
+    
+    @Column(name="release_postcode")
+    private String releasePostcode;
+    
+    @Column(name="release_phone")
+    private String releasePhone;
+    
+    @Column(name="return_address")
+    private String returnAddress;
+    
+    @Column(name="return_address_detail")
+    private String returnAddressDetail;
+    
+    @Column(name="return_postcode")
+    private String returnPostcode;
+    
+    @Column(name="return_phone")
+    private String returnPhone;
+    
+    @Column(name="sold_cnt")
+    private int soldCnt;
+	
+	
 	@OneToMany(fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "product_id", insertable = false, updatable = false)

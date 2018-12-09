@@ -429,7 +429,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 
 
    /**
-    * 주문아이템 조회
+    * 반송주문아이템 조회
     * @param request
     * @param curPage
     * @param perPage
@@ -475,7 +475,7 @@ public class UsitOrderItemController extends CommonHeaderController{
 
 
    /**
-    * 주문아이템 조회
+    * 반송주문아이템 조회
     * @param request
     * @param curPage
     * @param perPage

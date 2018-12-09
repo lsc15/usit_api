@@ -62,7 +62,8 @@ public class NpayOrder {
 	private final String PRODUCT_IMGURL = "imageUrl";
 	private final String PRODUCT_SINGLE = "single";
 	private final String PRODUCT_SINGLE_QUANTITY = "quantity";
-	private final String PRODUCT_URL = "https://usit.co.kr/product/";
+//	private final String PRODUCT_URL = "https://usit.co.kr/product/";
+	private final String PRODUCT_URL = "http://dev.usit.co.kr/product/";
 	
 	private final String BACKURL = "backUrl";
 	
@@ -70,6 +71,8 @@ public class NpayOrder {
 	
 	
 	private final String OPTION = "option";
+	private final String OPTION_SUPPORT = "optionSupport";
+	private final String OPTION_SUPPORT_TRUE = "true";
 	private final String OPTION_QUANTITY = "quantity";
 	private final String OPTION_PRICE = "price";
 	private final String OPTION_MANAGECODE = "manageCode";
@@ -874,6 +877,13 @@ public class NpayOrder {
 				returnInfo.addContent(contact1);
 			product.addContent(returnInfo);
 			
+			if(optionSearch && "Y".equals(products.getOptionUseYn())) {
+				Element optionSupport = new Element(OPTION_SUPPORT);
+				optionSupport.setText(OPTION_SUPPORT_TRUE);
+			product.addContent(optionSupport);	
+			}
+				
+			
 			
 			if ("N".equals(products.getOptionUseYn())) {
 				Element stockQuantity = new Element(PRODUCT_STOCK_QUANTITY);
@@ -1021,6 +1031,7 @@ public class NpayOrder {
 							Element combinationOptions = new Element(OPTION_COMBINATION_OPTIONS);
 								Element combinationOptionsName = new Element(OPTION_SELECTEDITEM_NAME);
 								combinationOptionsName.setContent(new CDATA(poList.get(i).getOptionName1()));
+//								combinationOptionsName.setContent(new CDATA(poList.get(i).getOptionValue1()));
 //								combinationOptionsName.setText(poList.get(i).getOptionName1());
 								Element combinationOptionsId = new Element(OPTION_SELECTEDITEM_VALUE_ID);
 								combinationOptionsId.setText(String.valueOf(poList.get(i).getProductOptionId()));
@@ -1121,41 +1132,43 @@ public class NpayOrder {
 					
 					
 					Element feeType = new Element(SHIPPINGPOLICY_FEETYPE);
-					feeType.setText(SHIPPINGPOLICY_FEETYPE_CONDITIONAL_FREE);
+					
 					
 					Element feePayType = new Element(SHIPPINGPOLICY_FEEPAYTYPE);
-					feePayType.setText(SHIPPINGPOLICY_FEEPAYTYPE_PREPAYED);
+					
 					
 					Element feePrice = new Element(SHIPPINGPOLICY_FEEPRICE);
-					feePrice.setText(String.valueOf(products.getDeliveryPrice()));
 					
 					
 					
-//					if(products.getDeliveryPrice() == 0) {
-//						feeType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
-//						feePayType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
-//						feePrice.setText("0");
-//
-//						}else {
+					
+					if(products.getDeliveryPrice() == 0) {
+						feeType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+						feePayType.setText(SHIPPINGPOLICY_FEETYPE_FREE);
+						feePrice.setText("0");
+
+						}else {
 //						feeType.setText(SHIPPINGPOLICY_FEETYPE_CHARGE);
 //						feePayType.setText(SHIPPINGPOLICY_FEEPAYTYPE_PREPAYED);
 //						feePrice.setText(String.valueOf(orderDeliveryFee.getAmount()));
-//						}
-					
-					
+						
+					feeType.setText(SHIPPINGPOLICY_FEETYPE_CONDITIONAL_FREE);
+					feePayType.setText(SHIPPINGPOLICY_FEEPAYTYPE_PREPAYED);
+					feePrice.setText(String.valueOf(products.getDeliveryPrice()));
 					
 					Element conditionalFree = new Element(SHIPPINGPOLICY_CONDITIONALFREE);
 					
 						Element basePrice = new Element(SHIPPINGPOLICY_CONDITIONALFREE_BASEPRICE);
 						basePrice.setText(String.valueOf(products.getDeliveryPriceCut()));
 					conditionalFree.addContent(basePrice);
-					
+				shippingPoilcy.addContent(conditionalFree);
+						}
 					
 				shippingPoilcy.addContent(method);
 				shippingPoilcy.addContent(feeType);
 				shippingPoilcy.addContent(feePayType);
 				shippingPoilcy.addContent(feePrice);
-				shippingPoilcy.addContent(conditionalFree);
+				
 				
 				product.addContent(shippingPoilcy);
 

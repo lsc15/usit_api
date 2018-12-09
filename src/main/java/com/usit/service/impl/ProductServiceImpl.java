@@ -183,6 +183,15 @@ public class ProductServiceImpl implements ProductService{
 			updateProduct.setDeliveryRuralPrice(product.getDeliveryRuralPrice());
 			updateProduct.setDeliveryJejuPrice(product.getDeliveryJejuPrice());
 			updateProduct.setCommissionPct(product.getCommissionPct());
+			updateProduct.setReleaseAddress(product.getReleaseAddress());
+			updateProduct.setReleaseAddressDetail(product.getReleaseAddressDetail());
+			updateProduct.setReleasePhone(product.getReleasePhone());
+			updateProduct.setReleasePostcode(product.getReleasePostcode());
+			updateProduct.setReturnAddress(product.getReturnAddress());
+			updateProduct.setReturnAddressDetail(product.getReturnAddressDetail());
+			updateProduct.setReturnPhone(product.getReturnPhone());
+			updateProduct.setReturnPostcode(product.getReturnPostcode());
+			
 			updateProduct.setModId(memberId);
 			
 			return productRepository.save(updateProduct);
@@ -290,6 +299,16 @@ public class ProductServiceImpl implements ProductService{
 	}
 		
 		
+	
+	//수정상품등록
+		
+	public ApprovalProduct modifyApprovalProduct(ApprovalProduct approvalProduct) {
+		ApprovalProduct approval = approvalProductRepository.findOne(approvalProduct.getApprovalProductId());
+		approval.setApprovalStatusCd(approvalProduct.getApprovalStatusCd());
+		return approvalProductRepository.save(approval);
+	}
+	
+	
 		
 	// 수정상품 확인
 	public void disableApprovalProduct(ApprovalProduct approvalProduct) {

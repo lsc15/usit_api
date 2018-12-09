@@ -356,17 +356,22 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             	  
             	  
                       if(orderItems.get(i).getProductOptionId() == null) {
-                    	  //상품의 제고수량 갱신
+                    	  //상품의 제고수량 갱신 & 판매량누적
                     	 Product product = productRepository.findOne(orderItems.get(i).getProductId());
                     	 if("Y".equals(product.getInventoryUseYn()) && product.getInventory() != 0 ) {
                     		 product.setInventory(product.getInventory()-orderItems.get(i).getQuantity());	 
                     	 }
+                    	 product.setSoldCnt(product.getSoldCnt() + orderItems.get(i).getQuantity());
                     	 productRepository.save(product);
                       }else {
-                    	  //상품옵션의 제고수량 갱신
+                    	  //상품옵션의 제고수량 갱신 & 판매량누적
                     	 ProductOption productOption = productOptionRepository.getOne(orderItems.get(i).getProductOptionId());
                     	 productOption.setInventory(productOption.getInventory() - orderItems.get(i).getQuantity());
                     	 productOptionRepository.save(productOption);
+                    	 
+                    	 Product product = productRepository.findOne(orderItems.get(i).getProductId());
+                    	 product.setSoldCnt(product.getSoldCnt() + orderItems.get(i).getQuantity());
+                    	 productRepository.save(product);
                       }
               }
           }
@@ -956,15 +961,42 @@ public class OrderServiceImpl extends CommonHeaderService implements OrderServic
             }
 
         if("0".equals(String.valueOf(iamPort.get("code"))) || payment == 0) {
-
+        	
         	
             //포인트차감
             int addPoint = 0;
             List <UsitOrderItem> updateItems = updateOrder.getOrderItems();
             if(updateItems!=null) {
+            	
+            	
+            	
                 for (Iterator<UsitOrderItem> iterator = updateItems.iterator(); iterator.hasNext();) {
                 	
                 	UsitOrderItem usitOrderItem = (UsitOrderItem) iterator.next();
+                	
+                	
+                	//재고수정 & 판매량 누적 차감
+                	if(usitOrderItem.getProductOptionId() == null) {
+                  	  //상품의 제고수량 갱신 & 판매량누적
+                  	 Product product = productRepository.findOne(usitOrderItem.getProductId());
+                  	 if("Y".equals(product.getInventoryUseYn()) && product.getInventory() != 0 ) {
+                  		 product.setInventory(product.getInventory() + usitOrderItem.getQuantity());	 
+                  	 }
+                  	 product.setSoldCnt(product.getSoldCnt() - usitOrderItem.getQuantity());
+                  	 productRepository.save(product);
+                    }else {
+                  	  //상품옵션의 제고수량 갱신 & 판매량누적
+                  	 ProductOption productOption = productOptionRepository.getOne(usitOrderItem.getProductOptionId());
+                  	 productOption.setInventory(productOption.getInventory() + usitOrderItem.getQuantity());
+                  	 productOptionRepository.save(productOption);
+                  	 
+                  	 Product product = productRepository.findOne(usitOrderItem.getProductId());
+                  	 product.setSoldCnt(product.getSoldCnt() - usitOrderItem.getQuantity());
+                  	 productRepository.save(product);
+                    }
+                	
+                	
+                	
                 	//인플루언서 포인트확인
                 	if(usitOrderItem.getStoreKey() != null) {
 

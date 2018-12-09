@@ -49,6 +49,8 @@ import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.domain.DeliveryFee;
 import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
+import com.usit.domain.Product;
+import com.usit.domain.ProductOption;
 import com.usit.domain.UsitOrderItem;
 import com.usit.domain.SellMember;
 import com.usit.domain.ShareHistory;
@@ -58,6 +60,8 @@ import com.usit.repository.MemberRepository;
 import com.usit.repository.OrderItemRepository;
 import com.usit.repository.OrderRepository;
 import com.usit.repository.PointHistoryRepository;
+import com.usit.repository.ProductOptionRepository;
+import com.usit.repository.ProductRepository;
 import com.usit.repository.SellMemberRepository;
 import com.usit.repository.ShareHistoryRepository;
 import com.usit.service.OrderItemService;
@@ -84,6 +88,12 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
 	
 	@Autowired
 	private MemberRepository memberRepository;
+	
+	@Autowired
+    private ProductRepository productRepository;
+	
+	@Autowired
+	private ProductOptionRepository productOptionRepository;
 	
 	@Autowired
     private PointHistoryRepository pointHistoryRepository;
@@ -701,6 +711,32 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
             //포인트차감
             int addPoint = 0;
             if(updateOrderItem!=null) {
+            	
+            	
+            	
+            	
+            	
+            	//재고수정 & 판매량 누적 차감
+            	if(updateOrderItem.getProductOptionId() == null) {
+              	  //상품의 제고수량 갱신 & 판매량누적
+              	 Product product = productRepository.findOne(updateOrderItem.getProductId());
+              	 if("Y".equals(product.getInventoryUseYn()) && product.getInventory() != 0 ) {
+              		 product.setInventory(product.getInventory() + updateOrderItem.getQuantity());	 
+              	 }
+              	 product.setSoldCnt(product.getSoldCnt() - updateOrderItem.getQuantity());
+              	 productRepository.save(product);
+                }else {
+              	  //상품옵션의 제고수량 갱신 & 판매량누적
+              	 ProductOption productOption = productOptionRepository.getOne(updateOrderItem.getProductOptionId());
+              	 productOption.setInventory(productOption.getInventory() + updateOrderItem.getQuantity());
+              	 productOptionRepository.save(productOption);
+              	 
+              	 Product product = productRepository.findOne(updateOrderItem.getProductId());
+              	 product.setSoldCnt(product.getSoldCnt() - updateOrderItem.getQuantity());
+              	 productRepository.save(product);
+                }
+            	
+            	
             	
             	
                 

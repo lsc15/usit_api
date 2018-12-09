@@ -4,6 +4,8 @@ public class UsitCodeConstants {
 	
 	public static final String USIT_PRODUCT_URL_PREFIX = "https://usit.co.kr/product/";
 	
+	public static final String USIT_ENCODE_UTF8 = "UTF-8";
+	
     public static final String POSTING_SNS_INSTAGRAM = "2000";
     public static final String USIT_AES256_KEY = "38teamtueseday$$";
     public static final String TEST_SUCCESS = "SUCCESS";

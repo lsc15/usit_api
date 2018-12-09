@@ -3,6 +3,7 @@ package com.usit.controller;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -302,6 +303,43 @@ public class ProductController extends CommonHeaderController{
 		}
 		
 		
+		
+		/**
+		 * @title 수정상품요청건 수정
+		 * @param ApprovalProduct
+		 * @return
+		 */
+		@PutMapping("/approval/{approvalId}")
+		public ModelAndView modifyApproval(@PathVariable int approvalId, @RequestBody ApprovalProduct approvalProduct) {
+			
+			ModelAndView mav = new ModelAndView("jsonView");
+			
+			String resultCode = "0000";
+	        String resultMsg = "";
+	        
+
+	     	SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+	     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+	     	SellMember seller = sellMemberService.getMemberByMemeberId(sessionVO.getMemberId());
+	     	
+	     	if(!UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(seller.getMemberTypeCd())) {
+	     		LOGGER.warn("권한이 없습니다.");
+				throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
+	     	}
+	     	
+	     	
+	     	ApprovalProduct result = productService.modifyApprovalProduct(approvalProduct);
+	        
+	        mav.addObject("result_code", resultCode);
+	        mav.addObject("result_msg", resultMsg);
+	        mav.addObject("data", result);
+			
+			 return mav;
+		}		
+		
+		
+		
 		/**
 		 * @title 수정상품요청건 관리자 목록조회
 		 * @param curPage
@@ -580,7 +618,7 @@ public class ProductController extends CommonHeaderController{
 		
 		String resultCode = "0000";
         String resultMsg = "";
-        String query = request.getQueryString();
+        String query = URLDecoder.decode( request.getQueryString(), UsitCodeConstants.USIT_ENCODE_UTF8);
         String pair [] = query.split("&");
         System.out.println("getQueryString:"+query);
         boolean supplementSearch = false;
@@ -616,25 +654,63 @@ public class ProductController extends CommonHeaderController{
 		}
         index++;
         
+        
+//        		product[0][id]=122&
+//        		product[0][optionManageCodes]=387&
+//        		product[1][id]=135&
+//        		product[1][optionManageCodes]=406,408&
+//        		product[2][id]=146&
+//        		product[3][id]=106&
+//        		product[3][optionManageCodes]=336&
+//        		product[4][id]=218&
+//        		product[4][optionManageCodes]=728&
+//        		supplementSearch=true&
+//        		optionSearch=true
+        
         int pairSize = pair.length;
         //int배열만큼 상품리스트를 만들고 hashMap을 통해 optionMansgeCode전달 예정
-        for (int i = 0; i < index; i++) {
-        	if(pair[i].startsWith("product["+i+"][id]")) {
+        for (int i = 0; i < pairSize; i++) {
+        	
+        	for(int innerCnt = 0; innerCnt < pairSize; innerCnt++ ) {
+        	
+        	if(pair[innerCnt].startsWith("product["+i+"][id]")) {
         		
-        		requestList.add(Integer.parseInt(pair[i].split("=")[1]));
+        		requestList.add(Integer.parseInt(pair[innerCnt].split("=")[1]));
         		
         		
         		for(int j = 0; j < pairSize; j++) {
         			if(pair[j].startsWith("product["+i+"][optionManageCodes]")) {
-                		map.put(Integer.parseInt(pair[i].split("=")[1]), pair[j].split("=")[1]);
+                		map.put(Integer.parseInt(pair[innerCnt].split("=")[1]), pair[j].split("=")[1]);
                 	}
         		}
-
         	}
-        	
-        	
+        	}
 		
 		}
+        
+        
+        
+        
+        
+//        for (int i = 0; i < pairSize; i++) {
+//        	
+//        		
+//        		
+//        		for(int j = 0; j < pairSize; j++) {
+//        			
+//        			if(pair[j].startsWith("product["+i+"][id]")) {
+//        				requestList.add(Integer.parseInt(pair[j].split("=")[1]));	
+//        			}
+//        			if(pair[j].startsWith("product["+i+"][optionManageCodes]")) {
+//    					map.put(Integer.parseInt(pair[i].split("=")[1]), pair[j].split("=")[1]);
+//    				}
+//        			
+//
+//        	}
+//        	
+//        	
+//		
+//		}
         
         
         
@@ -682,7 +758,7 @@ public class ProductController extends CommonHeaderController{
         ServletOutputStream out = null;
 		try {
 			out = response.getOutputStream();
-			out.write(xmlData.getBytes("UTF-8"));
+			out.write(xmlData.getBytes(UsitCodeConstants.USIT_ENCODE_UTF8));
 	        out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

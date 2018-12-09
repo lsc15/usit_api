@@ -54,6 +54,8 @@ public interface ProductService {
 	
 	ApprovalProduct findApprovalProduct(int approvalProductId);
 	
+	ApprovalProduct modifyApprovalProduct(ApprovalProduct approvalProduct);
+	
 	ApprovalProduct createApprovalProduct(ApprovalProduct approvalProduct);
 	
 	void disableApprovalProduct(ApprovalProduct approvalProduct);
