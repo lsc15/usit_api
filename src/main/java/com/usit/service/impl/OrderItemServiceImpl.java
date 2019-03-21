@@ -825,6 +825,91 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
                             
                             
                             
+                         // 추천인 포인트 적용
+							if (member.getFirstRecommender() != 0) {
+								int recommendAddPoint = - calculatePoint(orderItemPrice, UsitCodeConstants.FIRST_RECOMMEND_RATE);
+								saveRecommendPointHistory(orderItemPrice, member.getFirstRecommender(), updateOrder, updateOrderItem, recommendAddPoint );
+								// 포인트적용
+//								Member recommender = memberRepository.findOne(member.getFirstRecommender());
+//								int recommenderPresent = recommender.getTotalPoint() + recommendAddPoint;
+//								recommender.setTotalPoint(recommenderPresent);
+//								memberRepository.save(recommender);
+//
+//								// 포인트증감이력 저장
+//								PointHistory recommenderPoint = new PointHistory();
+//								recommenderPoint.setAddPoint(recommendAddPoint);
+//								recommenderPoint.setRegId(updateOrder.getMemberId());
+//								recommenderPoint.setBalancePoint(recommenderPresent);
+//								recommenderPoint.setAddPct((addPoint / orderItemPrice) * 100);
+//
+//								// 상품구매코드
+//								if (updateOrderItem.getStoreKey() != null) {
+//									recommenderPoint.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_RECOMMENDER);
+//								}
+//
+//								recommenderPoint.setOrderItemId(updateOrderItem.getOrderItemId());
+//								recommenderPoint.setMemberId(memberId);
+//								pointHistoryRepository.save(recommenderPoint);
+
+							}  if (member.getSecondRecommender() != 0) {
+								int recommendAddPoint = - calculatePoint(orderItemPrice, UsitCodeConstants.SECOND_RECOMMEND_RATE);
+								saveRecommendPointHistory(orderItemPrice,  member.getSecondRecommender(), updateOrder, updateOrderItem, recommendAddPoint );
+								// 포인트적용
+//								Member recommender = memberRepository.findOne(member.getSecondRecommender());
+//								int recommenderPresent = recommender.getTotalPoint() + recommendAddPoint;
+//								recommender.setTotalPoint(recommenderPresent);
+//								memberRepository.save(recommender);
+//
+//								// 포인트증감이력 저장
+//								PointHistory recommenderPoint = new PointHistory();
+//								recommenderPoint.setAddPoint(addPoint);
+//								recommenderPoint.setRegId(updateOrder.getMemberId());
+//								recommenderPoint.setBalancePoint(recommenderPresent);
+//								recommenderPoint.setAddPct((addPoint / orderItemPrice) * 100);
+//
+//								// 상품구매코드
+//								if (updateOrderItem.getStoreKey() != null) {
+//									recommenderPoint.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_RECOMMENDER);
+//								}
+//
+//								recommenderPoint.setOrderItemId(updateOrderItem.getOrderItemId());
+//								recommenderPoint.setMemberId(memberId);
+//								pointHistoryRepository.save(point);
+
+							}  if (member.getThirdRecommender() != 0) {
+								int recommendAddPoint = - calculatePoint(orderItemPrice, UsitCodeConstants.THIRD_RECOMMEND_RATE);
+								saveRecommendPointHistory(orderItemPrice, member.getThirdRecommender(), updateOrder, updateOrderItem, recommendAddPoint );
+								// 포인트적용
+//								Member recommender = memberRepository.findOne(member.getThirdRecommender());
+//								int recommenderPresent = recommender.getTotalPoint() + recommendAddPoint;
+//								recommender.setTotalPoint(recommenderPresent);
+//								memberRepository.save(recommender);
+//
+//								// 포인트증감이력 저장
+//								PointHistory recommenderPoint = new PointHistory();
+//								recommenderPoint.setAddPoint(addPoint);
+//								recommenderPoint.setRegId(updateOrder.getMemberId());
+//								recommenderPoint.setBalancePoint(recommenderPresent);
+//								recommenderPoint.setAddPct((addPoint / orderItemPrice) * 100);
+//
+//								// 상품구매코드
+//								if (updateOrderItem.getStoreKey() != null) {
+//									recommenderPoint.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_RECOMMENDER);
+//								}
+//
+//								recommenderPoint.setOrderItemId(updateOrderItem.getOrderItemId());
+//								recommenderPoint.setMemberId(memberId);
+//								pointHistoryRepository.save(point);
+
+							}
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
                           
                             
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -936,8 +1021,40 @@ public class OrderItemServiceImpl extends CommonHeaderService implements OrderIt
         return (JSONObject) parser.parse(resString);
 
     }
+
+
     
-    
+  //포인트계산 rate는 퍼센트
+    void saveRecommendPointHistory(int orderItemPrice, int recommenderSeq, UsitOrder updateOrder,UsitOrderItem orderItems,int recommendAddPoint) {
+		
+		// 포인트적용
+		Member recommender = memberRepository.findOne(recommenderSeq);
+		int recommenderPresent = recommender.getTotalPoint() + recommendAddPoint;
+		recommender.setTotalPoint(recommenderPresent);
+		memberRepository.save(recommender);
+
+		// 포인트증감이력 저장
+		PointHistory recommenderPoint = new PointHistory();
+		recommenderPoint.setAddPoint(recommendAddPoint);
+		recommenderPoint.setRegId(updateOrder.getMemberId());
+		recommenderPoint.setBalancePoint(recommenderPresent);
+		recommenderPoint.setAddPct((recommendAddPoint / orderItemPrice) * 100);
+
+		// 상품구매코드
+		if (orderItems.getStoreKey() != null) {
+			if (recommendAddPoint > 0) {
+				recommenderPoint.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_RECOMMENDER);
+			} else {
+				recommenderPoint.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_RECOMMENDER_CANCEL);
+			}
+		}
+
+		recommenderPoint.setOrderItemId(orderItems.getOrderItemId());
+		recommenderPoint.setMemberId(recommender.getMemberId());
+		pointHistoryRepository.save(recommenderPoint);
+
+
+    }
     
     
     

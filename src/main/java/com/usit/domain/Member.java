@@ -23,7 +23,6 @@ import org.hibernate.annotations.FetchMode;
 
 import com.usit.util.TimeUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.usit.domain.MemberRole;
 
 import lombok.Data;
@@ -69,6 +68,15 @@ public class Member implements Serializable {
     
     @Column(name="commission_pct")
 	private int commissionPct;
+    
+    @Column(name="first_recommender")
+    private Integer firstRecommender;
+    
+    @Column(name="second_recommender")
+    private Integer secondRecommender;
+    
+    @Column(name="third_recommender")
+    private Integer thirdRecommender;
     
     @Column(name="mod_id")
     private Long modId;

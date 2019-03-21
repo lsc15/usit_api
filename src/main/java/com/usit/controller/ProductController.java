@@ -240,7 +240,7 @@ public class ProductController extends CommonHeaderController{
 	
 
 		/**
-		 * @title 수정상품요청건 등록
+		 * @title 수정할때만 상품요청건 등록
 		 * @param ApprovalProduct
 		 * @return
 		 */
@@ -260,7 +260,7 @@ public class ProductController extends CommonHeaderController{
 	     	approvalProduct.setRegId(memberId);
 	     	
 	     	productService.disableApprovalProduct(approvalProduct);
-	     	
+
 	     	
 	     	ApprovalProduct result = productService.createApprovalProduct(approvalProduct);
 	        
@@ -318,15 +318,15 @@ public class ProductController extends CommonHeaderController{
 	        String resultMsg = "";
 	        
 
-	     	SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+//	     	SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
 
-	     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
-	     	SellMember seller = sellMemberService.getMemberByMemeberId(sessionVO.getMemberId());
+//	     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+//	     	SellMember seller = sellMemberService.getMemberByMemeberId(sessionVO.getMemberId());
 	     	
-	     	if(!UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(seller.getMemberTypeCd())) {
-	     		LOGGER.warn("권한이 없습니다.");
-				throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
-	     	}
+//	     	if(!UsitCodeConstants.SELLMEMBER_TYPE_CD_MASTER.equals(seller.getMemberTypeCd())) {
+//	     		LOGGER.warn("권한이 없습니다.");
+//				throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
+//	     	}
 	     	
 	     	
 	     	ApprovalProduct result = productService.modifyApprovalProduct(approvalProduct);
@@ -405,6 +405,32 @@ public class ProductController extends CommonHeaderController{
 	     	
 	     	
 	     	ApprovalProduct data = productService.findApprovalProduct(approvalProductId);
+	        
+	        mav.addObject("result_code", resultCode);
+	        mav.addObject("result_msg", resultMsg);
+	        mav.addObject("data", data);
+			
+			 return mav;
+		}
+		
+		
+		
+		/**
+		 * @title 수정상품요청건 사용자 단건조회
+		 * @param approvalProductId
+		 * @return
+		 */
+		@GetMapping("/approval/product/{productId}")
+		public ModelAndView getApprovalProductByUser(@PathVariable int productId) {
+			
+			ModelAndView mav = new ModelAndView("jsonView");
+			
+			String resultCode = "0000";
+	        String resultMsg = "";
+
+	     	
+	     	
+	     	ApprovalProduct data = productService.findTop1ByProductIdOrderByApprovalProductIdDesc(productId);
 	        
 	        mav.addObject("result_code", resultCode);
 	        mav.addObject("result_msg", resultMsg);

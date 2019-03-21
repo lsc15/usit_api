@@ -3,6 +3,7 @@ package com.usit.service;
 import java.util.List;
 import java.util.Map;
 
+import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
 import com.usit.domain.ShareHistory;
 
@@ -11,6 +12,9 @@ public interface ShareHistoryService {
 	ShareHistory getShareHistory(int productId,String storeKey);
 	
 	List<ShareHistory> getShareHistoryByMemberId(Integer memberId);
+	
+	Member getShareMember(String recommenderStoreKey);
+	
 
 	ShareHistory createShareHistory(int productId,String storeKey);
 	

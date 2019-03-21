@@ -3,6 +3,7 @@ package com.usit.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,9 +12,15 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,13 +29,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.security.domain.SignedMember;
+import com.usit.app.spring.util.DateUtil;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
 import com.usit.domain.Category;
+import com.usit.domain.Member;
 import com.usit.domain.SellMember;
 import com.usit.domain.Unsubscribe;
 import com.usit.domain.UsitCode;
+import com.usit.domain.UsitEmail;
 import com.usit.service.AsyncService;
 import com.usit.service.CommonService;
 import com.usit.service.SellMemberService;
@@ -218,7 +228,7 @@ public class CommonController extends CommonHeaderController{
      * @throws Exception
      */
     @PostMapping("/codes/mails")
-	public ModelAndView sendMail(@RequestPart MultipartFile file, @RequestParam("from") String from, @RequestParam("title") String title, @RequestParam("content") String content){
+	public ModelAndView sendMail(@RequestPart MultipartFile file, @RequestParam("from") String from,@RequestParam("fromName") String fromName, @RequestParam("title") String title, @RequestParam("content") String content){
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -254,13 +264,13 @@ public class CommonController extends CommonHeaderController{
 			Unsubscribe unsubscribe = (Unsubscribe) iterator.next();
 			address.remove(unsubscribe.getEmail());
 		}
-        String fromName = "";
-        if("usitstorelink@usit.co.kr".equals(from)) {
-        	fromName = "storelink";
-        }else {
-        	fromName = "usit";
-        }
-        asyncService.sendPromotionEmails(from, fromName, address, title, content);
+//        String fromName = "";
+//        if("usitstorelink@usit.co.kr".equals(from)) {
+//        	fromName = "storelink";
+//        }else {
+//        	fromName = "usit";
+//        }
+        asyncService.savePromotionEmails(from, fromName, address, title, content);
 
         
         String result = "success";
@@ -270,6 +280,61 @@ public class CommonController extends CommonHeaderController{
 		
 		 return mav;
 	}
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * 영업메일 발송 호출
+     * @param request
+     * @param params
+     * @throws Exception
+     */
+    @Scheduled(cron = "0 10 * * * ?")
+	public void sendingMail() throws Exception{
+
+        Date Date = DateUtil.getDateFormat(DateUtil.FMT_DATE_YMD, DateUtil.getCurrDate());
+        Date = DateUtil.getAddDateFormat(Date, -2);
+        String sendDate = DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD, Date);
+        		
+        List<UsitEmail> list = asyncService.getPromotionEmails(sendDate);
+        
+
+        asyncService.sendBatchPromotionEmails(list);
+		
+	}
+    
+    
+    
+    /**
+     * 영업메일 발송 조회
+     * @param request
+     * @param params
+     * @throws Exception
+     */
+    @GetMapping("/emails/sending")
+	public ModelAndView getMail(@RequestParam("sendDate") String sendDate,@RequestParam("curPage") int curPage, @RequestParam("perPage") int perPage,@RequestParam(value="sendStatus", defaultValue = "") String sendStatus) throws Exception{
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        Pageable pageRequest = new PageRequest(curPage, perPage, Sort.Direction.DESC, "emailId");
+
+        Page<UsitEmail> list = asyncService.getPromotionEmailsForAdmin(sendDate,sendStatus,pageRequest);
+        
+
+        mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", list);	
+        return mav;
+	}
+    
+    
     
     
     /**
@@ -352,6 +417,74 @@ public class CommonController extends CommonHeaderController{
 		 return mav;
 	}
     
+    
+    
+    
+    
+    
+    
+    /**
+     * 프론트 버전관리 조회
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/codes/version/{masterCd}")
+	public ModelAndView getVersion(@PathVariable String masterCd) throws Exception {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        List<UsitCode> codes = null;
+        
+     	
+   		codes = commonService.getCodesByMasterCd(masterCd);
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", codes);
+		
+		 return mav;
+	}
+    
+    
+    
+    /**
+     * 프론트 버전관리 수정
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @PutMapping("/codes/version")
+	public ModelAndView putVersion(@RequestParam ("version") String version) throws Exception {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        UsitCode code = null;
+        
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+        
+        SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+     	if(UsitCodeConstants.USIT_MASTER_EMAIL_ADDRESS.equals(sessionVO.getMemberEmail())) {
+     		code = commonService.PutCurrentVersion(UsitCodeConstants.USIT_CODE_FRONT_DETAIL_CD,version);
+     	}else {
+     		LOGGER.warn("권한이 없습니다.");
+			throw new FrameworkException("-1001", "권한이 없습니다."); // 오류 리턴 예시
+     	}
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", code);
+		
+		 return mav;
+	}
     
     
     

@@ -299,7 +299,9 @@ public class CalculationController extends CommonHeaderController{
  			deliveryCal.setTypeCd(UsitCodeConstants.CACULATION_TYEP_CD_DELIVERY);
  			deliveryCal.setPurchaseConfirmDate(DateUtil.getCurrDate());
  			deliveryCal.setOrderItemId(usitOrderItem.getOrderItemId());
- 			deliveryCal.setAmount(usitOrderItem.getOrder().getDeliveryAmount());
+ 			//11/14일 이후 변경
+// 			deliveryCal.setAmount(usitOrderItem.getOrder().getDeliveryAmount());
+ 			deliveryCal.setAmount(usitOrderItem.getDeliveryFee().getAmount());
  			deliveryCal.setRegId(0);
  			deliveryCal.setRegDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
  			deliveryCal.setSellMemberId(usitOrderItem.getSellMemberId());

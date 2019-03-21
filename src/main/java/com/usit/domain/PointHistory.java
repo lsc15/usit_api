@@ -49,7 +49,7 @@ public class PointHistory implements Serializable {
 	private String pointTypeCd;
 	
 	@Column(name="add_pct")
-	private int addPct;
+	private double addPct;
 	
 	@Column(name="balance_point")
 	private int balancePoint;

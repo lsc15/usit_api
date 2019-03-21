@@ -62,6 +62,16 @@ public class MemberServiceImpl implements MemberService {
 		return memberRepository.findOne(memberId);
 	}
 	
+	
+	public List<Object[]> getRecommenderList(Integer memberId) {
+		return memberRepository.findRecommenderList(memberId);
+	}
+	
+	
+	public Member getMemberByUid(String uid) {
+		return memberRepository.findByMemberUid(uid);
+	}
+	
 
 	public Page<Member> readAll(PageRequest pageRequest) {
 //		List<Member> list = memberMapper.getMemberList();

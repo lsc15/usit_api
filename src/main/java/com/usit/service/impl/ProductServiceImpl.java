@@ -292,9 +292,20 @@ public class ProductServiceImpl implements ProductService{
 	}
 	
 	
+	
+	public ApprovalProduct findTop1ByProductIdOrderByApprovalProductIdDesc(int productId) {
+		
+		return approvalProductRepository.findTop1ByProductIdOrderByApprovalProductIdDesc(productId);
+	}
+	
+	
 		
 	//수정상품등록
 	public ApprovalProduct createApprovalProduct(ApprovalProduct approvalProduct) {
+		
+		Product oriProduct = productRepository.findOne(approvalProduct.getProductId());
+		oriProduct.setProductStatusCd(UsitCodeConstants.PRODUCT_STATUS_CD_APPROVAL);
+		
 		return approvalProductRepository.save(approvalProduct);
 	}
 		

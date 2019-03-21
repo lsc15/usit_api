@@ -157,6 +157,37 @@ public class PostingController extends CommonHeaderController{
     
     
     
+    @PostMapping("ra2")
+	public ModelAndView crawlingStore(@RequestBody PostingHistory postingHistory) {
+
+   		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        CrawlingUtil cu = new CrawlingUtil();
+        
+        Document verify = cu.getDocumentBody(postingHistory.getUrl());
+        Element data = null;
+        try {
+        data = verify.body();
+
+        }
+        catch (Exception e) {
+			// TODO: handle exception
+        	LOGGER.warn("포스트 히스토리 저장 실패.");
+			throw new FrameworkException("-1001", "올바른 url이 아니거나 body 부분을 포함하는 페이지가 아닙니다.");
+		}
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", data.toString());
+		
+		 return mav;
+	}
+    
+    
+    
+    
     
     //포스팅수정
   	@PutMapping("/{productId}")

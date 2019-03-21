@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.usit.app.spring.exception.FrameworkException;
 import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.UsitCodeConstants;
+import com.usit.domain.Member;
 import com.usit.domain.PointHistory;
 import com.usit.domain.ShareHistory;
 import com.usit.domain.UsitOrder;
@@ -83,6 +84,39 @@ public class ShareHistoryServiceImpl implements ShareHistoryService{
 
 	}
 	
+	
+	
+	
+	
+	public Member getShareMember(String recommenderStoreKey) {
+
+		AES256Util aes256Util = null;
+		String uId = null;
+		String today = null;
+		Member member = null;
+		try {
+			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			uId = aes256Util.decrypt(recommenderStoreKey);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+			today = TimeUtil.getZonedDateTimeNow("Asia/Seoul").format(formatter);
+
+			member = memberRepository.findByMemberUid(uId);
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOGGER.warn("공유 히스토리 저장 실패.");
+			throw new FrameworkException("-1001", "공유 URL이 올바르지 않습니다."); // 오류 리턴 예시
+		}
+
+		return member;
+
+	}
 	
 	
 

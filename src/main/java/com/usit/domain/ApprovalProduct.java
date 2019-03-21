@@ -48,6 +48,9 @@ public class ApprovalProduct implements Serializable {
 	
 	@Column(name="delivery_price_cut")
 	private int deliveryPriceCut;
+	
+	@Column(name="return_delivery_price")
+	private int returnDeliveryPrice;
 
 	@Column(name="detail_imgs")
 	private String detailImgs;

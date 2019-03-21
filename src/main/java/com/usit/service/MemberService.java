@@ -1,6 +1,8 @@
 package com.usit.service;
 
 import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,6 +18,12 @@ public interface MemberService {
 	Member getMemberByEmail(String email);
 	
 	Member getMemberByMemeberId(Integer memberId);
+	
+	
+	List<Object[]> getRecommenderList(Integer memberId);
+	
+	
+	Member getMemberByUid(String Uid);
 
 	Member createMember(Member member);
 	

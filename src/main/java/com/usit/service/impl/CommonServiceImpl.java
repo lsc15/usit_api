@@ -125,14 +125,13 @@ public class CommonServiceImpl extends CommonHeaderService implements CommonServ
     
     
     
-    public List<UsitCode> getCodes() {
+	public List<UsitCode> getCodes() {
 		List<UsitCode> codes = usitCodeRepository.findAll();
 
-    logger.debug("codes.size()", codes.size());
+		logger.debug("codes.size()", codes.size());
 
-
-    return codes;
-}
+		return codes;
+	}
     
     
     public List<Object> getCategoryStatistics() {
@@ -181,140 +180,130 @@ public class CommonServiceImpl extends CommonHeaderService implements CommonServ
 
 
 
+	public List<UsitCode> getCodesByMasterCd(String masterCd) {
+		List<UsitCode> codes = usitCodeRepository.findByMasterCd(masterCd);
 
-public List<UsitCode> getCodesByMasterCd(String masterCd) {
-    List<UsitCode> codes = usitCodeRepository.findByMasterCd(masterCd);
-    
-    logger.debug("codes.size()", codes.size());
+		logger.debug("codes.size()", codes.size());
 
-
-    return codes;
-}
+		return codes;
+	}
     
     
+	public UsitCode PutCurrentVersion(String detailCd, String version) {
+		UsitCode code = usitCodeRepository.findOne(detailCd);
+
+		code.setDetailCdNm(version);
+		usitCodeRepository.save(code);
+
+		return code;
+	}
+
+
+	/**
+	 * 택배사코드 조회
+	 * 
+	 * @param UsitOrderItem
+	 * @return HTTPCODE
+	 * @throws Exception
+	 */
+	public JSONObject getTrackerCompany() throws Exception {
+
+		trackerSender.setUrl(env.getProperty("sweettracker.rest.companylist.url"));
+		trackerSender.settKey(env.getProperty("sweettracker.rest.api_key"));
+
+		return trackerSender.sendCompanylistApi();
+	}
+
+	/**
+	 * @param UsitOrderItem
+	 * @return HTTPCODE
+	 * @throws Exception
+	 */
+	public JSONObject checkTracker(String trackingNumber, String deliveryCompanyCd) throws Exception {
+
+		trackerSender.setUrl(env.getProperty("sweettracker.rest.url"));
+		trackerSender.settKey(env.getProperty("sweettracker.rest.api_key"));
+		trackerSender.settCode(deliveryCompanyCd);
+
+		return trackerSender.send(trackingNumber);
+	}
+
+	/**
+	 * @param UsitOrderItem
+	 * @return HTTPCODE
+	 * @throws Exception
+	 */
+	public JSONObject checkSweetTrackerReturnAcceptDay() throws Exception {
+
+		trackerSender.setUrl(env.getProperty("sweettracker.rest.return.check.url"));
+		trackerSender.settTier(env.getProperty("sweettracker.rest.tier"));
+
+		return trackerSender.checkSweetTrackerReturnAcceptDay();
+	}
+
+	/**
+	 * @param UsitOrderItem
+	 * @return HTTPCODE
+	 * @throws Exception
+	 */
+	public JSONObject orderSweetTrackerReturn(Map<String, String> params) throws Exception {
+
+		if ("real".equals(params.get("mode"))) {
+			trackerSender.setUrl(env.getProperty("sweettracker.rest.return.order.url"));
+		} else {
+			trackerSender.setUrl(env.getProperty("sweettracker.rest.return.order.devurl"));
+		}
+		trackerSender.settTier(env.getProperty("sweettracker.rest.tier"));
+		trackerSender.setcUscde(env.getProperty("sweettracker.rest.cuscde"));
+
+		return trackerSender.orderSweetTrackerReturn(params);
+	}
+
+	/**
+	 * @param templateCode
+	 * @param variable[]
+	 * @param find
+	 *            variable list in alimtalk_message Table
+	 * @return HTTPCODE
+	 * @throws Exception
+	 */
+	public int sendAlimtalk(String templateCd, String mobile, String[] variable) throws Exception {
+
+		alimTalkSender.setUrl(env.getProperty("kakao.alimtalk.url"));
+		alimTalkSender.setUserId(env.getProperty("kakao.alimtalk.id"));
+		alimTalkSender.setUserPwd(env.getProperty("kakao.alimtalk.password"));
+		alimTalkSender.setMsgType(env.getProperty("kakao.alimtalk.msg_type"));
+		alimTalkSender.setMtFailover(env.getProperty("kakao.alimtalk.mt_failover"));
+		alimTalkSender.setSenderKey(env.getProperty("kakao.alimtalk.sender_key"));
+		alimTalkSender.setResponseMethod(env.getProperty("kakao.alimtalk.response_method"));
+		alimTalkSender.setSenderId(env.getProperty("kakao.alimtalk.sender_id"));
+		Map<String, String> paramMap = new HashMap<String, String>();
+
+		AlimtalkMessage kakao = alimtalkMessageRepository.findByTemplateCd(templateCd);
+
+		String content = makeContent(kakao.getContent(), variable);
+
+		paramMap.put("to", mobile);
+
+		paramMap.put("content", content);
+
+		paramMap.put("template_code", templateCd);
+
+		return alimTalkSender.send(paramMap, kakao);
+
+	}
 
 
 
+	@Override
+	public List<Unsubscribe> getUnsubscribeMails() {
+		return unsubscribeRepository.findAll();
+	}
 
-/**
- * 택배사코드 조회
- * @param UsitOrderItem
- * @return HTTPCODE
- * @throws Exception
- */
-public JSONObject getTrackerCompany() throws Exception{
-    
+	public Unsubscribe createUnsubscribe(Unsubscribe unsubscribe) {
+		return unsubscribeRepository.save(unsubscribe);
+	}
 
-	trackerSender.setUrl(env.getProperty("sweettracker.rest.companylist.url"));
-	trackerSender.settKey(env.getProperty("sweettracker.rest.api_key"));
-	
-    return trackerSender.sendCompanylistApi();
-}
-
-/**
- * @param UsitOrderItem
- * @return HTTPCODE
- * @throws Exception
- */
-public JSONObject checkTracker(String trackingNumber, String deliveryCompanyCd) throws Exception{
-    
-
-	trackerSender.setUrl(env.getProperty("sweettracker.rest.url"));
-	trackerSender.settKey(env.getProperty("sweettracker.rest.api_key"));
-	trackerSender.settCode(deliveryCompanyCd);
-	
-	
-    return trackerSender.send(trackingNumber);
-}
-
-
-
-/**
- * @param UsitOrderItem
- * @return HTTPCODE
- * @throws Exception
- */
-public JSONObject checkSweetTrackerReturnAcceptDay() throws Exception{
-    
-
-	trackerSender.setUrl(env.getProperty("sweettracker.rest.return.check.url"));
-	trackerSender.settTier(env.getProperty("sweettracker.rest.tier"));
-	
-	
-    return trackerSender.checkSweetTrackerReturnAcceptDay();
-}
-
-
-
-
-/**
- * @param UsitOrderItem
- * @return HTTPCODE
- * @throws Exception
- */
-public JSONObject orderSweetTrackerReturn(Map<String, String> params) throws Exception{
-    
-if("real".equals(params.get("mode"))) {
-	trackerSender.setUrl(env.getProperty("sweettracker.rest.return.order.url"));
-}else {
-	trackerSender.setUrl(env.getProperty("sweettracker.rest.return.order.devurl"));
-}
-	trackerSender.settTier(env.getProperty("sweettracker.rest.tier"));
-	trackerSender.setcUscde(env.getProperty("sweettracker.rest.cuscde"));
-	
-    return trackerSender.orderSweetTrackerReturn(params);
-}
-
-
-
-
-
-
-
-/**
- * @param templateCode
- * @param variable[]
- * @param find variable list in alimtalk_message Table
- * @return HTTPCODE
- * @throws Exception
- */
-public int sendAlimtalk(String templateCd,String mobile,String [] variable) throws Exception{
-    
-	alimTalkSender.setUrl(env.getProperty("kakao.alimtalk.url"));
-	alimTalkSender.setUserId(env.getProperty("kakao.alimtalk.id"));
-	alimTalkSender.setUserPwd(env.getProperty("kakao.alimtalk.password"));
-	alimTalkSender.setMsgType(env.getProperty("kakao.alimtalk.msg_type"));
-	alimTalkSender.setMtFailover(env.getProperty("kakao.alimtalk.mt_failover"));
-	alimTalkSender.setSenderKey(env.getProperty("kakao.alimtalk.sender_key"));
-	alimTalkSender.setResponseMethod(env.getProperty("kakao.alimtalk.response_method"));
-	alimTalkSender.setSenderId(env.getProperty("kakao.alimtalk.sender_id"));
-	Map<String, String> paramMap = new HashMap<String, String>();
-
-	AlimtalkMessage kakao = alimtalkMessageRepository.findByTemplateCd(templateCd);
-
-	String content = makeContent(kakao.getContent(), variable);
-
-	paramMap.put("to", mobile);
-
-	paramMap.put("content", content);
-
-	paramMap.put("template_code", templateCd);
-
-	return alimTalkSender.send(paramMap,kakao);
-
-}
-
-
-
-@Override
-public List<Unsubscribe> getUnsubscribeMails() {
-	return unsubscribeRepository.findAll();
-}
-
-
-public Unsubscribe createUnsubscribe(Unsubscribe unsubscribe) {
-	return unsubscribeRepository.save(unsubscribe);
-}
 
 
 	/**

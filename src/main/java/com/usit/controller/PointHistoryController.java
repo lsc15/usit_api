@@ -157,6 +157,7 @@ public class PointHistoryController extends CommonHeaderController{
 			point.setAddPoint(10000);
 			point.setRegId(share.getMemberId());
 			point.setBalancePoint(present);
+			point.setAddPct(0);
 			point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_EVENT);	
 			point.setMemberId(share.getMemberId());
 			pointHistoryService.addPointEvent(point);

@@ -20,6 +20,9 @@ public interface ApprovalProductRepository extends JpaRepository<ApprovalProduct
 	
 	public List<ApprovalProduct> findByProductId(Integer productId);
 	
+	
+	public ApprovalProduct findTop1ByProductIdOrderByApprovalProductIdDesc(Integer productId);
+	
 
 	
 

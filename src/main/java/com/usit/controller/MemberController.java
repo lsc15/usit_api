@@ -3,6 +3,11 @@ package com.usit.controller;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +43,7 @@ import com.usit.service.MemberService;
 import com.usit.service.PointHistoryService;
 import com.usit.service.SellMemberService;
 import com.usit.util.MailUtil;
+import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -66,7 +72,7 @@ public class MemberController extends CommonHeaderController{
 
 	
 	@PostMapping
-	public ModelAndView postUser(@RequestBody Member member) {
+	public ModelAndView postUser(@RequestBody Member member, @RequestParam(name = "recommenderStoreKey", required = false) String recommendStoreKey) {
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -74,12 +80,53 @@ public class MemberController extends CommonHeaderController{
         String resultMsg = "";
 		
 
-        
+        if(recommendStoreKey != null) {
+		// 추천인 설정
+		AES256Util aes256Util = null;
+		String uId = null;
+		Integer firstMemberId = null;
+		Integer secondMemberId = null;
+		Integer thirdMemberId = null;
+		try {
+			aes256Util = new AES256Util(UsitCodeConstants.USIT_AES256_KEY);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			uId = aes256Util.decrypt(recommendStoreKey);
+			firstMemberId = memberService.getMemberByUid(uId).getMemberId();
+			secondMemberId = memberService.getMemberByMemeberId(firstMemberId).getFirstRecommender();
+			thirdMemberId = memberService.getMemberByMemeberId(firstMemberId).getSecondRecommender();
+			
+			if(firstMemberId != null) {
+				member.setFirstRecommender(firstMemberId);
+			}
+			
+			if(secondMemberId != null) {
+				member.setSecondRecommender(secondMemberId);
+			}
+			
+			if(thirdMemberId != null) {
+				member.setThirdRecommender(thirdMemberId);
+			}
+			
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOGGER.warn("추천인 조회 실패.");
+			throw new FrameworkException("-1001", "추천인 정보가 바르지 않습니다."); // 오류 리턴 예시
+		}
+        }else {
+        	member.setFirstRecommender(0);
+        	member.setSecondRecommender(0);
+        	member.setThirdRecommender(0);
+        }
         /**
          * 기본 50% 커미션
          */
         member.setCommissionPct(50);
-        
         member.setWithdrawablePoint(10000);
 		Member result = memberService.createMember(member);
 		 
@@ -91,6 +138,7 @@ public class MemberController extends CommonHeaderController{
 		point.setPointTypeCd(UsitCodeConstants.POINT_TYPE_CD_EVENT);
 		point.setMemberId(result.getMemberId());
 		pointHistoryService.addPoint(point);
+		
 		 
 		mav.addObject("result_code", resultCode);
 	    mav.addObject("result_msg", resultMsg);
@@ -242,7 +290,7 @@ public class MemberController extends CommonHeaderController{
 	
 	
 	@PostMapping("/token")
-	public ModelAndView getUseInfo(@RequestBody VerifyToken token) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+	public ModelAndView getUserInfo(@RequestBody VerifyToken token) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		
@@ -275,6 +323,112 @@ public class MemberController extends CommonHeaderController{
 		return mav;
 		
 	}
+	
+	
+	
+	
+	@GetMapping("/recommenders/token")
+	public ModelAndView getRecommenderUserInfo() {
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+
+        SignedMember userInfo = getSignedMember(); // 로그인한 사용자의 정보를 담고 있는 객체
+
+     	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
+
+        List<Object[]> list = memberService.getRecommenderList(sessionVO.getMemberId());
+    	
+/*
+    	int size = list.size();
+    	List<List<HashMap<String,String>>> dataList = new ArrayList<List<HashMap<String,String>>> (); 
+    	for (int i = 0; i < size; i++) {
+    		List<HashMap<String,String>> orgArgsList = new ArrayList<HashMap<String,String>>();
+			
+			
+			Object[] resultSet = list.get(i);
+			if(resultSet[0] != null) {
+			HashMap<String,String> orgArgs = new HashMap<String,String>();
+			orgArgs.put("memberId", String.valueOf(resultSet[0]));
+			orgArgs.put("memberNm", String.valueOf(resultSet[1]));
+			orgArgs.put("parent", String.valueOf(55));
+			orgArgsList.add(orgArgs);
+			}
+			
+			if(resultSet[2] != null) {
+			HashMap<String,String> orgArgs = new HashMap<String,String>();
+			orgArgs.put("memberId", String.valueOf(resultSet[2]));
+			orgArgs.put("memberNm", String.valueOf(resultSet[3]));
+			orgArgs.put("parent", String.valueOf(resultSet[0]));
+			orgArgsList.add(orgArgs);
+			}
+			if(resultSet[4] != null) {
+			HashMap<String,String> orgArgs = new HashMap<String,String>();
+			orgArgs.put("memberId", String.valueOf(resultSet[4]));
+			orgArgs.put("memberNm", String.valueOf(resultSet[5]));
+			orgArgs.put("parent", String.valueOf(resultSet[2]));
+			orgArgsList.add(orgArgs);
+			}
+			
+			dataList.add(orgArgsList);
+		}
+		
+	*/	
+        
+        
+        
+        
+        //2안
+        int size = list.size();
+    	List<HashMap<String,String>> dataList = new ArrayList<HashMap<String,String>> (); 
+    	for (int i = 0; i < size; i++) {
+			
+			
+			Object[] resultSet = list.get(i);
+			if (resultSet[0] != null) {
+				HashMap<String, String> orgArgs = new HashMap<String, String>();
+				orgArgs.put("memberId", String.valueOf(resultSet[0]));
+				orgArgs.put("memberNm", String.valueOf(resultSet[1]));
+				orgArgs.put("parent", String.valueOf(55));
+				dataList.add(orgArgs);
+			}
+
+			if (resultSet[2] != null) {
+				HashMap<String, String> orgArgs = new HashMap<String, String>();
+				orgArgs.put("memberId", String.valueOf(resultSet[2]));
+				orgArgs.put("memberNm", String.valueOf(resultSet[3]));
+				orgArgs.put("parent", String.valueOf(resultSet[0]));
+				dataList.add(orgArgs);
+			}
+			if(resultSet[4] != null) {
+			
+				HashMap<String,String> orgArgs = new HashMap<String,String>();
+				orgArgs.put("memberId", String.valueOf(resultSet[4]));
+				orgArgs.put("memberNm", String.valueOf(resultSet[5]));
+				orgArgs.put("parent", String.valueOf(resultSet[2]));
+				dataList.add(orgArgs);	
+			}
+			
+		}
+		
+    	//---------------------------------------------------중복제거----------------------------------------
+        HashSet<HashMap<String, String>> distinctData = new HashSet<HashMap<String,String>>(dataList);
+        dataList = new ArrayList<HashMap<String,String>>(distinctData);
+        //---------------------------------------------------중복제거----------------------------------------
+    	
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", dataList);
+//        }else {
+//          	LOGGER.warn("@@@@@@@@@@@정상적인 접근이 아닙니다.");
+//			throw new FrameworkException("-1001", "해당 토큰은 유효하지 않습니다."); // 오류 리턴 예시
+//        }
+
+		return mav;
+		
+	}
 
 	
 	
@@ -291,7 +445,6 @@ public class MemberController extends CommonHeaderController{
 
      	SessionVO sessionVO = userInfo.getMemberInfo(); // 로그인한 사용자의 정보로 부터 상세정보 받아옴
 		Member verifyMember = memberService.getMemberByMemeberId(member.getMemberId());
-		
 		if(verifyMember==null) {
 			//인증실패
 			LOGGER.warn("인증에 실패하였습니다.");

@@ -1,12 +1,14 @@
 package com.usit.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,19 @@ public class CrawlingUtil {
             }
  
         }
+		return doc;
+    }
+    
+    public Document getDocumentBody(String resource) {
+
+		 
+    	Document doc = null;
+		try {
+			doc = Jsoup.connect(resource).get();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return doc;
     }
 

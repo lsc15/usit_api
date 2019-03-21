@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -22,6 +23,7 @@ import com.usit.app.spring.util.AES256Util;
 import com.usit.app.spring.util.SessionVO;
 import com.usit.app.spring.util.UsitCodeConstants;
 import com.usit.app.spring.web.CommonHeaderController;
+import com.usit.domain.Member;
 import com.usit.domain.ShareHistory;
 import com.usit.service.ShareHistoryService;
 import com.usit.util.TimeUtil;
@@ -117,5 +119,41 @@ public class ShareController extends CommonHeaderController{
 		
 		 return mav;
 	}
+    
+    
+    
+    
+    /**
+     * 판매추천자 조회
+     * @param request
+     * @param params
+     * @return 해당스토어키유저의 정보
+     * @throws UnsupportedEncodingException 
+     * @throws GeneralSecurityException 
+     * @throws NoSuchAlgorithmException 
+     * @throws Exception
+     */
+    @GetMapping("/storekey")
+	public ModelAndView getShareMember(@RequestParam("recommenderStoreKey") String recommenderStoreKey) throws UnsupportedEncodingException, NoSuchAlgorithmException, GeneralSecurityException {
+
+   		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        
+
+        
+     	Member member = shareHistoryService.getShareMember(recommenderStoreKey);
+		
+
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", member);
+		
+		 return mav;
+	}
+    
+    
     
 }

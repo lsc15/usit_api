@@ -31,6 +31,7 @@ public interface CommonService {
     
     public List<Unsubscribe> getUnsubscribeMails();
     public Unsubscribe createUnsubscribe(Unsubscribe unsubscribe);
+    public UsitCode PutCurrentVersion(String detailCd, String version);
     
     
     
