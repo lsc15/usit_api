@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.usit.app.spring.util.DateUtil;
 import com.usit.domain.UsitEmail;
+import com.usit.domain.UsitEmailContent;
+import com.usit.repository.UsitEmailContentRepository;
 import com.usit.repository.UsitEmailRepository;
 import com.usit.service.AsyncService;
 import com.usit.util.MailUtil;
@@ -36,6 +38,9 @@ public class AsyncServiceImpl implements AsyncService{
     
     @Autowired
 	UsitEmailRepository usitEmailRepository;
+    
+    @Autowired
+	UsitEmailContentRepository usitEmailContentRepository;
     
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -93,59 +98,60 @@ public class AsyncServiceImpl implements AsyncService{
     }
     
     
-    public void sendBatchPromotionEmails(List<UsitEmail> list){
-        log.info("sendPromotionEmails starts");
-        MailUtil mu = new MailUtil();
-        int times = 14;
-        int limit = 14;
-        int loop = list.size() / limit;
-        int remainder = list.size() % limit;
-        int index = 0;
-        
-        
-        for (int i = 0; i < loop; i++) {
-        	for(int j = 0;j < times; j++) {
-        		try {
-        			Thread.sleep(100L);
-					mu.sendPromotionMail(list.get(index).getFrom(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), list.get(index).getContent());
-					jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","Y",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),Long.valueOf(list.get(index).getEmailId()) );
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","F",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
-					e.printStackTrace();
-				}
-        		index++;
-        		if(index == limit) {
-        			limit = limit + times;
-        			try {
-						Thread.sleep(1100L);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}    //Intentional delay
-        			break;
-        		}
-        		
-        	}
-        	
-    	}
-        for (int l = 0; l < remainder; l++) {
-        	try {
-        		Thread.sleep(100L);
-				mu.sendPromotionMail(list.get(index).getFrom(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), list.get(index).getContent());
-				jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","Y",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","F",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
-				e.printStackTrace();
-			}
-        	index++;
-        	
-    	}
-        
-        
-        
-        log.info("sendPromotionEmails completed");
+    public void sendBatchPromotionEmails(String successYn,Integer emailId){
+    	jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?",successYn,TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(), emailId);
+//        log.info("sendPromotionEmails starts");
+//        MailUtil mu = new MailUtil();
+//        int times = 14;
+//        int limit = 14;
+//        int loop = list.size() / limit;
+//        int remainder = list.size() % limit;
+//        int index = 0;
+//        
+//        
+//        for (int i = 0; i < loop; i++) {
+//        	for(int j = 0;j < times; j++) {
+//        		try {
+//        			Thread.sleep(100L);
+//					mu.sendPromotionMail(list.get(index).getFrom(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), list.get(index).getContent());
+//					jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","Y",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),Long.valueOf(list.get(index).getEmailId()) );
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","F",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
+//					e.printStackTrace();
+//				}
+//        		index++;
+//        		if(index == limit) {
+//        			limit = limit + times;
+//        			try {
+//						Thread.sleep(1100L);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}    //Intentional delay
+//        			break;
+//        		}
+//        		
+//        	}
+//        	
+//    	}
+//        for (int l = 0; l < remainder; l++) {
+//        	try {
+//        		Thread.sleep(100L);
+//				mu.sendPromotionMail(list.get(index).getFrom(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), list.get(index).getContent());
+//				jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","Y",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				jdbcTemplate.update("UPDATE usit_email SET send_status = ?, mod_date = ?  WHERE email_id = ?","F",TimeUtil.getZonedDateTimeNow("Asia/Seoul").toString(),list.get(index).getEmailId() );
+//				e.printStackTrace();
+//			}
+//        	index++;
+//        	
+//    	}
+//        
+//        
+//        
+//        log.info("sendPromotionEmails completed");
     }
     
     
@@ -154,11 +160,16 @@ public class AsyncServiceImpl implements AsyncService{
     public void savePromotionEmails(String from, String fromName, ArrayList<String> address,String title,String content){
         log.info("savePromotionEmails starts");
         
+        UsitEmailContent uec = new UsitEmailContent();
+        uec.setContent(content);
+        uec.setRegId(0);
+        UsitEmailContent data = usitEmailContentRepository.save(uec);
+        
         List<UsitEmail> list = new ArrayList<UsitEmail>();
         for (String mail : address) {
         	UsitEmail email = new UsitEmail();
         	email.setEmail(mail);
-        	email.setFrom(from);
+        	email.setFromEmail(from);
         	
 //            if("usitstorelink@usit.co.kr".equals(from)) {
 //            	fromName = "storelink";
@@ -169,7 +180,7 @@ public class AsyncServiceImpl implements AsyncService{
         	email.setFromName(fromName);
         	email.setTitle(title);
         	email.setSendStatus("N");
-        	email.setContent(content);
+        	email.setUsitEmailContentId(data.getUsitEmailContentId());
         	email.setRegId(0);
         	email.setRegDate(TimeUtil.getZonedDateTimeNow("Asia/Seoul"));
         	list.add(email);
@@ -192,6 +203,14 @@ public class AsyncServiceImpl implements AsyncService{
 		return list;
     }
  
+    
+    
+    public UsitEmailContent getPromotionEmailContent(int usitEmailContentId){
+        	
+        UsitEmailContent usitEmailContent = usitEmailContentRepository.findOne(usitEmailContentId);
+			
+		return usitEmailContent;
+    }
  
     
     

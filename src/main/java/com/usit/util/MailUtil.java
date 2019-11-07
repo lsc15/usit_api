@@ -295,7 +295,9 @@ public class MailUtil {
     // Create a Session object to represent a mail session with the specified properties. 
     	Session session = Session.getDefaultInstance(props);
 
-    String unsubscribe ="<br><br><p>수신거부 <a href=\"http://www.usit.co.kr/unsubscribe/"+to+"\" target=\"_blank\" \">Unsubscribe</a></p>";
+//    String unsubscribe ="<br><br><p>수신거부 <a href=\"http://www.usit.co.kr/unsubscribe/"+to+"\" target=\"_blank\" \">Unsubscribe</a></p>";
+    String unsubscribe ="<br><br><p>수신거부 <a href=\"http://usitapidev-env.9h8urwgtr9.ap-northeast-2.elasticbeanstalk.com/codes/unsubscribe?email="+to+"\" target=\"_blank\" \">Unsubscribe</a></p>";
+    	
     // Create a message with the specified information. 
     MimeMessage msg = new MimeMessage(session);
     msg.setFrom(new InternetAddress(from,fromName));

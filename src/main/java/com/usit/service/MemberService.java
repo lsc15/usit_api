@@ -19,9 +19,7 @@ public interface MemberService {
 	
 	Member getMemberByMemeberId(Integer memberId);
 	
-	
 	List<Object[]> getRecommenderList(Integer memberId);
-	
 	
 	Member getMemberByUid(String Uid);
 

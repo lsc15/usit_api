@@ -15,10 +15,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 @Configuration
 public class AWSConfig {
 
-	@Value("AKIAJYNH72T4FI57I4XQ")
+	@Value("AKIAIH6MQ44P6C7Q4IOQ")
 	private String awsId;
 	
-	@Value("obPRyB81F9h05H1ql1ll97K3uS2pNpzD0YI3T8pc")
+	@Value("FcpU1lGr1JIXCM3IZso4iNN7/w5gHoj2vQAwVJlb")
 	private String awsKey;
 	
 	@Bean

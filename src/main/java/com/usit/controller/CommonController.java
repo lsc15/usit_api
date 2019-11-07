@@ -7,11 +7,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,10 +41,12 @@ import com.usit.domain.SellMember;
 import com.usit.domain.Unsubscribe;
 import com.usit.domain.UsitCode;
 import com.usit.domain.UsitEmail;
+import com.usit.domain.UsitEmailContent;
 import com.usit.service.AsyncService;
 import com.usit.service.CommonService;
 import com.usit.service.SellMemberService;
 import com.usit.util.MailUtil;
+import com.usit.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,6 +63,9 @@ public class CommonController extends CommonHeaderController{
     @Autowired
     AsyncService asyncService;
 
+    @Autowired
+    private Environment env;
+    
     private static Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
 
     
@@ -284,6 +291,45 @@ public class CommonController extends CommonHeaderController{
     
     
     
+    /**
+     * 영업메일 발송 호출
+     * @param request
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/codes/store-link/mails")
+	public ModelAndView sendStoreLinkMail(HttpServletRequest request, @RequestParam("from") String from,@RequestParam("to") String to,@RequestParam("fromName") String fromName, @RequestParam("title") String title, @RequestParam("content") String content){
+
+		ModelAndView mav = new ModelAndView("jsonView");
+		
+		String resultCode = "0000";
+        String resultMsg = "";
+        
+        
+
+        String senderKey = request.getHeader("senderKey");
+        
+        if(!env.getProperty("storelink.rest.api.key").equals(senderKey)) {
+     	   logger.warn("비정상적인 접근입니다.");
+     	   throw new FrameworkException("-1001", "비정상적인 접근입니다"); // 오류 리턴 예시
+        }
+        
+        ArrayList<String> address = new ArrayList<String>();
+        address.add(to);
+        
+        asyncService.savePromotionEmails(from, fromName, address, title, content);
+
+        
+        String result = "success";
+		mav.addObject("result_code", resultCode);
+        mav.addObject("result_msg", resultMsg);
+        mav.addObject("data", result);
+		
+		 return mav;
+	}
+    
+    
     
     
     
@@ -297,14 +343,87 @@ public class CommonController extends CommonHeaderController{
     @Scheduled(cron = "0 10 * * * ?")
 	public void sendingMail() throws Exception{
 
+    	if(!"real".equals(env.getProperty("running.system"))) {
         Date Date = DateUtil.getDateFormat(DateUtil.FMT_DATE_YMD, DateUtil.getCurrDate());
         Date = DateUtil.getAddDateFormat(Date, -2);
         String sendDate = DateUtil.getDateStringFormat(DateUtil.FMT_DATE_YMD, Date);
         		
         List<UsitEmail> list = asyncService.getPromotionEmails(sendDate);
+        UsitEmailContent uec = null;
+        if(list != null && list.size() > 0 ) {
+        	uec = asyncService.getPromotionEmailContent(list.get(0).getUsitEmailContentId());
+        }
         
-
-        asyncService.sendBatchPromotionEmails(list);
+        LOGGER.info("sendPromotionEmails starts");
+        MailUtil mu = new MailUtil();
+        int times = 14;
+        int limit = 14;
+        int loop = list.size() / limit;
+        int remainder = list.size() % limit;
+        int index = 0;
+        
+        
+        for (int i = 0; i < loop; i++) {
+        	
+        	//같은 메일 내용인지 판단
+        	if(list.get(index).getUsitEmailContentId() != uec.getUsitEmailContentId()) {
+        		uec = asyncService.getPromotionEmailContent(list.get(index).getUsitEmailContentId());
+        	}
+        	
+        	for(int j = 0;j < times; j++) {
+        		try {
+        			Thread.sleep(100L);
+					mu.sendPromotionMail(list.get(index).getFromEmail(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), uec.getContent());
+					asyncService.sendBatchPromotionEmails("Y",list.get(index).getEmailId());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					asyncService.sendBatchPromotionEmails("F",list.get(index).getEmailId());
+					e.printStackTrace();
+				}
+        		index++;
+        		if(index == limit) {
+        			limit = limit + times;
+        			try {
+						Thread.sleep(1100L);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}    //Intentional delay
+        			break;
+        		}
+        		
+        	}
+        	
+    	}
+        for (int l = 0; l < remainder; l++) {
+        	
+        	//같은 메일 내용인지 판단
+        	if(list.get(index).getUsitEmailContentId() != uec.getUsitEmailContentId()) {
+        		uec = asyncService.getPromotionEmailContent(list.get(index).getUsitEmailContentId());
+        	}
+        	
+        	try {
+        		Thread.sleep(100L);
+				mu.sendPromotionMail(list.get(index).getFromEmail(), list.get(index).getFromName(), env.getProperty("aws.email.id"), env.getProperty("aws.email.pass"), list.get(index).getEmail(), list.get(index).getTitle(), uec.getContent());
+				asyncService.sendBatchPromotionEmails("Y",list.get(index).getEmailId());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				asyncService.sendBatchPromotionEmails("F",list.get(index).getEmailId());
+				e.printStackTrace();
+			}
+        	index++;
+        	
+    	}
+        
+        
+        
+        LOGGER.info("sendPromotionEmails completed");
+    }
+        
+        
+        
+        
+        
 		
 	}
     
@@ -344,29 +463,27 @@ public class CommonController extends CommonHeaderController{
      * @return
      * @throws Exception
      */
-    @PostMapping("/codes/unsubscribe")
-	public ModelAndView receiveUnsubscribeMail(@RequestParam("email") String email) throws Exception {
+    @GetMapping("/codes/unsubscribe")
+	public String receiveUnsubscribeMail(@RequestParam("email") String email) throws Exception {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		
-		String resultCode = "0000";
-        String resultMsg = "";
+//		String resultCode = "0000";
+//        String resultMsg = "";
         
         Unsubscribe unsubscribe = new Unsubscribe();
         unsubscribe.setEmail(email);
-        Unsubscribe data = null;
+        String data = null;
         try {
-        	data = commonService.createUnsubscribe(unsubscribe);
+        	commonService.createUnsubscribe(unsubscribe);
+        	data = "<B1>수신거부가 완료되었습니다.</B1>";
         }catch (Exception e) {
 		
         }
         
         
-		mav.addObject("result_code", resultCode);
-        mav.addObject("result_msg", resultMsg);
-        mav.addObject("data", data);
-		
-		 return mav;
+//        mav.addObject(data);
+		 return data;
 	}
     
     

@@ -1,6 +1,10 @@
 package com.usit.controller;
 
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -810,6 +815,43 @@ public class UsitOrderItemController extends CommonHeaderController{
      	}
      }
     
+ 	
+ 	
+ 	 // 택배사 반송상태 동기화 초 분 시 일 월 주(년)
+// 	@Scheduled(cron = "1 * * * * ?")
+     public void test() throws Exception{
+     	if("real".equals(env.getProperty("running.system"))) {
+     		
+     	HttpURLConnection connection = null;
+        Document doc = null;
+        boolean result = false;
+        try {
+            // 요청 URL
+            URL url = new URL("http://ipecho.net/plain");
+            connection = (HttpURLConnection) url.openConnection();
+            // 요청 방식(GET or POST)
+            connection.setRequestMethod("GET");
+            // 요청응답 타임아웃 설정
+            connection.setConnectTimeout(3000);
+            // 읽기 타임아웃 설정
+            connection.setReadTimeout(3000);
+            
+            // 요청한 URL에 대한 응답 내용 출력.
+            BufferedReader reader = 
+                    new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+            StringBuffer buffer = new StringBuffer();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line).append("\r\n");
+            }
+            reader.close();
+            logger.info("@@아이퓌 : "+buffer.toString());
+      	
+     	}catch (Exception e) {
+			// TODO: handle exception
+		}
+     	}
+     }
     
      
 

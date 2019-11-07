@@ -2,6 +2,9 @@ package com.usit.app.spring.util;
 
 public class UsitCodeConstants {
 	
+	public static final String USIT_MASTER_EMAIL_ADDRESS = "eunvanz@gmail.com";
+	public static final String USIT_CODE_FRONT_DETAIL_CD = "3200";
+	
 	public static final String USIT_PRODUCT_URL_PREFIX = "https://usit.co.kr/product/";
 	
 	public static final String USIT_ENCODE_UTF8 = "UTF-8";
@@ -57,6 +60,7 @@ public class UsitCodeConstants {
     public static final String PRODUCT_STATUS_CD_TEMP = "2201";
     public static final String PRODUCT_STATUS_CD_DELETE = "2204";
     public static final String PRODUCT_STATUS_CD_ENROLL = "2203";
+    public static final String PRODUCT_STATUS_CD_APPROVAL = "2206";
     
     /* 포인트 적립유형 */
     public static final String POINT_TYPE_CD_PURCHASE ="1501";
@@ -68,8 +72,9 @@ public class UsitCodeConstants {
     public static final String POINT_TYPE_CD_WITHDRAW ="1507";
     public static final String POINT_TYPE_CD_WITHDRAW_CANCEL ="1508";
     
-    public static final String POINT_TYPE_CD_INFLUENCER = "1510";
+    public static final String POINT_TYPE_CD_RECOMMENDER = "1510";
     public static final String POINT_TYPE_CD_EVENT = "1511";
+    public static final String POINT_TYPE_CD_RECOMMENDER_CANCEL = "1512";
 
     
     /*판매자 상태 코드*/
@@ -113,6 +118,15 @@ public class UsitCodeConstants {
     
     /* 배송완료 후 구매확정일 차감일 */
     public static final int PURCHASE_COMPLETE_DATE = 7;
+    
+    
+    /* 추천인 추가 포인트적립률 */
+    
+    public static final double FIRST_RECOMMEND_RATE = 2.5;
+    
+    public static final double SECOND_RECOMMEND_RATE = 1;
+    
+    public static final double THIRD_RECOMMEND_RATE = 0.5;
     
 
     

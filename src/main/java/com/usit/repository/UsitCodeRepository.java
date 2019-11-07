@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.usit.domain.UsitCode;
 
 @Repository
-public interface UsitCodeRepository extends JpaRepository<UsitCode, Integer>{
+public interface UsitCodeRepository extends JpaRepository<UsitCode, String>{
 
 
     public List<UsitCode> findByMasterCd(String masterCd);
